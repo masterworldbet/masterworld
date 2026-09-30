@@ -166,6 +166,177 @@ export default function Home() {
           </div>
         </section>
 
+        <style>{`
+          .demoMoneyWrap {
+            width: 100%;
+            margin-top: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+          }
+
+          .demoLabel {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #f5f5f5;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: .1px;
+          }
+
+          .demoDot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ffd54a;
+            box-shadow: 0 0 10px rgba(255, 213, 74, .7);
+            flex: 0 0 auto;
+          }
+
+          .demoMoneyBox,
+          .demoLuckyBox {
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, .10);
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(24,24,24,.96), rgba(12,12,12,.96));
+            box-shadow: 0 10px 28px rgba(0,0,0,.28);
+          }
+
+          .demoMoneyTitle,
+          .demoLuckyTitle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 13px 15px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+          }
+
+          .demoMoneyTitle small,
+          .demoLuckyTitle small {
+            color: #8d8d8d;
+            font-size: 9px;
+            font-weight: 600;
+            white-space: nowrap;
+          }
+
+          .demoMoneyList {
+            display: flex;
+            flex-direction: column;
+          }
+
+          .demoMoneyItem {
+            display: grid;
+            grid-template-columns: 34px minmax(0,1fr) auto;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 15px;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+          }
+
+          .demoMoneyItem:last-child { border-bottom: 0; }
+
+          .demoGameIcon {
+            width: 32px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            background: rgba(255,255,255,.06);
+            font-size: 17px;
+          }
+
+          .demoMoneyInfo {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+          }
+
+          .demoMoneyInfo strong {
+            color: #fff;
+            font-size: 12px;
+            line-height: 1.25;
+          }
+
+          .demoMoneyInfo span {
+            color: #888;
+            font-size: 10px;
+          }
+
+          .demoStatus,
+          .demoWin {
+            color: #ffd54a;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .5px;
+            border: 1px solid rgba(255,213,74,.28);
+            background: rgba(255,213,74,.07);
+            padding: 4px 7px;
+            border-radius: 999px;
+          }
+
+          .demoTableHead,
+          .demoTableRow {
+            display: grid;
+            grid-template-columns: 1.35fr 1fr .75fr .65fr;
+            gap: 8px;
+            align-items: center;
+            padding: 10px 14px;
+          }
+
+          .demoTableHead {
+            color: #777;
+            font-size: 9px;
+            font-weight: 700;
+            background: rgba(255,255,255,.025);
+          }
+
+          .demoTableRow {
+            color: #ddd;
+            font-size: 10px;
+            border-top: 1px solid rgba(255,255,255,.055);
+          }
+
+          .demoTableRow > div {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+
+          .demoUser { color: #fff; font-weight: 700; }
+          .demoGame, .demoTime { color: #929292; }
+          .demoWin { justify-self: start; }
+
+          .demoFooter {
+            padding: 11px 14px 13px;
+            color: #666;
+            font-size: 9px;
+            line-height: 1.5;
+            border-top: 1px solid rgba(255,255,255,.06);
+          }
+
+          @media (max-width: 420px) {
+            .demoMoneyTitle, .demoLuckyTitle {
+              align-items: flex-start;
+              flex-direction: column;
+            }
+            .demoTableHead, .demoTableRow {
+              grid-template-columns: 1.3fr .9fr .65fr .55fr;
+              gap: 5px;
+              padding-left: 11px;
+              padding-right: 11px;
+            }
+          }
+        `}</style>
+
         <div id="how" className="infoBox">
           <div className="infoTitle">เริ่มต้นง่าย ๆ</div>
           <div className="steps">
