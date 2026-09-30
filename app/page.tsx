@@ -15,8 +15,7 @@ export default function Home() {
           <span>MTWB</span>
         </div>
 
-        <a
-          className="promoLink"
+        <div className="promoLink">
           <Image
             src="/promo-square.png"
             alt="MTWB"
@@ -25,7 +24,7 @@ export default function Home() {
             priority
             className="promoImage"
           />
-        </a>
+        </div>
 
         <div className="actionButtons">
           <LineButton href={lineUrl}>เข้าสู่ LINE</LineButton>
@@ -103,20 +102,11 @@ export default function Home() {
           width:100%;
           overflow:hidden;
           border-radius:20px;
-          text-decoration:none;
           background:#0b0b0b;
           border:1px solid rgba(255,255,255,.09);
           box-shadow:
             0 18px 45px rgba(0,0,0,.45),
             0 0 24px rgba(255,190,40,.08);
-          transition:transform .2s ease,box-shadow .2s ease;
-        }
-
-        .promoLink:hover{
-          transform:translateY(-2px);
-          box-shadow:
-            0 22px 52px rgba(0,0,0,.52),
-            0 0 30px rgba(255,190,40,.13);
         }
 
         .promoImage{
@@ -151,7 +141,10 @@ export default function Home() {
           box-shadow:
             0 8px 24px rgba(0,0,0,.35),
             inset 0 1px 0 rgba(255,255,255,.08);
-          transition:transform .18s ease,border-color .18s ease,background .18s ease;
+          transition:
+            transform .18s ease,
+            border-color .18s ease,
+            background .18s ease;
         }
 
         .contactButton:hover{
