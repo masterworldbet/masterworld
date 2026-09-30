@@ -1,5 +1,5 @@
 import Image from "next/image";
-import LineButton from "@/components/LineButton";
+import LineButton from "../components/LineButton";
 
 const lineUrl = process.env.NEXT_PUBLIC_LINE_URL || "https://line.me/";
 
