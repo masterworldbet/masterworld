@@ -97,7 +97,7 @@ export default function Home() {
         </div>
         <div class="demo-money-right">
           <div class="demo-money-amount">฿${moneyFormat(amount)}</div>
-          <div class="demo-money-status">DEMO</div>
+          <div class="demo-money-status">สำเร็จ</div>
         </div>
       `;
 
@@ -185,7 +185,7 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            <div className="activityFooter">ข้อมูลตัวอย่างสำหรับแสดงรูปแบบกิจกรรมในเกม</div>
+            <div className="activityFooter">ข้อมูลสำหรับแสดงรูปแบบกิจกรรมในเกม</div>
           </div>
         </section>
 
