@@ -2,28 +2,33 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
 
-const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+const pixelIds = (process.env.NEXT_PUBLIC_META_PIXEL_ID || "")
+  .split(",")
+  .map((id) => id.trim())
+  .filter(Boolean);
+
+const pixelInit = pixelIds
+  .map((id) => {
+    const safeId = id.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+    return `fbq('init', '${safeId}');`;
+  })
+  .join("\n");
 
 export const metadata: Metadata = {
   title: "MASTER WORLD CLASS | เกมออนไลน์",
   description: "หน้าแนะนำเกมออนไลน์ของ MASTER WORLD CLASS",
-  robots: {
-    index: true,
-    follow: true,
-  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="th">
       <body>
-        {pixelId && (
+        {pixelIds.length > 0 ? (
           <Script
-            id="meta-pixel"
+            id="meta-pixel-base"
             strategy="afterInteractive"
             dangerouslySetInnerHTML={{
               __html: `
@@ -33,16 +38,14 @@ export default function RootLayout({
                 if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
                 n.queue=[];t=b.createElement(e);t.async=!0;
                 t.src=v;s=b.getElementsByTagName(e)[0];
-                s.parentNode.insertBefore(t,s)}
-                (window, document,'script',
-                'https://connect.facebook.net/en_US/fbevents.js');
+                s.parentNode.insertBefore(t,s)}(window, document,
+                'script','https://connect.facebook.net/en_US/fbevents.js');
 
-                fbq('init', '${pixelId}');
-                fbq('track', 'PageView');
+                ${pixelInit}
               `,
             }}
           />
-        )}
+        ) : null}
 
         {children}
       </body>
