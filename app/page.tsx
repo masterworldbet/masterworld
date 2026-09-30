@@ -63,13 +63,13 @@ export default function Home() {
         <section className="activityBox" aria-label="กิจกรรมล่าสุด">
           <div className="activityLabel">
             <span className="liveDot" />
-            LIVE • กิจกรรมล่าสุด
+            LIVE • กิจกรรมเกมล่าสุด
           </div>
 
           <div className="activityCard">
             <div className="activityTitle">
-              🎮 ผู้เล่นที่กำลังเล่น
-              <small>อัปเดตแบบสดบนหน้าเว็บ</small>
+              🎮 กิจกรรมเกมล่าสุด
+              <small>ตัวอย่างกิจกรรมภายในเกม</small>
             </div>
 
             <div className="activityList">
@@ -96,7 +96,72 @@ export default function Home() {
             </div>
 
             <div className="activityFooter">
-              รายการตัวอย่างเพื่อแนะนำรูปแบบการเล่น
+              ข้อมูลตัวอย่างสำหรับแสดงรูปแบบกิจกรรมในเกม
+            </div>
+          </div>
+        </section>
+
+        <section className="demoMoneyWrap" aria-label="Demo activity">
+          <div className="demoLabel">
+            <span className="demoDot" />
+            DEMO • กิจกรรมตัวอย่าง
+          </div>
+
+          <div className="demoMoneyBox">
+            <div className="demoMoneyTitle">
+              🎮 รายการกิจกรรมล่าสุด
+              <small>ข้อมูล DEMO ไม่ใช่รายการเงินจริง</small>
+            </div>
+
+            <div className="demoMoneyList">
+              {[
+                ["ZZx19007xx", "Mystery", "21:27"],
+                ["ZZx26602xx", "Wild", "21:27"],
+                ["natt***091", "Fortune", "21:26"],
+              ].map(([user, game, time]) => (
+                <div className="demoMoneyItem" key={`${user}-${game}`}>
+                  <div className="demoGameIcon">
+                    {game === "Mystery" ? "🎰" : game === "Wild" ? "💎" : "🪙"}
+                  </div>
+                  <div className="demoMoneyInfo">
+                    <strong>{user}</strong>
+                    <span>{game} • {time}</span>
+                  </div>
+                  <div className="demoStatus">DEMO</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="demoLuckyBox">
+            <div className="demoLuckyTitle">
+              🏆 กิจกรรมเกมตัวอย่าง
+              <small>DEMO ONLY</small>
+            </div>
+
+            <div className="demoTableHead">
+              <div>ยูสเซอร์</div>
+              <div>เกม</div>
+              <div>เวลา</div>
+              <div>สถานะ</div>
+            </div>
+
+            {[
+              ["สายปั่น***77", "Mystery", "21:27"],
+              ["เจ๊หมวย1996", "Wild", "21:27"],
+              ["บอล***10", "Anubis", "21:27"],
+              ["natt***091", "Fortune", "21:26"],
+            ].map(([user, game, time]) => (
+              <div className="demoTableRow" key={`${user}-${game}`}>
+                <div className="demoUser">{user}</div>
+                <div className="demoGame">{game}</div>
+                <div className="demoTime">{time}</div>
+                <div className="demoWin">DEMO</div>
+              </div>
+            ))}
+
+            <div className="demoFooter">
+              ข้อมูลทั้งหมดในส่วนนี้เป็นข้อมูลจำลองเพื่อแสดงรูปแบบหน้าเว็บ
             </div>
           </div>
         </section>
