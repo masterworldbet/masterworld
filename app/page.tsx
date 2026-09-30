@@ -17,11 +17,6 @@ export default function Home() {
 
         <a
           className="promoLink"
-          href={lineUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="เข้าสู่ LINE"
-        >
           <Image
             src="/promo-square.png"
             alt="MTWB"
