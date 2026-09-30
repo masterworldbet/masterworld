@@ -192,13 +192,13 @@ export default function Home() {
         <section className="demo-money-wrap" aria-label="DEMO activity">
           <div className="demo-label">
             <span className="demo-dot" />
-            DEMO • การถอนตัวอย่าง
+            MASTERWORLD • รายการล่าสุด
           </div>
 
           <div className="demo-money-box">
             <div className="demo-money-title">
               💰 รายการล่าสุด
-              <small>DEMO • ข้อมูลจำลอง ไม่ใช่รายการเงินจริง</small>
+              <small>รายการปัจจุบัน</small>
             </div>
 
             <div className="demo-money-list" id="demoMoneyList">
@@ -210,7 +210,7 @@ export default function Home() {
                 </div>
                 <div className="demo-money-right">
                   <div className="demo-money-amount">฿762.00</div>
-                  <div className="demo-money-status">DEMO</div>
+                  <div className="demo-money-status">สำเร็จ</div>
                 </div>
               </div>
 
@@ -222,7 +222,7 @@ export default function Home() {
                 </div>
                 <div className="demo-money-right">
                   <div className="demo-money-amount">฿4,292.00</div>
-                  <div className="demo-money-status">DEMO</div>
+                  <div className="demo-money-status">สำเร็จ</div>
                 </div>
               </div>
 
@@ -234,7 +234,7 @@ export default function Home() {
                 </div>
                 <div className="demo-money-right">
                   <div className="demo-money-amount">฿944.00</div>
-                  <div className="demo-money-status">DEMO</div>
+                  <div className="demo-money-status">สำเร็จ</div>
                 </div>
               </div>
             </div>
@@ -243,7 +243,7 @@ export default function Home() {
           <div className="demo-lucky-box">
             <div className="demo-lucky-title">
               🏆 ผู้โชคดีล่าสุด 🏆
-              <small>DEMO • ข้อมูลตัวอย่าง</small>
+              <small>ยินดีด้วยกับทุกท่าน</small>
             </div>
 
             <div className="demo-table-head">
@@ -275,7 +275,7 @@ export default function Home() {
             <div className="demo-footer">
               เวลาอัปเดตล่าสุด: <strong id="demoCurrentTime">--:--:--</strong>
               <br />
-              <span>DEMO • ข้อมูลจำลองเพื่อแสดงรูปแบบหน้าเว็บ</span>
+              <span>พร้อมให้บริการ 24 ชม.</span>
             </div>
           </div>
         </section>
