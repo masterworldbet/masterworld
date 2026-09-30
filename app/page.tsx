@@ -3,6 +3,14 @@ import LineButton from "@/components/LineButton";
 
 const lineUrl = process.env.NEXT_PUBLIC_LINE_URL || "https://line.me/";
 
+const activities = [
+  ["MW***77", "Mystery", "กำลังเล่น"],
+  ["เจ๊หมวย***96", "Wild", "กำลังเล่น"],
+  ["บอล***10", "Anubis", "กำลังเล่น"],
+  ["natt***091", "Fortune", "กำลังเล่น"],
+  ["user***72", "Dragon", "กำลังเล่น"],
+];
+
 export default function Home() {
   return (
     <main className="linkPage">
@@ -51,6 +59,47 @@ export default function Home() {
             <span className="linkArrow">›</span>
           </a>
         </div>
+
+        <section className="activityBox" aria-label="กิจกรรมล่าสุด">
+          <div className="activityLabel">
+            <span className="liveDot" />
+            LIVE • กิจกรรมล่าสุด
+          </div>
+
+          <div className="activityCard">
+            <div className="activityTitle">
+              🎮 ผู้เล่นที่กำลังเล่น
+              <small>อัปเดตแบบสดบนหน้าเว็บ</small>
+            </div>
+
+            <div className="activityList">
+              {activities.map(([user, game, status]) => (
+                <div className="activityRow" key={`${user}-${game}`}>
+                  <div className="gameIcon">
+                    {game === "Mystery" ? "🎰" :
+                     game === "Wild" ? "💎" :
+                     game === "Anubis" ? "🔥" :
+                     game === "Fortune" ? "🪙" : "🐉"}
+                  </div>
+
+                  <div className="activityInfo">
+                    <strong>{user}</strong>
+                    <span>{game}</span>
+                  </div>
+
+                  <div className="activityStatus">
+                    <i />
+                    {status}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="activityFooter">
+              รายการตัวอย่างเพื่อแนะนำรูปแบบการเล่น
+            </div>
+          </div>
+        </section>
 
         <div id="how" className="infoBox">
           <div className="infoTitle">เริ่มต้นง่าย ๆ</div>

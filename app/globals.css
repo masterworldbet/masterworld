@@ -7,6 +7,7 @@
   --muted: #a9a9a4;
   --border: rgba(255,255,255,.10);
   --line: #06c755;
+  --cyan: #00d9ff;
 }
 
 * { box-sizing: border-box; }
@@ -169,8 +170,142 @@ a { color: inherit; text-decoration: none; }
   font-weight: 300;
 }
 
+/* ================================
+   LIVE GAME ACTIVITY
+   ================================ */
+
+.activityBox {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.activityLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(0,217,255,.55);
+  border-radius: 20px;
+  background: rgba(0,15,30,.92);
+  color: #00e5ff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #00ff91;
+  box-shadow: 0 0 8px #00ff91;
+}
+
+.activityCard {
+  overflow: hidden;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(5,18,38,.98), rgba(3,8,20,.98));
+  border: 1px solid rgba(0,215,255,.55);
+  box-shadow:
+    0 0 25px rgba(0,180,255,.13),
+    inset 0 0 30px rgba(0,100,180,.06);
+}
+
+.activityTitle {
+  padding: 15px 12px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 900;
+  color: #fff;
+  background: linear-gradient(90deg,#06172c,#073e65,#06172c);
+  border-bottom: 1px solid rgba(0,220,255,.28);
+  text-shadow: 0 0 12px rgba(0,220,255,.55);
+}
+
+.activityTitle small {
+  display: block;
+  margin-top: 5px;
+  font-size: 9px;
+  color: #00e5ff;
+  font-weight: 700;
+  letter-spacing: .8px;
+}
+
+.activityList {
+  padding: 9px;
+}
+
+.activityRow {
+  min-height: 62px;
+  padding: 8px;
+  margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,205,255,.34);
+  background: linear-gradient(110deg, rgba(10,62,105,.88), rgba(4,25,50,.94));
+}
+
+.activityRow:last-child { margin-bottom: 0; }
+
+.gameIcon {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: linear-gradient(145deg,#5a168c,#ed8c22);
+  border: 1px solid rgba(255,255,255,.24);
+  font-size: 17px;
+}
+
+.activityInfo {
+  min-width: 0;
+  flex: 1;
+}
+.activityInfo strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #fff;
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+.activityInfo span {
+  color: #9db8cc;
+  font-size: 10px;
+}
+
+.activityStatus {
+  white-space: nowrap;
+  color: #00ff9d;
+  font-size: 9px;
+  font-weight: 800;
+}
+.activityStatus i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 4px;
+  border-radius: 50%;
+  background: #00ff9d;
+  box-shadow: 0 0 7px #00ff9d;
+}
+
+.activityFooter {
+  padding: 10px;
+  text-align: center;
+  color: #71889a;
+  font-size: 8px;
+  border-top: 1px solid rgba(0,215,255,.12);
+}
+
 .infoBox {
-  margin-top: 25px;
+  margin-top: 18px;
   padding: 18px;
   border-radius: 16px;
   background: rgba(255,255,255,.035);
@@ -228,6 +363,16 @@ a { color: inherit; text-decoration: none; }
   gap: 15px;
   color: #4f4f4a;
   font-size: 9px;
+}
+
+@media (max-width: 520px) {
+  .linkPage { padding: 16px 10px 30px; }
+  .profileCard { padding: 16px 10px 25px; }
+  .logoWrap { width: 155px; height: 155px; }
+  .activityTitle { font-size: 17px; }
+  .activityRow { min-height: 59px; padding: 7px; }
+  .gameIcon { width: 35px; height: 35px; flex-basis: 35px; }
+  .activityStatus { font-size: 8px; }
 }
 
 @media (min-width: 700px) {
