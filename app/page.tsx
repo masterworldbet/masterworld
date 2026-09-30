@@ -164,9 +164,13 @@ export default function Home() {
 
         <div className="links">
           <LineButton href={lineUrl}>🎮 เริ่มเล่นผ่าน LINE</LineButton>
-          <a className="linkButton secondary" href="#how"><span className="linkIcon">✦</span><span>วิธีเริ่มเล่น</span><span className="linkArrow">›</span></a>
-          <a className="linkButton secondary" href="#contact"><span className="linkIcon">💬</span><span>ติดต่อทีมงาน</span><span className="linkArrow">›</span></a>
+          <a className="linkButton secondary" href={lineUrl} target="_blank" rel="noopener noreferrer"><span className="linkIcon">✦</span><span>วิธีเริ่มเล่น</span><span className="linkArrow">›</span></a>
+          <a className="linkButton secondary" href={lineUrl} target="_blank" rel="noopener noreferrer"><span className="linkIcon">💬</span><span>ติดต่อทีมงาน</span><span className="linkArrow">›</span></a>
         </div>
+
+        <a className="promoLink" href={lineUrl} target="_blank" rel="noopener noreferrer" aria-label="ไปที่ LINE">
+          <Image src="/promo-square.png" alt="MasterWorld โปรโมชั่นเกม" width={1080} height={1080} className="promoImage" />
+        </a>
 
         <section className="activityBox" aria-label="กิจกรรมล่าสุด">
           <div className="activityLabel"><span className="liveDot" />LIVE • กิจกรรมเกมล่าสุด</div>
@@ -277,6 +281,11 @@ export default function Home() {
         </section>
 
         <style>{`
+          .promoLink{display:block;width:100%;max-width:560px;margin:18px auto 4px;border-radius:18px;overflow:hidden;border:1px solid rgba(255,210,70,.45);box-shadow:0 12px 35px rgba(0,0,0,.38),0 0 24px rgba(255,190,30,.12);transition:transform .2s ease,box-shadow .2s ease}
+          .promoLink:hover{transform:translateY(-2px);box-shadow:0 16px 42px rgba(0,0,0,.45),0 0 30px rgba(255,190,30,.18)}
+          .promoImage{display:block;width:100%;height:auto}
+          .legal a{color:inherit;text-decoration:none}
+          .legal a:hover{text-decoration:underline}
           .demo-money-wrap{width:100%;max-width:680px;margin:18px auto 0;padding:10px;box-sizing:border-box;font-family:Arial,"Noto Sans Thai",sans-serif;color:#fff}
           .demo-label{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;margin-bottom:10px;border:1px solid #00d9ff;border-radius:20px;background:rgba(0,15,30,.92);color:#00e5ff;font-size:11px;font-weight:800;letter-spacing:.5px;box-shadow:0 0 15px rgba(0,220,255,.25)}
           .demo-dot{width:7px;height:7px;border-radius:50%;background:#00ff91;box-shadow:0 0 8px #00ff91}
@@ -322,7 +331,10 @@ export default function Home() {
 
         <div id="contact" className="footerArea">
           <div className="footerLine"><span>MASTER WORLD CLASS</span><span>•</span><span>© 2026</span></div>
-          <div className="legal"><span>Privacy Policy</span><span>Terms</span></div>
+          <div className="legal">
+            <a href={lineUrl} target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+            <a href={lineUrl} target="_blank" rel="noopener noreferrer">Terms</a>
+          </div>
         </div>
       </section>
     </main>
