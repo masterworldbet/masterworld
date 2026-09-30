@@ -52,3 +52,6 @@ Check Events Manager after the production page receives traffic.
 
 Replace the placeholder LINE URL with the actual LINE OA URL.
 Only describe the game and its offer accurately on the landing page.
+
+## Branding
+The uploaded MasterWorld logo is stored at `public/masterworld-logo.png` and used on the landing page.

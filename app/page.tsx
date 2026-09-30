@@ -1,106 +1,78 @@
+import Image from "next/image";
 import LineButton from "@/components/LineButton";
 
-const lineUrl =
-  process.env.NEXT_PUBLIC_LINE_URL ||
-  "https://line.me/";
+const lineUrl = process.env.NEXT_PUBLIC_LINE_URL || "https://line.me/";
 
 export default function Home() {
   return (
-    <main>
-      <section className="hero">
-        <div className="glow glowOne" />
-        <div className="glow glowTwo" />
+    <main className="linkPage">
+      <div className="ambient ambientOne" />
+      <div className="ambient ambientTwo" />
 
-        <nav className="nav">
-          <div className="brand">
-            <span className="brandMark">MW</span>
+      <section className="profileCard">
+        <div className="topBar">
+          <span className="brandMini">MASTERWORLD</span>
+          <span className="online"><i /> ONLINE</span>
+        </div>
+
+        <div className="profile">
+          <div className="logoWrap">
+            <Image
+              src="/masterworld-logo.png"
+              alt="MasterWorld"
+              width={310}
+              height={310}
+              priority
+              className="logo"
+            />
+          </div>
+
+          <h1>MASTER WORLD CLASS</h1>
+          <p className="bio">
+            เกมออนไลน์บนมือถือ<br />
+            เข้าถึงง่าย เล่นสะดวก ผ่าน LINE
+          </p>
+        </div>
+
+        <div className="links">
+          <LineButton href={lineUrl}>
+            🎮 เริ่มเล่นผ่าน LINE
+          </LineButton>
+
+          <a className="linkButton secondary" href="#how">
+            <span className="linkIcon">✦</span>
+            <span>วิธีเริ่มเล่น</span>
+            <span className="linkArrow">›</span>
+          </a>
+
+          <a className="linkButton secondary" href="#contact">
+            <span className="linkIcon">💬</span>
+            <span>ติดต่อทีมงาน</span>
+            <span className="linkArrow">›</span>
+          </a>
+        </div>
+
+        <div id="how" className="infoBox">
+          <div className="infoTitle">เริ่มต้นง่าย ๆ</div>
+          <div className="steps">
+            <div><b>01</b><span>กดเริ่มเล่น</span></div>
+            <div><b>02</b><span>เพิ่มเพื่อน LINE</span></div>
+            <div><b>03</b><span>ทำตามขั้นตอน</span></div>
+          </div>
+        </div>
+
+        <div id="contact" className="footerArea">
+          <div className="footerLine">
             <span>MASTER WORLD CLASS</span>
+            <span>•</span>
+            <span>© 2026</span>
           </div>
-          <span className="status">
-            <i /> ONLINE
-          </span>
-        </nav>
-
-        <div className="heroContent">
-          <div className="eyebrow">🎮 ONLINE GAME</div>
-          <h1>
-            สนุกกับเกม
-            <br />
-            <strong>MASTER WORLD CLASS</strong>
-          </h1>
-          <p className="heroText">
-            เกมออนไลน์ที่ออกแบบให้เข้าใจง่าย เล่นสะดวก
-            และเริ่มต้นได้จากมือถือ
-          </p>
-
-          <LineButton href={lineUrl} />
-
-          <p className="microcopy">
-            กดปุ่มเพื่อเพิ่มเพื่อน LINE และรับข้อมูลสำหรับเริ่มเล่น
-          </p>
-        </div>
-
-        <div className="gamePreview" aria-label="ตัวอย่างหน้าจอเกม">
-          <div className="phone">
-            <div className="phoneTop">
-              <span>MASTER</span>
-              <span>●</span>
-            </div>
-            <div className="screen">
-              <div className="screenBadge">GAME</div>
-              <div className="screenTitle">READY?</div>
-              <div className="gameCards">
-                <span>?</span><span>?</span><span>?</span>
-                <span>?</span><span>?</span><span>?</span>
-              </div>
-              <div className="screenButton">START</div>
-            </div>
+          <div className="legal">
+            <span>Privacy Policy</span>
+            <span>Terms</span>
           </div>
         </div>
       </section>
-
-      <section className="section">
-        <div className="sectionHeading">
-          <span className="eyebrow">HOW TO START</span>
-          <h2>เริ่มเล่นง่ายใน 3 ขั้นตอน</h2>
-        </div>
-
-        <div className="steps">
-          <article className="step">
-            <span className="number">01</span>
-            <h3>กดเริ่มเล่น</h3>
-            <p>กดปุ่มด้านบนเพื่อเข้าสู่ช่องทาง LINE</p>
-          </article>
-          <article className="step">
-            <span className="number">02</span>
-            <h3>เพิ่มเพื่อน LINE</h3>
-            <p>ติดตามช่องทางเพื่อรับข้อมูลและลิงก์ที่เกี่ยวข้อง</p>
-          </article>
-          <article className="step">
-            <span className="number">03</span>
-            <h3>เข้าสู่เกม</h3>
-            <p>ทำตามขั้นตอนที่แจ้งใน LINE เพื่อเริ่มเล่น</p>
-          </article>
-        </div>
-      </section>
-
-      <section className="ctaSection">
-        <div>
-          <span className="eyebrow">READY TO PLAY?</span>
-          <h2>พร้อมแล้ว เริ่มเล่นกันเลย</h2>
-          <p>กดปุ่มด้านล่างเพื่อไปยัง LINE</p>
-        </div>
-        <LineButton href={lineUrl} />
-      </section>
-
-      <footer>
-        <div>© {new Date().getFullYear()} MASTER WORLD CLASS</div>
-        <div className="footerLinks">
-          <span>Privacy Policy</span>
-          <span>Terms</span>
-          <span>Contact</span>
-        </div>
-      </footer>
     </main>
   );
 }
