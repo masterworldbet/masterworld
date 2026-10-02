@@ -196,7 +196,7 @@ export default function Home() {
       <section className="landingCard">
 
         {/* =========================
-            ของเดิม
+            ORIGINAL
         ========================== */}
 
         <div className="brandBar">
@@ -236,7 +236,7 @@ export default function Home() {
         <div className="bottomGlow" />
 
         {/* =========================
-            เพิ่มจากโค้ดใหม่
+            ACTIVITY
         ========================== */}
 
         <section
@@ -292,7 +292,7 @@ export default function Home() {
         </section>
 
         {/* =========================
-            รายการล่าสุด
+            LATEST
         ========================== */}
 
         <section
@@ -395,7 +395,7 @@ export default function Home() {
           </div>
 
           {/* =========================
-              ผู้โชคดีล่าสุด
+              LUCKY
           ========================== */}
 
           <div className="demo-lucky-box">
@@ -516,7 +516,7 @@ export default function Home() {
         </section>
 
         {/* =========================
-            วิธีเริ่ม
+            HOW
         ========================== */}
 
         <div id="how" className="infoBox">
@@ -543,7 +543,7 @@ export default function Home() {
         </div>
 
         {/* =========================
-            Footer
+            FOOTER
         ========================== */}
 
         <div id="contact" className="footerArea">
@@ -572,857 +572,710 @@ export default function Home() {
           </div>
         </div>
 
-      </section>
-
-      <style>{`
-        .linkPage{
-          position:relative;
-          min-height:100svh;
-          display:flex;
-          justify-content:center;
-          align-items:center;
-          overflow:hidden;
-          padding:18px 14px;
-          box-sizing:border-box;
-          background:
-            radial-gradient(circle at 50% 10%,rgba(255,194,55,.10),transparent 28%),
-            radial-gradient(circle at 15% 70%,rgba(0,220,255,.07),transparent 30%),
-            #050505;
-        }
-
-        .landingCard{
-          position:relative;
-          z-index:2;
-          width:min(100%,520px);
-          padding:12px;
-          box-sizing:border-box;
-          border:1px solid rgba(255,255,255,.10);
-          border-radius:26px;
-          background:linear-gradient(180deg,rgba(20,20,20,.96),rgba(7,7,7,.98));
-          box-shadow:
-            0 28px 80px rgba(0,0,0,.60),
-            0 0 45px rgba(255,190,40,.07),
-            inset 0 1px 0 rgba(255,255,255,.06);
-        }
-
-        .brandBar{
-          height:34px;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          gap:8px;
-          color:#f7f7f7;
-          font-size:12px;
-          font-weight:900;
-          letter-spacing:2.5px;
-          opacity:.9;
-        }
-
-        .brandDot{
-          width:6px;
-          height:6px;
-          border-radius:50%;
-          background:#20e878;
-          box-shadow:0 0 12px rgba(32,232,120,.8);
-        }
-
-        .promoLink{
-          display:block;
-          width:100%;
-          overflow:hidden;
-          border-radius:20px;
-          background:#0b0b0b;
-          border:1px solid rgba(255,255,255,.09);
-          box-shadow:
-            0 18px 45px rgba(0,0,0,.45),
-            0 0 24px rgba(255,190,40,.08);
-        }
-
-        .promoImage{
-          display:block;
-          width:100%;
-          height:auto;
-        }
-
-        .actionButtons{
-          display:flex;
-          flex-direction:column;
-          gap:10px;
-          margin-top:14px;
-        }
-
-        .contactButton{
-          min-height:54px;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          gap:10px;
-          position:relative;
-          box-sizing:border-box;
-          padding:0 48px;
-          border-radius:15px;
-          border:1px solid rgba(255,255,255,.16);
-          background:linear-gradient(180deg,#202020,#111111);
-          color:#fff;
-          text-decoration:none;
-          font-size:16px;
-          font-weight:800;
-          box-shadow:
-            0 8px 24px rgba(0,0,0,.35),
-            inset 0 1px 0 rgba(255,255,255,.08);
-          transition:
-            transform .18s ease,
-            border-color .18s ease,
-            background .18s ease;
-        }
-
-        .contactButton:hover{
-          transform:translateY(-1px);
-          border-color:rgba(255,255,255,.28);
-          background:linear-gradient(180deg,#292929,#151515);
-        }
-
-        .contactIcon{
-          font-size:18px;
-        }
-
-        .buttonArrow{
-          position:absolute;
-          right:18px;
-          font-size:26px;
-          line-height:1;
-          color:rgba(255,255,255,.65);
-        }
-
-        .bottomGlow{
-          height:2px;
-          width:55%;
-          margin:14px auto 2px;
-          border-radius:999px;
-          background:linear-gradient(90deg,transparent,#ffd34e,transparent);
-          box-shadow:0 0 18px rgba(255,211,78,.45);
-          opacity:.55;
-        }
-
-        .landingGlow{
-          position:absolute;
-          z-index:1;
-          width:280px;
-          height:280px;
-          border-radius:50%;
-          filter:blur(80px);
-          pointer-events:none;
-        }
-
-        .landingGlowOne{
-          top:-100px;
-          left:-90px;
-          background:rgba(255,180,30,.10);
-        }
-
-        .landingGlowTwo{
-          right:-100px;
-          bottom:-100px;
-          background:rgba(0,180,255,.08);
-        }
-
-        /* =========================
-           ACTIVITY
-        ========================== */
-
-        .activityBox{
-          width:100%;
-          margin:18px auto 0;
-          box-sizing:border-box;
-        }
-
-        .activityLabel{
-          display:inline-flex;
-          align-items:center;
-          gap:7px;
-          padding:5px 12px;
-          margin-bottom:10px;
-          border:1px solid #00d9ff;
-          border-radius:20px;
-          background:rgba(0,15,30,.92);
-          color:#00e5ff;
-          font-size:11px;
-          font-weight:800;
-          letter-spacing:.5px;
-          box-shadow:0 0 15px rgba(0,220,255,.25);
-        }
-
-        .liveDot{
-          width:7px;
-          height:7px;
-          border-radius:50%;
-          background:#00ff91;
-          box-shadow:0 0 8px #00ff91;
-        }
-
-        .activityCard{
-          overflow:hidden;
-          border-radius:18px;
-          background:
-            linear-gradient(
-              145deg,
-              rgba(5,18,38,.98),
-              rgba(3,8,20,.98)
-            );
-          border:1px solid rgba(0,215,255,.65);
-          box-shadow:
-            0 0 25px rgba(0,180,255,.18),
-            inset 0 0 30px rgba(0,100,180,.08);
-        }
-
-        .activityTitle{
-          padding:16px 12px;
-          text-align:center;
-          font-size:18px;
-          font-weight:900;
-          color:#fff;
-          background:
-            linear-gradient(
-              90deg,
-              #06172c,
-              #073e65,
-              #06172c
-            );
-          border-bottom:1px solid rgba(0,220,255,.35);
-          text-shadow:0 0 12px rgba(0,220,255,.8);
-        }
-
-        .activityTitle small{
-          display:block;
-          margin-top:4px;
-          font-size:10px;
-          color:#00e5ff;
-          font-weight:700;
-          letter-spacing:1px;
-        }
-
-        .activityList{
-          padding:10px;
-        }
-
-        .activityRow{
-          display:flex;
-          align-items:center;
-          gap:10px;
-          min-height:60px;
-          padding:8px;
-          margin-bottom:7px;
-          box-sizing:border-box;
-          border-radius:12px;
-          border:1px solid rgba(0,205,255,.35);
-          background:
-            linear-gradient(
-              110deg,
-              rgba(10,62,105,.95),
-              rgba(4,25,50,.96)
-            );
-        }
-
-        .activityRow:last-child{
-          margin-bottom:0;
-        }
-
-        .gameIcon{
-          width:38px;
-          height:38px;
-          flex:0 0 38px;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          border-radius:10px;
-          background:
-            linear-gradient(
-              145deg,
-              #5a168c,
-              #ed8c22
-            );
-          border:1px solid rgba(255,255,255,.3);
-          font-size:18px;
-        }
-
-        .activityInfo{
-          min-width:0;
-          flex:1;
-          display:flex;
-          flex-direction:column;
-          gap:3px;
-        }
-
-        .activityInfo strong{
-          overflow:hidden;
-          text-overflow:ellipsis;
-          white-space:nowrap;
-          color:#fff;
-          font-size:12px;
-        }
-
-        .activityInfo span{
-          color:#9db8cc;
-          font-size:10px;
-        }
-
-        .activityStatus{
-          white-space:nowrap;
-          color:#00ff9d;
-          font-size:9px;
-          font-weight:800;
-        }
-
-        .activityStatus i{
-          display:inline-block;
-          width:6px;
-          height:6px;
-          margin-right:4px;
-          border-radius:50%;
-          background:#00ff9d;
-          box-shadow:0 0 7px #00ff9d;
-        }
-
-        .activityFooter{
-          padding:10px;
-          text-align:center;
-          color:#788997;
-          font-size:9px;
-          border-top:1px solid rgba(0,220,255,.12);
-        }
-
-        /* =========================
-           DEMO MONEY
-        ========================== */
-
-        .demo-money-wrap{
-          width:100%;
-          max-width:680px;
-          margin:18px auto 0;
-          padding:10px;
-          box-sizing:border-box;
-          font-family:Arial,"Noto Sans Thai",sans-serif;
-          color:#fff;
-        }
-
-        .demo-label{
-          display:inline-flex;
-          align-items:center;
-          gap:7px;
-          padding:5px 12px;
-          margin-bottom:10px;
-          border:1px solid #00d9ff;
-          border-radius:20px;
-          background:rgba(0,15,30,.92);
-          color:#00e5ff;
-          font-size:11px;
-          font-weight:800;
-          letter-spacing:.5px;
-          box-shadow:0 0 15px rgba(0,220,255,.25);
-        }
-
-        .demo-dot{
-          width:7px;
-          height:7px;
-          border-radius:50%;
-          background:#00ff91;
-          box-shadow:0 0 8px #00ff91;
-        }
-
-        .demo-money-box{
-          overflow:hidden;
-          border-radius:18px;
-          background:
-            linear-gradient(
-              145deg,
-              rgba(5,18,38,.98),
-              rgba(3,8,20,.98)
-            );
-          border:1px solid rgba(0,215,255,.65);
-          box-shadow:
-            0 0 25px rgba(0,180,255,.18),
-            inset 0 0 30px rgba(0,100,180,.08);
-          margin-bottom:18px;
-        }
-
-        .demo-money-title{
-          position:relative;
-          text-align:center;
-          padding:17px 10px;
-          font-size:20px;
-          font-weight:900;
-          color:#fff;
-          background:
-            linear-gradient(
-              90deg,
-              #06172c,
-              #073e65,
-              #06172c
-            );
-          border-bottom:1px solid rgba(0,220,255,.35);
-          text-shadow:0 0 12px rgba(0,220,255,.8);
-        }
-
-        .demo-money-title small{
-          display:block;
-          margin-top:5px;
-          font-size:10px;
-          color:#00e5ff;
-          font-weight:700;
-          letter-spacing:1px;
-        }
-
-        .demo-money-list{
-          padding:10px;
-        }
-
-        .demo-money-item{
-          position:relative;
-          display:flex;
-          align-items:center;
-          gap:11px;
-          min-height:74px;
-          padding:10px;
-          margin-bottom:8px;
-          box-sizing:border-box;
-          border-radius:13px;
-          border:1px solid rgba(0,205,255,.5);
-          background:
-            linear-gradient(
-              110deg,
-              rgba(10,62,105,.95),
-              rgba(4,25,50,.96)
-            );
-          box-shadow:
-            inset 0 0 18px rgba(0,160,255,.08),
-            0 4px 14px rgba(0,0,0,.25);
-          animation:demoSlide .45s ease;
-        }
-
-        .demo-money-item:last-child{
-          margin-bottom:0;
-        }
-
-        @keyframes demoSlide{
-          from{
-            opacity:0;
-            transform:translateY(-18px);
-          }
-
-          to{
-            opacity:1;
-            transform:translateY(0);
-          }
-        }
-
-        .demo-bank-icon{
-          width:45px;
-          height:45px;
-          flex:0 0 45px;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          border-radius:12px;
-          border:2px solid #00e5ff;
-          background:
-            radial-gradient(
-              circle at 30% 25%,
-              #36eaff,
-              #07517b 55%,
-              #031b31
-            );
-          box-shadow:0 0 15px rgba(0,225,255,.35);
-          font-size:21px;
-        }
-
-        .demo-money-info{
-          min-width:0;
-          flex:1;
-        }
-
-        .demo-money-user{
-          font-size:13px;
-          font-weight:800;
-          color:#fff;
-          margin-bottom:4px;
-        }
-
-        .demo-money-user span{
-          color:#00e5ff;
-        }
-
-        .demo-money-date{
-          font-size:10px;
-          color:#9db8cc;
-        }
-
-        .demo-money-right{
-          text-align:right;
-          white-space:nowrap;
-        }
-
-        .demo-money-amount{
-          font-size:17px;
-          font-weight:900;
-          color:#ffd84d;
-          text-shadow:0 0 9px rgba(255,210,40,.35);
-        }
-
-        .demo-money-status{
-          margin-top:5px;
-          font-size:9px;
-          font-weight:800;
-          color:#00ff9d;
-        }
-
-        .demo-money-status::before{
-          content:"● ";
-          text-shadow:0 0 8px #00ff9d;
-        }
-
-        /* =========================
-           LUCKY TABLE
-        ========================== */
-
-        .demo-lucky-box{
-          overflow:hidden;
-          border-radius:18px;
-          background:#080d13;
-          border:1px solid rgba(255,193,50,.6);
-          box-shadow:
-            0 0 28px rgba(255,160,30,.12),
-            inset 0 0 35px rgba(255,170,20,.035);
-        }
-
-        .demo-lucky-title{
-          padding:15px 10px;
-          text-align:center;
-          font-size:19px;
-          font-weight:900;
-          color:#fff;
-          background:
-            linear-gradient(
-              90deg,
-              #7b230e,
-              #c86614,
-              #e7a72c,
-              #c86614,
-              #7b230e
-            );
-          text-shadow:0 2px 4px rgba(0,0,0,.6);
-        }
-
-        .demo-lucky-title small{
-          display:block;
-          margin-top:4px;
-          font-size:10px;
-          color:#fff4bd;
-          letter-spacing:1px;
-        }
-
-        .demo-table-head,
-        .demo-table-row{
-          display:grid;
-          grid-template-columns:
-            1.35fr
-            1fr
-            .8fr
-            1.15fr;
-          align-items:center;
-        }
-
-        .demo-table-head{
-          min-height:45px;
-          padding:0 10px;
-          color:#ffe275;
-          background:#11100b;
-          border-bottom:1px solid rgba(255,210,80,.3);
-          font-size:12px;
-          font-weight:900;
-        }
-
-        .demo-table-row{
-          min-height:65px;
-          padding:0 10px;
-          border-bottom:1px solid rgba(255,210,80,.16);
-          background:rgba(8,13,15,.98);
-          font-size:11px;
-          transition:.2s;
-        }
-
-        .demo-table-row:hover{
-          background:rgba(255,180,30,.07);
-        }
-
-        .demo-table-row:last-child{
-          border-bottom:none;
-        }
-
-        .demo-user{
-          overflow:hidden;
-          text-overflow:ellipsis;
-          white-space:nowrap;
-          color:#f4f4f4;
-          font-weight:700;
-        }
-
-        .demo-game{
-          display:flex;
-          align-items:center;
-          gap:7px;
-          min-width:0;
-        }
-
-        .demo-game-icon{
-          width:31px;
-          height:31px;
-          flex:0 0 31px;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          border-radius:8px;
-          background:
-            linear-gradient(
-              145deg,
-              #5a168c,
-              #ed8c22
-            );
-          border:1px solid rgba(255,255,255,.3);
-          font-size:16px;
-        }
-
-        .demo-game-name{
-          overflow:hidden;
-          white-space:nowrap;
-          text-overflow:ellipsis;
-          color:#ddd;
-        }
-
-        .demo-time{
-          color:#bdbdbd;
-          white-space:nowrap;
-        }
-
-        .demo-win{
-          text-align:right;
-          color:#ffe15b;
-          font-weight:900;
-          font-size:13px;
-          text-shadow:0 0 7px rgba(255,200,50,.25);
-        }
-
-        .demo-footer{
-          text-align:center;
-          padding:12px;
-          font-size:9px;
-          color:#788997;
-        }
-
-        .demo-footer strong{
-          color:#00dfff;
-        }
-
-        /* =========================
-           INFO / FOOTER
-        ========================== */
-
-        .infoBox{
-          margin:18px 0 0;
-          padding:16px;
-          border-radius:18px;
-          border:1px solid rgba(255,255,255,.10);
-          background:rgba(255,255,255,.025);
-        }
-
-        .infoTitle{
-          text-align:center;
-          color:#fff;
-          font-size:16px;
-          font-weight:900;
-          margin-bottom:12px;
-        }
-
-        .steps{
-          display:grid;
-          grid-template-columns:repeat(3,1fr);
-          gap:8px;
-        }
-
-        .steps > div{
-          display:flex;
-          flex-direction:column;
-          align-items:center;
-          justify-content:center;
-          gap:6px;
-          min-height:70px;
-          padding:8px 5px;
-          box-sizing:border-box;
-          border-radius:12px;
-          border:1px solid rgba(255,255,255,.08);
-          background:rgba(255,255,255,.025);
-        }
-
-        .steps b{
-          color:#ffd34e;
-          font-size:14px;
-        }
-
-        .steps span{
-          color:#ccc;
-          font-size:10px;
-          text-align:center;
-        }
-
-        .footerArea{
-          padding:18px 5px 4px;
-        }
-
-        .footerLine{
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          gap:8px;
-          color:#777;
-          font-size:9px;
-          letter-spacing:.5px;
-        }
-
-        .legal{
-          display:flex;
-          justify-content:center;
-          gap:16px;
-          margin-top:8px;
-          color:#666;
-          font-size:9px;
-        }
-
-        .legal a{
-          color:inherit;
-          text-decoration:none;
-        }
-
-        .legal a:hover{
-          text-decoration:underline;
-        }
-
-        @media(max-width:520px){
-          .linkPage{
-            padding:10px;
-            align-items:flex-start;
-          }
-
-          .landingCard{
-            margin-top:4px;
-            padding:9px;
-            border-radius:22px;
-          }
-
-          .brandBar{
-            height:30px;
-            font-size:11px;
-          }
-
+        {/* =========================
+            CSS
+        ========================== */}
+
+        <style>{`
           .promoLink{
-            border-radius:17px;
+            display:block;
+            width:100%;
+            overflow:hidden;
+            border-radius:20px;
+            background:#0b0b0b;
+            border:1px solid rgba(255,255,255,.09);
+            box-shadow:
+              0 18px 45px rgba(0,0,0,.45),
+              0 0 24px rgba(255,190,40,.08);
           }
 
-          .contactButton{
-            min-height:52px;
-            font-size:15px;
+          .promoImage{
+            display:block;
+            width:100%;
+            height:auto;
+          }
+
+          .activityBox{
+            width:100%;
+            margin:18px auto 0;
+            box-sizing:border-box;
+          }
+
+          .activityLabel{
+            display:inline-flex;
+            align-items:center;
+            gap:7px;
+            padding:5px 12px;
+            margin-bottom:10px;
+            border:1px solid #00d9ff;
+            border-radius:20px;
+            background:rgba(0,15,30,.92);
+            color:#00e5ff;
+            font-size:11px;
+            font-weight:800;
+            letter-spacing:.5px;
+            box-shadow:0 0 15px rgba(0,220,255,.25);
+          }
+
+          .liveDot{
+            width:7px;
+            height:7px;
+            border-radius:50%;
+            background:#00ff91;
+            box-shadow:0 0 8px #00ff91;
+          }
+
+          .activityCard{
+            overflow:hidden;
+            border-radius:18px;
+            background:
+              linear-gradient(
+                145deg,
+                rgba(5,18,38,.98),
+                rgba(3,8,20,.98)
+              );
+            border:1px solid rgba(0,215,255,.65);
+            box-shadow:
+              0 0 25px rgba(0,180,255,.18),
+              inset 0 0 30px rgba(0,100,180,.08);
           }
 
           .activityTitle{
-            font-size:16px;
+            padding:16px 12px;
+            text-align:center;
+            font-size:18px;
+            font-weight:900;
+            color:#fff;
+            background:
+              linear-gradient(
+                90deg,
+                #06172c,
+                #073e65,
+                #06172c
+              );
+            border-bottom:1px solid rgba(0,220,255,.35);
+            text-shadow:0 0 12px rgba(0,220,255,.8);
+          }
+
+          .activityTitle small{
+            display:block;
+            margin-top:4px;
+            font-size:10px;
+            color:#00e5ff;
+            font-weight:700;
+            letter-spacing:1px;
+          }
+
+          .activityList{
+            padding:10px;
           }
 
           .activityRow{
-            min-height:56px;
+            display:flex;
+            align-items:center;
+            gap:10px;
+            min-height:60px;
+            padding:8px;
+            margin-bottom:7px;
+            box-sizing:border-box;
+            border-radius:12px;
+            border:1px solid rgba(0,205,255,.35);
+            background:
+              linear-gradient(
+                110deg,
+                rgba(10,62,105,.95),
+                rgba(4,25,50,.96)
+              );
+          }
+
+          .activityRow:last-child{
+            margin-bottom:0;
           }
 
           .gameIcon{
-            width:35px;
-            height:35px;
-            flex-basis:35px;
-            font-size:16px;
-          }
-
-          .activityInfo strong{
-            font-size:11px;
-          }
-
-          .demo-money-wrap{
-            padding:6px;
-          }
-
-          .demo-money-title{
+            width:38px;
+            height:38px;
+            flex:0 0 38px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:10px;
+            background:
+              linear-gradient(
+                145deg,
+                #5a168c,
+                #ed8c22
+              );
+            border:1px solid rgba(255,255,255,.3);
             font-size:18px;
           }
 
+          .activityInfo{
+            min-width:0;
+            flex:1;
+            display:flex;
+            flex-direction:column;
+            gap:3px;
+          }
+
+          .activityInfo strong{
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+            color:#fff;
+            font-size:12px;
+          }
+
+          .activityInfo span{
+            color:#9db8cc;
+            font-size:10px;
+          }
+
+          .activityStatus{
+            white-space:nowrap;
+            color:#00ff9d;
+            font-size:9px;
+            font-weight:800;
+          }
+
+          .activityStatus i{
+            display:inline-block;
+            width:6px;
+            height:6px;
+            margin-right:4px;
+            border-radius:50%;
+            background:#00ff9d;
+            box-shadow:0 0 7px #00ff9d;
+          }
+
+          .activityFooter{
+            padding:10px;
+            text-align:center;
+            color:#788997;
+            font-size:9px;
+            border-top:1px solid rgba(0,220,255,.12);
+          }
+
+          .demo-money-wrap{
+            width:100%;
+            max-width:680px;
+            margin:18px auto 0;
+            padding:10px;
+            box-sizing:border-box;
+            font-family:Arial,"Noto Sans Thai",sans-serif;
+            color:#fff;
+          }
+
+          .demo-label{
+            display:inline-flex;
+            align-items:center;
+            gap:7px;
+            padding:5px 12px;
+            margin-bottom:10px;
+            border:1px solid #00d9ff;
+            border-radius:20px;
+            background:rgba(0,15,30,.92);
+            color:#00e5ff;
+            font-size:11px;
+            font-weight:800;
+            letter-spacing:.5px;
+            box-shadow:0 0 15px rgba(0,220,255,.25);
+          }
+
+          .demo-dot{
+            width:7px;
+            height:7px;
+            border-radius:50%;
+            background:#00ff91;
+            box-shadow:0 0 8px #00ff91;
+          }
+
+          .demo-money-box{
+            overflow:hidden;
+            border-radius:18px;
+            background:
+              linear-gradient(
+                145deg,
+                rgba(5,18,38,.98),
+                rgba(3,8,20,.98)
+              );
+            border:1px solid rgba(0,215,255,.65);
+            box-shadow:
+              0 0 25px rgba(0,180,255,.18),
+              inset 0 0 30px rgba(0,100,180,.08);
+            margin-bottom:18px;
+          }
+
+          .demo-money-title{
+            position:relative;
+            text-align:center;
+            padding:17px 10px;
+            font-size:20px;
+            font-weight:900;
+            color:#fff;
+            background:
+              linear-gradient(
+                90deg,
+                #06172c,
+                #073e65,
+                #06172c
+              );
+            border-bottom:1px solid rgba(0,220,255,.35);
+            text-shadow:0 0 12px rgba(0,220,255,.8);
+          }
+
+          .demo-money-title small{
+            display:block;
+            margin-top:5px;
+            font-size:10px;
+            color:#00e5ff;
+            font-weight:700;
+            letter-spacing:1px;
+          }
+
+          .demo-money-list{
+            padding:10px;
+          }
+
           .demo-money-item{
-            min-height:68px;
-            padding:8px;
+            position:relative;
+            display:flex;
+            align-items:center;
+            gap:11px;
+            min-height:74px;
+            padding:10px;
+            margin-bottom:8px;
+            box-sizing:border-box;
+            border-radius:13px;
+            border:1px solid rgba(0,205,255,.5);
+            background:
+              linear-gradient(
+                110deg,
+                rgba(10,62,105,.95),
+                rgba(4,25,50,.96)
+              );
+            box-shadow:
+              inset 0 0 18px rgba(0,160,255,.08),
+              0 4px 14px rgba(0,0,0,.25);
+            animation:demoSlide .45s ease;
+          }
+
+          .demo-money-item:last-child{
+            margin-bottom:0;
+          }
+
+          @keyframes demoSlide{
+            from{
+              opacity:0;
+              transform:translateY(-18px);
+            }
+
+            to{
+              opacity:1;
+              transform:translateY(0);
+            }
           }
 
           .demo-bank-icon{
-            width:40px;
-            height:40px;
-            flex-basis:40px;
+            width:45px;
+            height:45px;
+            flex:0 0 45px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:12px;
+            border:2px solid #00e5ff;
+            background:
+              radial-gradient(
+                circle at 30% 25%,
+                #36eaff,
+                #07517b 55%,
+                #031b31
+              );
+            box-shadow:0 0 15px rgba(0,225,255,.35);
+            font-size:21px;
           }
 
-          .demo-money-amount{
-            font-size:14px;
+          .demo-money-info{
+            min-width:0;
+            flex:1;
           }
 
           .demo-money-user{
-            font-size:11px;
+            font-size:13px;
+            font-weight:800;
+            color:#fff;
+            margin-bottom:4px;
+          }
+
+          .demo-money-user span{
+            color:#00e5ff;
+          }
+
+          .demo-money-date{
+            font-size:10px;
+            color:#9db8cc;
+          }
+
+          .demo-money-right{
+            text-align:right;
+            white-space:nowrap;
+          }
+
+          .demo-money-amount{
+            font-size:17px;
+            font-weight:900;
+            color:#ffd84d;
+            text-shadow:0 0 9px rgba(255,210,40,.35);
+          }
+
+          .demo-money-status{
+            margin-top:5px;
+            font-size:9px;
+            font-weight:800;
+            color:#00ff9d;
+          }
+
+          .demo-money-status::before{
+            content:"● ";
+            text-shadow:0 0 8px #00ff9d;
+          }
+
+          .demo-lucky-box{
+            overflow:hidden;
+            border-radius:18px;
+            background:#080d13;
+            border:1px solid rgba(255,193,50,.6);
+            box-shadow:
+              0 0 28px rgba(255,160,30,.12),
+              inset 0 0 35px rgba(255,170,20,.035);
+          }
+
+          .demo-lucky-title{
+            padding:15px 10px;
+            text-align:center;
+            font-size:19px;
+            font-weight:900;
+            color:#fff;
+            background:
+              linear-gradient(
+                90deg,
+                #7b230e,
+                #c86614,
+                #e7a72c,
+                #c86614,
+                #7b230e
+              );
+            text-shadow:0 2px 4px rgba(0,0,0,.6);
+          }
+
+          .demo-lucky-title small{
+            display:block;
+            margin-top:4px;
+            font-size:10px;
+            color:#fff4bd;
+            letter-spacing:1px;
           }
 
           .demo-table-head,
           .demo-table-row{
+            display:grid;
             grid-template-columns:
-              1.25fr
+              1.35fr
               1fr
-              .7fr
-              1.1fr;
-            padding-left:7px;
-            padding-right:7px;
+              .8fr
+              1.15fr;
+            align-items:center;
           }
 
           .demo-table-head{
-            font-size:10px;
+            min-height:45px;
+            padding:0 10px;
+            color:#ffe275;
+            background:#11100b;
+            border-bottom:1px solid rgba(255,210,80,.3);
+            font-size:12px;
+            font-weight:900;
           }
 
           .demo-table-row{
-            min-height:58px;
-            font-size:9px;
+            min-height:65px;
+            padding:0 10px;
+            border-bottom:1px solid rgba(255,210,80,.16);
+            background:rgba(8,13,15,.98);
+            font-size:11px;
+            transition:.2s;
+          }
+
+          .demo-table-row:hover{
+            background:rgba(255,180,30,.07);
+          }
+
+          .demo-table-row:last-child{
+            border-bottom:none;
+          }
+
+          .demo-user{
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+            color:#f4f4f4;
+            font-weight:700;
+          }
+
+          .demo-game{
+            display:flex;
+            align-items:center;
+            gap:7px;
+            min-width:0;
           }
 
           .demo-game-icon{
-            width:27px;
-            height:27px;
-            flex-basis:27px;
-            font-size:13px;
+            width:31px;
+            height:31px;
+            flex:0 0 31px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:8px;
+            background:
+              linear-gradient(
+                145deg,
+                #5a168c,
+                #ed8c22
+              );
+            border:1px solid rgba(255,255,255,.3);
+            font-size:16px;
+          }
+
+          .demo-game-name{
+            overflow:hidden;
+            white-space:nowrap;
+            text-overflow:ellipsis;
+            color:#ddd;
+          }
+
+          .demo-time{
+            color:#bdbdbd;
+            white-space:nowrap;
           }
 
           .demo-win{
-            font-size:11px;
+            text-align:right;
+            color:#ffe15b;
+            font-weight:900;
+            font-size:13px;
+            text-shadow:0 0 7px rgba(255,200,50,.25);
+          }
+
+          .demo-footer{
+            text-align:center;
+            padding:12px;
+            font-size:9px;
+            color:#788997;
+          }
+
+          .demo-footer strong{
+            color:#00dfff;
+          }
+
+          .infoBox{
+            margin:18px 0 0;
+            padding:16px;
+            border-radius:18px;
+            border:1px solid rgba(255,255,255,.10);
+            background:rgba(255,255,255,.025);
+          }
+
+          .infoTitle{
+            text-align:center;
+            color:#fff;
+            font-size:16px;
+            font-weight:900;
+            margin-bottom:12px;
           }
 
           .steps{
-            gap:5px;
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:8px;
           }
 
           .steps > div{
-            min-height:64px;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            gap:6px;
+            min-height:70px;
+            padding:8px 5px;
+            box-sizing:border-box;
+            border-radius:12px;
+            border:1px solid rgba(255,255,255,.08);
+            background:rgba(255,255,255,.025);
+          }
+
+          .steps b{
+            color:#ffd34e;
+            font-size:14px;
           }
 
           .steps span{
+            color:#ccc;
+            font-size:10px;
+            text-align:center;
+          }
+
+          .footerArea{
+            padding:18px 5px 4px;
+          }
+
+          .footerLine{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+            color:#777;
+            font-size:9px;
+            letter-spacing:.5px;
+          }
+
+          .legal{
+            display:flex;
+            justify-content:center;
+            gap:16px;
+            margin-top:8px;
+            color:#666;
             font-size:9px;
           }
-        }
-      `}</style>
 
-    </section>
-  </main>
+          .legal a{
+            color:inherit;
+            text-decoration:none;
+          }
+
+          .legal a:hover{
+            text-decoration:underline;
+          }
+
+          @media(max-width:520px){
+            .linkPage{
+              padding:10px;
+              align-items:flex-start;
+            }
+
+            .landingCard{
+              margin-top:4px;
+              padding:9px;
+              border-radius:22px;
+            }
+
+            .brandBar{
+              height:30px;
+              font-size:11px;
+            }
+
+            .promoLink{
+              border-radius:17px;
+            }
+
+            .contactButton{
+              min-height:52px;
+              font-size:15px;
+            }
+
+            .activityTitle{
+              font-size:16px;
+            }
+
+            .activityRow{
+              min-height:56px;
+            }
+
+            .gameIcon{
+              width:35px;
+              height:35px;
+              flex-basis:35px;
+              font-size:16px;
+            }
+
+            .activityInfo strong{
+              font-size:11px;
+            }
+
+            .demo-money-wrap{
+              padding:6px;
+            }
+
+            .demo-money-title{
+              font-size:18px;
+            }
+
+            .demo-money-item{
+              min-height:68px;
+              padding:8px;
+            }
+
+            .demo-bank-icon{
+              width:40px;
+              height:40px;
+              flex-basis:40px;
+            }
+
+            .demo-money-amount{
+              font-size:14px;
+            }
+
+            .demo-money-user{
+              font-size:11px;
+            }
+
+            .demo-table-head,
+            .demo-table-row{
+              grid-template-columns:
+                1.25fr
+                1fr
+                .7fr
+                1.1fr;
+              padding-left:7px;
+              padding-right:7px;
+            }
+
+            .demo-table-head{
+              font-size:10px;
+            }
+
+            .demo-table-row{
+              min-height:58px;
+              font-size:9px;
+            }
+
+            .demo-game-icon{
+              width:27px;
+              height:27px;
+              flex-basis:27px;
+              font-size:13px;
+            }
+
+            .demo-win{
+              font-size:11px;
+            }
+
+            .steps{
+              gap:5px;
+            }
+
+            .steps > div{
+              min-height:64px;
+            }
+
+            .steps span{
+              font-size:9px;
+            }
+          }
+        `}</style>
+
+      </section>
+    </main>
   );
 }
