@@ -16,8 +16,8 @@ export default function Home() {
           <Image
             src="/promo-square.png"
             alt="Masterworld"
-            width={1080}
-            height={1080}
+            width={941}
+            height={1672}
             priority
             unoptimized
             className="promoImage"
@@ -70,7 +70,9 @@ export default function Home() {
         }
 
         .promoLink {
-          display: block;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           width: 100%;
           overflow: hidden;
           border-radius: 20px;
@@ -81,8 +83,11 @@ export default function Home() {
 
         .promoImage {
           display: block;
-          width: 100%;
+          width: auto;
           height: auto;
+          max-width: 100%;
+          max-height: 65svh;
+          object-fit: contain;
         }
 
         .actionButtons {
