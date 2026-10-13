@@ -21,7 +21,7 @@ export default function Home() {
         </div>
 
         <div className="actionButtons">
-          <LineButton href={lineUrl}>เข้าสู่ LINE</LineButton>
+          <LineButton href={lineUrl}> สมัครเลย </LineButton>
 
           <a
             className="contactButton"
