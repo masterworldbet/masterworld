@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import LineButton from "../components/LineButton";
 
 const lineUrl = process.env.NEXT_PUBLIC_LINE_URL || "https://line.me/";
@@ -13,13 +12,10 @@ export default function Home() {
 
       <section className="landingCard" aria-label="Masterworld ติดต่อ LINE">
         <div className="promoLink">
-          <Image
+          <img
             src="/promo-square.png"
             alt="Masterworld"
-            width={941}
-            height={1672}
-            priority
-            unoptimized
+            fetchPriority="high"
             className="promoImage"
           />
         </div>
@@ -70,9 +66,7 @@ export default function Home() {
         }
 
         .promoLink {
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          display: block;
           width: 100%;
           overflow: hidden;
           border-radius: 20px;
@@ -83,11 +77,9 @@ export default function Home() {
 
         .promoImage {
           display: block;
-          width: auto;
+          width: 100%;
           height: auto;
           max-width: 100%;
-          max-height: 65svh;
-          object-fit: contain;
         }
 
         .actionButtons {
