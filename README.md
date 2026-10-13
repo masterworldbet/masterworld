@@ -10,7 +10,7 @@ npm install
 
 ## 2) Configure
 
-Copy `.env.example` to `.env.local` and set:
+Use Node.js 20.9 or newer. Copy `.env.example` to `.env.local` and set:
 
 ```env
 NEXT_PUBLIC_META_PIXEL_ID=YOUR_META_PIXEL_ID
