@@ -1,8 +1,7 @@
 "use client";
 
-import LineButton from "../components/LineButton";
-
-const lineUrl = process.env.NEXT_PUBLIC_LINE_URL || "https://line.me/";
+const registerUrl =
+  "https://masterworldbet.com/sign-up?ref_agent=1feacd0466b9&ref_zean=9ED5866AF713";
 
 export default function Home() {
   return (
@@ -10,7 +9,7 @@ export default function Home() {
       <div className="landingGlow landingGlowOne" aria-hidden="true" />
       <div className="landingGlow landingGlowTwo" aria-hidden="true" />
 
-      <section className="landingCard" aria-label="Masterworld ติดต่อ LINE">
+      <section className="landingCard" aria-label="Masterworld สมัครสมาชิก">
         <div className="promoLink">
           <img
             src="/promo-square.png"
@@ -21,18 +20,17 @@ export default function Home() {
         </div>
 
         <div className="actionButtons">
-          <LineButton href={lineUrl}> สมัครเลย </LineButton>
-
           <a
-            className="contactButton"
-            href={lineUrl}
+            className="registerButton"
+            href={registerUrl}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="ติดต่อพนักงานผ่าน LINE"
+            aria-label="สมัครสมาชิก Masterworld"
           >
-            <span className="contactIcon" aria-hidden="true">💬</span>
-            <span>ติดต่อพนักงานผ่าน LINE</span>
-            <span className="buttonArrow" aria-hidden="true">›</span>
+            <span>สมัครเลย</span>
+            <span className="buttonArrow" aria-hidden="true">
+              ›
+            </span>
           </a>
         </div>
       </section>
@@ -48,8 +46,16 @@ export default function Home() {
           padding: 18px 14px;
           box-sizing: border-box;
           background:
-            radial-gradient(circle at 50% 10%, rgba(255, 194, 55, .10), transparent 28%),
-            radial-gradient(circle at 15% 70%, rgba(0, 220, 255, .07), transparent 30%),
+            radial-gradient(
+              circle at 50% 10%,
+              rgba(255, 194, 55, 0.10),
+              transparent 28%
+            ),
+            radial-gradient(
+              circle at 15% 70%,
+              rgba(0, 220, 255, 0.07),
+              transparent 30%
+            ),
             #050505;
         }
 
@@ -59,10 +65,17 @@ export default function Home() {
           width: min(100%, 520px);
           padding: 12px;
           box-sizing: border-box;
-          border: 1px solid rgba(255, 255, 255, .10);
+          border: 1px solid rgba(255, 255, 255, 0.10);
           border-radius: 26px;
-          background: linear-gradient(180deg, rgba(20, 20, 20, .96), rgba(7, 7, 7, .98));
-          box-shadow: 0 28px 80px rgba(0, 0, 0, .60), 0 0 45px rgba(255, 190, 40, .07), inset 0 1px 0 rgba(255, 255, 255, .06);
+          background: linear-gradient(
+            180deg,
+            rgba(20, 20, 20, 0.96),
+            rgba(7, 7, 7, 0.98)
+          );
+          box-shadow:
+            0 28px 80px rgba(0, 0, 0, 0.60),
+            0 0 45px rgba(255, 190, 40, 0.07),
+            inset 0 1px 0 rgba(255, 255, 255, 0.06);
         }
 
         .promoLink {
@@ -71,8 +84,10 @@ export default function Home() {
           overflow: hidden;
           border-radius: 20px;
           background: #0b0b0b;
-          border: 1px solid rgba(255, 255, 255, .09);
-          box-shadow: 0 18px 45px rgba(0, 0, 0, .45), 0 0 24px rgba(255, 190, 40, .08);
+          border: 1px solid rgba(255, 255, 255, 0.09);
+          box-shadow:
+            0 18px 45px rgba(0, 0, 0, 0.45),
+            0 0 24px rgba(255, 190, 40, 0.08);
         }
 
         .promoImage {
@@ -89,40 +104,45 @@ export default function Home() {
           margin-top: 14px;
         }
 
-        .contactButton {
-          min-height: 54px;
+        .registerButton {
+          min-height: 56px;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 10px;
           position: relative;
           box-sizing: border-box;
           padding: 0 48px;
           border-radius: 15px;
-          border: 1px solid rgba(255, 255, 255, .16);
-          background: linear-gradient(180deg, #202020, #111111);
-          color: #fff;
+          border: 1px solid rgba(255, 215, 100, 0.55);
+          background: linear-gradient(180deg, #ffd76a, #f0a900);
+          color: #171000;
           text-decoration: none;
-          font-size: 16px;
-          font-weight: 800;
-          box-shadow: 0 8px 24px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .08);
-          transition: transform .18s ease, border-color .18s ease, background .18s ease;
+          font-size: 17px;
+          font-weight: 900;
+          box-shadow:
+            0 8px 24px rgba(0, 0, 0, 0.35),
+            0 0 20px rgba(255, 190, 40, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 0.35);
+          transition:
+            transform 0.18s ease,
+            filter 0.18s ease;
         }
 
-        .contactButton:hover {
-          transform: translateY(-1px);
-          border-color: rgba(255, 255, 255, .28);
-          background: linear-gradient(180deg, #292929, #151515);
+        .registerButton:hover {
+          transform: translateY(-2px);
+          filter: brightness(1.08);
         }
 
-        .contactIcon { font-size: 18px; }
+        .registerButton:active {
+          transform: translateY(0);
+        }
 
         .buttonArrow {
           position: absolute;
           right: 18px;
           font-size: 26px;
           line-height: 1;
-          color: rgba(255, 255, 255, .65);
+          color: rgba(23, 16, 0, 0.75);
         }
 
         .landingGlow {
@@ -138,13 +158,13 @@ export default function Home() {
         .landingGlowOne {
           top: -100px;
           left: -90px;
-          background: rgba(255, 180, 30, .10);
+          background: rgba(255, 180, 30, 0.10);
         }
 
         .landingGlowTwo {
           right: -100px;
           bottom: -100px;
-          background: rgba(0, 180, 255, .08);
+          background: rgba(0, 180, 255, 0.08);
         }
 
         @media (max-width: 520px) {
@@ -159,8 +179,14 @@ export default function Home() {
             border-radius: 22px;
           }
 
-          .promoLink { border-radius: 17px; }
-          .contactButton { min-height: 52px; font-size: 15px; }
+          .promoLink {
+            border-radius: 17px;
+          }
+
+          .registerButton {
+            min-height: 54px;
+            font-size: 16px;
+          }
         }
       `}</style>
     </main>
