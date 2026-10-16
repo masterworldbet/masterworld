@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
+  // Keep this app deployed as a Next.js server app on Vercel so API routes
+  // for the private analytics dashboard can run.
   images: {
     unoptimized: true,
   },
