@@ -1,0 +1,11 @@
+MASTERWORLD ANALYTICS - FILES TO ADD/REPLACE
+
+This ZIP contains only the files required for the analytics dashboard. Paths are relative to the project root.
+
+IMPORTANT:
+- Do not upload this ZIP file itself to GitHub. Extract it first.
+- Copy/ upload the extracted files into the matching paths in the repository while on the analytics-dashboard branch.
+- app/page.tsx replaces the existing homepage file with tracking added; the visible layout and registration URL are intended to remain the same.
+- Run supabase/analytics-schema.sql in Supabase SQL Editor if not already run.
+- Configure the required environment variables in Vercel before testing.
+- Never upload .env files or secrets to GitHub.

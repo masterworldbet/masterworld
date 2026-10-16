@@ -1,9 +1,37 @@
 "use client";
 
+import { useEffect } from "react";
+
 const registerUrl =
   "https://masterworldbet.com/sign-up?ref_agent=1feacd0466b9&ref_zean=9ED5866AF713";
 
+function trackEvent(event: "page_view" | "register_click") {
+  if (typeof window === "undefined") return;
+  const width = window.innerWidth;
+  const device = width < 768 ? "mobile" : width < 1024 ? "tablet" : "desktop";
+  const payload = JSON.stringify({
+    event,
+    path: window.location.pathname,
+    referrer: document.referrer || null,
+    device,
+  });
+  try {
+    void fetch("/api/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: payload,
+      keepalive: true,
+    }).catch(() => undefined);
+  } catch {
+    // Analytics must never interrupt the landing page or registration link.
+  }
+}
+
 export default function Home() {
+  useEffect(() => {
+    trackEvent("page_view");
+  }, []);
+
   return (
     <main className="linkPage">
       <div className="landingGlow landingGlowOne" aria-hidden="true" />
@@ -23,6 +51,7 @@ export default function Home() {
           <a
             className="registerButton"
             href={registerUrl}
+            onClick={() => trackEvent("register_click")}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="สมัครสมาชิก Masterworld"
