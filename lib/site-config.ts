@@ -7,6 +7,8 @@ export type CustomButton = {
   size: "small" | "medium" | "large";
   align: "left" | "center" | "right";
   enabled: boolean;
+  eventType?: "none" | "standard" | "custom";
+  eventName?: string;
 };
 
 export type SiteImage = { id: string; url: string; alt: string; enabled: boolean };
@@ -18,6 +20,9 @@ export type SiteConfig = {
   imageAlt: string;
   registerUrl: string;
   buttonText: string;
+  pixelId: string;
+  mainButtonEventType: "none" | "standard" | "custom";
+  mainButtonEventName: string;
   showImage: boolean;
   showButton: boolean;
   buttonPlacement: "above" | "below" | "overlay-top" | "overlay-bottom";
@@ -34,6 +39,9 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   imageAlt: "Masterworld",
   registerUrl: "https://masterworldbet.com/sign-up?ref_agent=1feacd0466b9&ref_zean=9ED5866AF713",
   buttonText: "สมัครเลย",
+  pixelId: "",
+  mainButtonEventType: "none",
+  mainButtonEventName: "",
   showImage: true,
   showButton: true,
   buttonPlacement: "below",
@@ -76,6 +84,10 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
   if (!promoImageUrl || !registerUrl) return null;
   if (typeof value.buttonText !== "string" || value.buttonText.trim().length < 1 || value.buttonText.length > 80) return null;
   if (typeof value.imageAlt !== "string" || value.imageAlt.length > 160) return null;
+  const pixelId = typeof value.pixelId === "string" && value.pixelId.trim().length <= 100 && /^[0-9,\s]*$/.test(value.pixelId) ? value.pixelId.trim() : null;
+  const mainButtonEventType = ["none", "standard", "custom"].includes(String(value.mainButtonEventType ?? "none")) ? String(value.mainButtonEventType ?? "none") as "none" | "standard" | "custom" : null;
+  const mainButtonEventName = typeof value.mainButtonEventName === "string" && value.mainButtonEventName.length <= 80 ? value.mainButtonEventName.trim() : null;
+  if (pixelId === null || mainButtonEventType === null || mainButtonEventName === null) return null;
   if (typeof value.showImage !== "boolean" || typeof value.showButton !== "boolean") return null;
 
   const buttonPlacement = ["above", "below", "overlay-top", "overlay-bottom"].includes(String(value.buttonPlacement))
@@ -104,11 +116,14 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
         typeof button.text !== "string" || button.text.trim().length < 1 || button.text.length > 80 || !url ||
         !isHexColor(button.backgroundColor) || !isHexColor(button.textColor) ||
         !["small", "medium", "large"].includes(String(button.size)) ||
-        !["left", "center", "right"].includes(String(button.align)) || typeof button.enabled !== "boolean") return null;
+        !["left", "center", "right"].includes(String(button.align)) || typeof button.enabled !== "boolean" ||
+        !["none", "standard", "custom"].includes(String(button.eventType ?? "none")) ||
+        (button.eventName !== undefined && (typeof button.eventName !== "string" || button.eventName.length > 80))) return null;
     customButtons.push({
       id: button.id, text: button.text.trim(), url,
       backgroundColor: button.backgroundColor, textColor: button.textColor,
       size: button.size as CustomButton["size"], align: button.align as CustomButton["align"], enabled: button.enabled,
+      eventType: (button.eventType ?? "none") as CustomButton["eventType"], eventName: typeof button.eventName === "string" ? button.eventName.trim() : "",
     });
   }
 
@@ -134,6 +149,7 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
     imageAlt: firstImage?.alt ?? value.imageAlt,
     registerUrl,
     buttonText: value.buttonText.trim(),
+    pixelId, mainButtonEventType, mainButtonEventName,
     showImage: firstImage?.enabled ?? value.showImage,
     showButton: value.showButton,
     buttonPlacement,

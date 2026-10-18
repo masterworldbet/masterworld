@@ -10,6 +10,9 @@ const defaults: SiteConfig = {
   imageAlt: "Masterworld",
   registerUrl: "https://masterworldbet.com/sign-up?ref_agent=1feacd0466b9&ref_zean=9ED5866AF713",
   buttonText: "สมัครเลย",
+  pixelId: "",
+  mainButtonEventType: "none",
+  mainButtonEventName: "",
   showImage: true,
   showButton: true,
   buttonPlacement: "below",
@@ -115,7 +118,7 @@ export default function ContentEditor() {
     const button: CustomButton = {
       id: `button-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
       text: "ปุ่มใหม่", url: "https://example.com", backgroundColor: "#f0a900", textColor: "#171000",
-      size: "medium", align: "center", enabled: true,
+      size: "medium", align: "center", enabled: true, eventType: "none", eventName: "",
     };
     update("customButtons", [...config.customButtons, button]);
   }
@@ -183,7 +186,11 @@ export default function ContentEditor() {
           <input id="button-text" className="textField" value={config.buttonText} maxLength={80} onChange={(e) => update("buttonText", e.target.value)} />
           <label className="fieldLabel" htmlFor="register-url">ลิงก์ปลายทางของปุ่ม (HTTPS)</label>
           <input id="register-url" className="textField" type="url" value={config.registerUrl} onChange={(e) => update("registerUrl", e.target.value)} required />
-          <p className="fieldHint">ระบบจะเปิดลิงก์นี้ในแท็บใหม่เหมือนหน้าเว็บเดิม</p>
+          <label className="fieldLabel">Meta Pixel Event ของปุ่มหลัก</label>
+          <select className="textField" value={config.mainButtonEventType} onChange={(e) => update("mainButtonEventType", e.target.value as SiteConfig["mainButtonEventType"])}><option value="none">ไม่ส่ง Event</option><option value="standard">เลือก Standard Event</option><option value="custom">กำหนด Custom Event เอง</option></select>
+          {config.mainButtonEventType === "standard" ? <select className="textField" value={config.mainButtonEventName} onChange={(e) => update("mainButtonEventName", e.target.value)}><option value="Lead">Lead</option><option value="Contact">Contact</option><option value="CompleteRegistration">CompleteRegistration</option><option value="Subscribe">Subscribe</option><option value="ViewContent">ViewContent</option><option value="Search">Search</option><option value="AddToCart">AddToCart</option><option value="InitiateCheckout">InitiateCheckout</option><option value="Purchase">Purchase</option></select> : null}
+          {config.mainButtonEventType === "custom" ? <input className="textField" value={config.mainButtonEventName} maxLength={80} placeholder="เช่น MyButtonClick" onChange={(e) => update("mainButtonEventName", e.target.value.replace(/[^a-zA-Z0-9_]/g, ""))} /> : null}
+          <p className="fieldHint">ระบบจะเปิดลิงก์ในแท็บใหม่ และส่ง Event เฉพาะเมื่อกำหนดไว้</p>
 
           <div className="sectionRule" />
           <div className="panelHeading"><span className="panelNumber">04</span><div><h2>ปุ่มเพิ่มเติม</h2><p>เพิ่มปุ่มได้หลายปุ่ม กำหนดลิงก์ สี ขนาด ตำแหน่ง และลำดับได้</p></div></div>
@@ -195,12 +202,16 @@ export default function ContentEditor() {
               <label className="fieldLabel">ข้อความบนปุ่ม</label><input className="textField" value={button.text} maxLength={80} onChange={(e) => updateCustomButton(button.id, { text: e.target.value })} />
               <label className="fieldLabel">ลิงก์ปลายทาง (HTTPS)</label><input className="textField" type="url" value={button.url} onChange={(e) => updateCustomButton(button.id, { url: e.target.value })} />
               <div className="customButtonFields"><label>สีปุ่ม<input type="color" value={button.backgroundColor} onChange={(e) => updateCustomButton(button.id, { backgroundColor: e.target.value })} /></label><label>สีข้อความ<input type="color" value={button.textColor} onChange={(e) => updateCustomButton(button.id, { textColor: e.target.value })} /></label><label>ขนาด<select value={button.size} onChange={(e) => updateCustomButton(button.id, { size: e.target.value as CustomButton["size"] })}><option value="small">เล็ก</option><option value="medium">กลาง</option><option value="large">ใหญ่</option></select></label><label>ตำแหน่ง<select value={button.align} onChange={(e) => updateCustomButton(button.id, { align: e.target.value as CustomButton["align"] })}><option value="left">ซ้าย</option><option value="center">กลาง</option><option value="right">ขวา</option></select></label></div>
+              <label className="fieldLabel">Meta Pixel Event ของปุ่มนี้</label><select className="textField" value={button.eventType ?? "none"} onChange={(e) => updateCustomButton(button.id, { eventType: e.target.value as CustomButton["eventType"] })}><option value="none">ไม่ส่ง Event</option><option value="standard">Standard Event</option><option value="custom">Custom Event</option></select>{button.eventType === "standard" ? <select className="textField" value={button.eventName || "Lead"} onChange={(e) => updateCustomButton(button.id, { eventName: e.target.value })}><option value="Lead">Lead</option><option value="Contact">Contact</option><option value="CompleteRegistration">CompleteRegistration</option><option value="Subscribe">Subscribe</option><option value="ViewContent">ViewContent</option><option value="Search">Search</option><option value="AddToCart">AddToCart</option><option value="InitiateCheckout">InitiateCheckout</option><option value="Purchase">Purchase</option></select> : null}{button.eventType === "custom" ? <input className="textField" value={button.eventName || ""} maxLength={80} placeholder="เช่น MyButtonClick" onChange={(e) => updateCustomButton(button.id, { eventName: e.target.value.replace(/[^a-zA-Z0-9_]/g, "") })} /> : null}
               <div className="customButtonSample" style={{ justifyContent: button.align }}><span style={{ background: button.backgroundColor, color: button.textColor, fontSize: button.size === "small" ? 12 : button.size === "large" ? 17 : 14, padding: button.size === "small" ? "8px 12px" : button.size === "large" ? "14px 20px" : "11px 16px", opacity: button.enabled ? 1 : .45 }}>{button.text || "ตัวอย่างปุ่ม"}　›</span></div>
             </div>
           ))}
         </section>
 
         <section className="editorPanel">
+          <div className="sectionRule" /><div className="panelHeading"><span className="panelNumber">05</span><div><h2>ตั้งค่า Meta Pixel</h2><p>กรอก Pixel ID เพื่อใช้แทนค่าจาก Environment Variable เมื่อบันทึก</p></div></div>
+          <label className="fieldLabel">Meta Pixel ID</label><input className="textField" inputMode="numeric" value={config.pixelId} maxLength={100} placeholder="ใส่ Pixel ID หรือเว้นว่างเพื่อใช้ค่าเดิมจาก Vercel" onChange={(e) => update("pixelId", e.target.value.replace(/[^0-9,\s]/g, ""))} />
+          <p className="fieldHint">ใส่ได้หลาย ID โดยคั่นด้วยเครื่องหมายจุลภาค หากเว้นว่าง ระบบจะใช้ NEXT_PUBLIC_META_PIXEL_ID เดิม</p>
           <div className="panelHeading"><span className="panelNumber">02</span><div><h2>ปรับแต่งสี</h2><p>ไม่เปลี่ยนสีเดิมจนกว่าจะบันทึกค่าที่เลือก</p></div></div>
           {([
             ["pageBackgroundColor", "สีพื้นหลังหน้าเว็บ"],

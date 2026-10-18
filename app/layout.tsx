@@ -1,18 +1,6 @@
 import type { Metadata } from "next";
-import Script from "next/script";
+import MetaPixelSettings from "../components/MetaPixelSettings";
 import "./globals.css";
-
-const pixelIds = (process.env.NEXT_PUBLIC_META_PIXEL_ID || "")
-  .split(",")
-  .map((id) => id.trim())
-  .filter(Boolean);
-
-const pixelInit = pixelIds
-  .map((id) => {
-    const safeId = id.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-    return `fbq('init', '${safeId}');`;
-  })
-  .join("\n");
 
 export const metadata: Metadata = {
   title: "MASTER WORLD CLASS | เกมออนไลน์",
@@ -26,26 +14,7 @@ export default function RootLayout({
   return (
     <html lang="th">
       <body>
-        {pixelIds.length > 0 ? (
-          <Script
-            id="meta-pixel-base"
-            strategy="afterInteractive"
-            dangerouslySetInnerHTML={{
-              __html: `
-                !function(f,b,e,v,n,t,s)
-                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-                n.queue=[];t=b.createElement(e);t.async=!0;
-                t.src=v;s=b.getElementsByTagName(e)[0];
-                s.parentNode.insertBefore(t,s)}(window, document,
-                'script','https://connect.facebook.net/en_US/fbevents.js');
-
-                ${pixelInit}
-              `,
-            }}
-          />
-        ) : null}
+        <MetaPixelSettings />
 
         {children}
       </body>

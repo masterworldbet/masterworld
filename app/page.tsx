@@ -4,6 +4,13 @@ import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { DEFAULT_SITE_CONFIG, type SiteConfig } from "../lib/site-config";
 
+declare global { interface Window { fbq?: (...args: unknown[]) => void } }
+function sendPixelEvent(type: "none" | "standard" | "custom" | undefined, name?: string) {
+  if (!type || type === "none" || !name || typeof window === "undefined" || !window.fbq) return;
+  if (type === "standard") window.fbq("track", name);
+  else window.fbq("trackCustom", name);
+}
+
 function trackEvent(event: "page_view" | "register_click") {
   if (typeof window === "undefined") return;
   const width = window.innerWidth;
