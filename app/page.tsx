@@ -184,9 +184,12 @@ export default function Home() {
         <a
           className={`customButton customButton-${button.size}`}
           href={button.url}
-          onClick={() =>
-            sendPixelEvent(button.eventType, button.eventName)
-          }
+          onClick={() => {
+            // Count custom-button clicks in the same Dashboard metric as the main button.
+            trackEvent("register_click");
+            // Keep the optional Meta Pixel event configured for this button.
+            sendPixelEvent(button.eventType, button.eventName);
+          }}
           target="_blank"
           rel="noopener noreferrer"
           style={{
