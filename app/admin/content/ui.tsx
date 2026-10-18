@@ -1,9 +1,10 @@
 "use client";
 
 import { ChangeEvent, useEffect, useState } from "react";
-import type { SiteConfig } from "../../../lib/site-config";
+import type { CustomButton, SiteConfig } from "../../../lib/site-config";
 
 const defaults: SiteConfig = {
+  customButtons: [],
   promoImageUrl: "/promo-square.png",
   imageAlt: "Masterworld",
   registerUrl: "https://masterworldbet.com/sign-up?ref_agent=1feacd0466b9&ref_zean=9ED5866AF713",
@@ -81,6 +82,28 @@ export default function ContentEditor() {
     } finally { setSaving(false); }
   }
 
+  function addCustomButton() {
+    if (config.customButtons.length >= 20) { setError("เพิ่มปุ่มได้สูงสุด 20 ปุ่ม"); return; }
+    const button: CustomButton = {
+      id: `button-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      text: "ปุ่มใหม่", url: "https://example.com", backgroundColor: "#f0a900", textColor: "#171000",
+      size: "medium", align: "center", enabled: true,
+    };
+    update("customButtons", [...config.customButtons, button]);
+  }
+
+  function updateCustomButton(id: string, patch: Partial<CustomButton>) {
+    update("customButtons", config.customButtons.map((button) => button.id === id ? { ...button, ...patch } : button));
+  }
+
+  function moveCustomButton(index: number, direction: -1 | 1) {
+    const next = [...config.customButtons];
+    const target = index + direction;
+    if (target < 0 || target >= next.length) return;
+    [next[index], next[target]] = [next[target], next[index]];
+    update("customButtons", next);
+  }
+
   async function logout() {
     await fetch("/api/admin/logout", { method: "POST" }).catch(() => undefined);
     window.location.href = "/admin/analytics/login";
@@ -123,6 +146,20 @@ export default function ContentEditor() {
           <label className="fieldLabel" htmlFor="register-url">ลิงก์ปลายทางของปุ่ม (HTTPS)</label>
           <input id="register-url" className="textField" type="url" value={config.registerUrl} onChange={(e) => update("registerUrl", e.target.value)} required />
           <p className="fieldHint">ระบบจะเปิดลิงก์นี้ในแท็บใหม่เหมือนหน้าเว็บเดิม</p>
+
+          <div className="sectionRule" />
+          <div className="panelHeading"><span className="panelNumber">04</span><div><h2>ปุ่มเพิ่มเติม</h2><p>เพิ่มปุ่มได้หลายปุ่ม กำหนดลิงก์ สี ขนาด ตำแหน่ง และลำดับได้</p></div></div>
+          <button type="button" className="addButton" onClick={addCustomButton}>＋ เพิ่มปุ่มใหม่</button>
+          {config.customButtons.length === 0 ? <p className="mutedNote">ยังไม่มีปุ่มเพิ่มเติม กด “เพิ่มปุ่มใหม่” เพื่อสร้างปุ่มแรก</p> : null}
+          {config.customButtons.map((button, index) => (
+            <div className="customButtonEditor" key={button.id}>
+              <div className="customButtonEditorTop"><strong>ปุ่มเพิ่มเติม {index + 1}</strong><div className="smallActions"><button type="button" onClick={() => moveCustomButton(index, -1)} disabled={index === 0} aria-label="เลื่อนปุ่มขึ้น">↑</button><button type="button" onClick={() => moveCustomButton(index, 1)} disabled={index === config.customButtons.length - 1} aria-label="เลื่อนปุ่มลง">↓</button><button type="button" onClick={() => updateCustomButton(button.id, { enabled: !button.enabled })}>{button.enabled ? "ซ่อน" : "แสดง"}</button><button type="button" onClick={() => update("customButtons", config.customButtons.filter((item) => item.id !== button.id))}>ลบ</button></div></div>
+              <label className="fieldLabel">ข้อความบนปุ่ม</label><input className="textField" value={button.text} maxLength={80} onChange={(e) => updateCustomButton(button.id, { text: e.target.value })} />
+              <label className="fieldLabel">ลิงก์ปลายทาง (HTTPS)</label><input className="textField" type="url" value={button.url} onChange={(e) => updateCustomButton(button.id, { url: e.target.value })} />
+              <div className="customButtonFields"><label>สีปุ่ม<input type="color" value={button.backgroundColor} onChange={(e) => updateCustomButton(button.id, { backgroundColor: e.target.value })} /></label><label>สีข้อความ<input type="color" value={button.textColor} onChange={(e) => updateCustomButton(button.id, { textColor: e.target.value })} /></label><label>ขนาด<select value={button.size} onChange={(e) => updateCustomButton(button.id, { size: e.target.value as CustomButton["size"] })}><option value="small">เล็ก</option><option value="medium">กลาง</option><option value="large">ใหญ่</option></select></label><label>ตำแหน่ง<select value={button.align} onChange={(e) => updateCustomButton(button.id, { align: e.target.value as CustomButton["align"] })}><option value="left">ซ้าย</option><option value="center">กลาง</option><option value="right">ขวา</option></select></label></div>
+              <div className="customButtonSample" style={{ justifyContent: button.align }}><span style={{ background: button.backgroundColor, color: button.textColor, fontSize: button.size === "small" ? 12 : button.size === "large" ? 17 : 14, padding: button.size === "small" ? "8px 12px" : button.size === "large" ? "14px 20px" : "11px 16px", opacity: button.enabled ? 1 : .45 }}>{button.text || "ตัวอย่างปุ่ม"}　›</span></div>
+            </div>
+          ))}
         </section>
 
         <section className="editorPanel">
@@ -158,8 +195,8 @@ export default function ContentEditor() {
         .fieldLabel{display:block;margin:16px 0 7px;color:#d8dce2;font-size:12px;font-weight:700}.textField{width:100%;min-width:0;min-height:44px;border:1px solid #343943;border-radius:10px;padding:10px 12px;background:#090b0e;color:#f4f5f7;font-size:13px;outline:none}.textField:focus{border-color:#c9a33f}.fieldHint,.mutedNote{font-size:11px;color:#8b929e;line-height:1.6}.toggleRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #282c33}.toggleRow strong,.toggleRow small{display:block}.toggleRow strong{font-size:13px}.toggleRow small{margin-top:4px;color:#9299a4;font-size:11px}.toggleRow input{width:19px;height:19px;accent-color:#d9ad38;cursor:pointer;flex:0 0 auto}
         .uploadField{display:flex;align-items:center;justify-content:center;text-align:center;margin-top:12px;padding:15px;border:1px dashed #555b66;border-radius:12px;color:#f0cb65;font-size:13px;font-weight:800;cursor:pointer;position:relative}.uploadField small{display:block;margin-top:5px;color:#959ca7;font-size:10px;font-weight:400}.uploadField input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}.imagePreview{margin-top:15px;overflow:hidden;border:1px solid #2b3038;border-radius:12px;background:#08090b}.imagePreview img{display:block;width:100%;max-height:260px;object-fit:contain}.imagePreview span{display:block;padding:8px 10px;color:#a6acb5;font-size:10px;background:#111419}
         .sectionRule{height:1px;background:#2a2e35;margin:22px 0}.colorRow{padding:12px 0;border-bottom:1px solid #272b32}.colorRow>label{display:block;margin-bottom:9px;color:#d9dce1;font-size:12px;font-weight:700}.colorControl{display:flex;align-items:center;gap:10px}.colorControl input{width:40px;height:36px;padding:2px;border:1px solid #3a3f48;border-radius:8px;background:#0a0c0f;cursor:pointer}.colorControl code{flex:1;color:#a9b0bb;font-size:11px}.colorControl button,.resetButton{border:1px solid #353a43;border-radius:8px;padding:8px 10px;background:#191d23;color:#c6cbd3;font-size:11px;cursor:pointer}.resetButton{margin-top:14px}
-        .livePreview{margin-top:10px;padding:14px;border-radius:16px;background-image:radial-gradient(circle at 50% 10%,rgba(255,194,55,.10),transparent 28%),radial-gradient(circle at 15% 70%,rgba(0,220,255,.07),transparent 30%)}.previewCard{width:min(100%,300px);margin:auto;padding:8px;border:1px solid #ffffff1a;border-radius:18px;background:linear-gradient(180deg,#141414,#070707);box-shadow:0 15px 30px #0008}.previewImageWrap{overflow:hidden;border:1px solid #ffffff18;border-radius:13px}.previewImageWrap img{display:block;width:100%;height:auto;max-height:230px;object-fit:contain}.previewButton{position:relative;display:grid;place-items:center;min-height:46px;margin-top:10px;padding:8px 32px;border-radius:11px;font-size:13px;font-weight:900;text-align:center}.previewButton span{position:absolute;right:14px;font-size:23px}.previewHidden{text-align:center;color:#8e949e;font-size:12px;padding:12px}.saveArea{margin-top:20px;padding-top:17px;border-top:1px solid #2a2e35}.saveArea p{color:#9299a4;font-size:11px;line-height:1.5}.saveButton{width:100%;min-height:48px;border:0;border-radius:11px;background:linear-gradient(180deg,#ffdc76,#e9a800);color:#211700;font-size:13px;font-weight:900;cursor:pointer}.saveButton:disabled{opacity:.55;cursor:wait}.editorLoading{min-height:100svh;display:grid;place-items:center;background:#090b0e;color:#eee}
-        @media(max-width:850px){.editorGrid{grid-template-columns:1fr}.editorPanel{padding:18px}.editorHeaderActions{width:100%}}
+        .addButton{width:100%;padding:12px;border:1px dashed #b88c2b;border-radius:10px;background:#282216;color:#ffd45e;font-weight:800;cursor:pointer}.customButtonEditor{margin-top:12px;padding:14px;border:1px solid #30343b;border-radius:12px;background:#0c0f13}.customButtonEditorTop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}.smallActions{display:flex;gap:5px}.smallActions button{padding:6px 9px;border:1px solid #353a43;border-radius:7px;background:#191d23;color:#e8eaf0;cursor:pointer}.smallActions button:disabled{opacity:.35;cursor:default}.customButtonFields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.customButtonFields label{display:grid;gap:6px;color:#aab1bd;font-size:11px}.customButtonFields input[type=color]{width:100%;height:34px;border:1px solid #343943;border-radius:6px;background:#111419}.customButtonFields select{width:100%;min-width:0;padding:8px;border:1px solid #343943;border-radius:6px;background:#090b0e;color:#fff}.customButtonSample{display:flex;margin-top:12px;padding:10px;background:#08090b;border-radius:8px}.customButtonSample span{display:inline-block;border-radius:8px;font-weight:800}.livePreview{margin-top:10px;padding:14px;border-radius:16px;background-image:radial-gradient(circle at 50% 10%,rgba(255,194,55,.10),transparent 28%),radial-gradient(circle at 15% 70%,rgba(0,220,255,.07),transparent 30%)}.previewCard{width:min(100%,300px);margin:auto;padding:8px;border:1px solid #ffffff1a;border-radius:18px;background:linear-gradient(180deg,#141414,#070707);box-shadow:0 15px 30px #0008}.previewImageWrap{overflow:hidden;border:1px solid #ffffff18;border-radius:13px}.previewImageWrap img{display:block;width:100%;height:auto;max-height:230px;object-fit:contain}.previewButton{position:relative;display:grid;place-items:center;min-height:46px;margin-top:10px;padding:8px 32px;border-radius:11px;font-size:13px;font-weight:900;text-align:center}.previewButton span{position:absolute;right:14px;font-size:23px}.previewHidden{text-align:center;color:#8e949e;font-size:12px;padding:12px}.saveArea{margin-top:20px;padding-top:17px;border-top:1px solid #2a2e35}.saveArea p{color:#9299a4;font-size:11px;line-height:1.5}.saveButton{width:100%;min-height:48px;border:0;border-radius:11px;background:linear-gradient(180deg,#ffdc76,#e9a800);color:#211700;font-size:13px;font-weight:900;cursor:pointer}.saveButton:disabled{opacity:.55;cursor:wait}.editorLoading{min-height:100svh;display:grid;place-items:center;background:#090b0e;color:#eee}
+        @media(max-width:850px){.editorGrid{grid-template-columns:1fr}.editorPanel{padding:18px}.editorHeaderActions{width:100%}.customButtonFields{grid-template-columns:repeat(2,minmax(0,1fr))}}
       `}</style>
     </main>
   );

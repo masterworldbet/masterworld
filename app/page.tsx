@@ -82,6 +82,20 @@ export default function Home() {
             </a>
           </div>
         ) : null}
+
+        {config.customButtons?.filter((button) => button.enabled).map((button) => (
+          <div className="customButtonRow" key={button.id} style={{ justifyContent: button.align }}>
+            <a
+              className={`customButton customButton-${button.size}`}
+              href={button.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ background: button.backgroundColor, color: button.textColor }}
+            >
+              <span>{button.text}</span><span aria-hidden="true">›</span>
+            </a>
+          </div>
+        ))}
       </section>
 
       <style jsx>{`
@@ -171,6 +185,12 @@ export default function Home() {
           transform: translateY(0);
         }
 
+        .customButtonRow { display:flex; margin-top:10px; }
+        .customButton { display:flex; align-items:center; justify-content:space-between; gap:18px; max-width:100%; padding:12px 18px; border-radius:12px; text-decoration:none; font-weight:800; box-sizing:border-box; transition:transform .18s ease,filter .18s ease; }
+        .customButton:hover { transform:translateY(-2px); filter:brightness(1.08); }
+        .customButton-small { min-height:36px; font-size:13px; }
+        .customButton-medium { min-height:46px; font-size:15px; }
+        .customButton-large { min-height:56px; font-size:17px; width:100%; }
         .buttonArrow {
           position: absolute;
           right: 18px;

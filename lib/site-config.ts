@@ -1,4 +1,16 @@
+export type CustomButton = {
+  id: string;
+  text: string;
+  url: string;
+  backgroundColor: string;
+  textColor: string;
+  size: "small" | "medium" | "large";
+  align: "left" | "center" | "right";
+  enabled: boolean;
+};
+
 export type SiteConfig = {
+  customButtons: CustomButton[];
   promoImageUrl: string;
   imageAlt: string;
   registerUrl: string;
@@ -12,6 +24,7 @@ export type SiteConfig = {
 };
 
 export const DEFAULT_SITE_CONFIG: SiteConfig = {
+  customButtons: [],
   promoImageUrl: "/promo-square.png",
   imageAlt: "Masterworld",
   registerUrl: "https://masterworldbet.com/sign-up?ref_agent=1feacd0466b9&ref_zean=9ED5866AF713",
@@ -70,7 +83,27 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
   const buttonTextColor = optionalColor("buttonTextColor");
   if (pageBackgroundColor === undefined || cardBackgroundColor === undefined || buttonBackgroundColor === undefined || buttonTextColor === undefined) return null;
 
+  const rawButtons = value.customButtons === undefined ? [] : value.customButtons;
+  if (!Array.isArray(rawButtons) || rawButtons.length > 20) return null;
+  const customButtons: CustomButton[] = [];
+  for (const raw of rawButtons) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+    const button = raw as Record<string, unknown>;
+    const url = safeHttpsUrl(button.url);
+    if (typeof button.id !== "string" || button.id.length < 1 || button.id.length > 80 ||
+        typeof button.text !== "string" || button.text.trim().length < 1 || button.text.length > 80 || !url ||
+        !isHexColor(button.backgroundColor) || !isHexColor(button.textColor) ||
+        !["small", "medium", "large"].includes(String(button.size)) ||
+        !["left", "center", "right"].includes(String(button.align)) || typeof button.enabled !== "boolean") return null;
+    customButtons.push({
+      id: button.id, text: button.text.trim(), url,
+      backgroundColor: button.backgroundColor, textColor: button.textColor,
+      size: button.size as CustomButton["size"], align: button.align as CustomButton["align"], enabled: button.enabled,
+    });
+  }
+
   return {
+    customButtons,
     promoImageUrl,
     imageAlt: value.imageAlt,
     registerUrl,
