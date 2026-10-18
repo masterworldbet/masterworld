@@ -102,6 +102,7 @@ export async function GET(request: NextRequest) {
     const sources: Record<string, number> = {};
     const byTrafficSource: Record<string, { pageViews: number; clicks: number }> = { a: { pageViews: 0, clicks: 0 }, b: { pageViews: 0, clicks: 0 }, direct: { pageViews: 0, clicks: 0 } };
     const buttonClicks: Record<string, number> = {};
+    const buttonClicksBySource: Record<"a" | "b", Record<string, number>> = { a: {}, b: {} };
     for (const event of events) {
       const timestamp = new Date(event.created_at);
       const key = bangkokDateKey(timestamp);
@@ -124,6 +125,10 @@ export async function GET(request: NextRequest) {
         byTrafficSource[trafficSource].clicks++;
         const buttonName = event.button_name || "ปุ่มไม่ระบุชื่อ";
         buttonClicks[buttonName] = (buttonClicks[buttonName] || 0) + 1;
+        if (trafficSource === "a" || trafficSource === "b") {
+          const sourceButtons = buttonClicksBySource[trafficSource];
+          sourceButtons[buttonName] = (sourceButtons[buttonName] || 0) + 1;
+        }
         clicks++;
         if (day) day.clicks++;
         if (hour) hour.clicks++;
@@ -141,6 +146,7 @@ export async function GET(request: NextRequest) {
       devices: countBreakdown(devices),
       trafficSources: byTrafficSource,
       buttonClicks: countBreakdown(buttonClicks).slice(0, 20),
+      buttonClicksBySource: { a: countBreakdown(buttonClicksBySource.a).slice(0, 20), b: countBreakdown(buttonClicksBySource.b).slice(0, 20) },
       sources: countBreakdown(sources).slice(0, 8),
       note: events.length >= 10000 ? "แสดงข้อมูลได้สูงสุด 10,000 เหตุการณ์ในช่วงที่เลือก" : null,
     }, { headers: { "Cache-Control": "no-store" } });
