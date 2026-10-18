@@ -109,9 +109,10 @@ export default function Home() {
           min-height: 100svh;
           display: flex;
           justify-content: center;
-          align-items: center;
-          overflow: hidden;
-          padding: 18px 14px;
+          align-items: flex-start;
+          overflow-x: hidden;
+          overflow-y: visible;
+          padding: 12px 10px 28px;
           box-sizing: border-box;
           background: var(--page-background, radial-gradient(circle at 50% 10%, rgba(255, 194, 55, 0.10), transparent 28%), radial-gradient(circle at 15% 70%, rgba(0, 220, 255, 0.07), transparent 30%), #050505);
         }
@@ -119,11 +120,12 @@ export default function Home() {
         .landingCard {
           position: relative;
           z-index: 2;
-          width: min(100%, 520px);
-          padding: 12px;
+          width: min(100%, 560px);
+          min-width: 0;
+          padding: 0;
           box-sizing: border-box;
-          border: 1px solid rgba(255, 255, 255, 0.10);
-          border-radius: 26px;
+          border: 0;
+          border-radius: 0;
           background: var(--card-background, linear-gradient(180deg, rgba(20, 20, 20, 0.96), rgba(7, 7, 7, 0.98)));
           box-shadow:
             0 28px 80px rgba(0, 0, 0, 0.60),
@@ -131,8 +133,8 @@ export default function Home() {
             inset 0 1px 0 rgba(255, 255, 255, 0.06);
         }
 
-        .freeLayoutStack { display: flex; flex-direction: column; gap: 12px; }
-        .freeLayoutStack > * { margin-top: 0 !important; }
+        .freeLayoutStack { display: flex; flex-direction: column; gap: 12px; width: 100%; min-width: 0; }
+        .freeLayoutStack > * { margin-top: 0 !important; min-width: 0; }
         .imageStack { position: relative; }
         .imageStack .promoLink + .promoLink { margin-top: 12px; }
         .allButtons { position: relative; z-index: 2; }
@@ -146,7 +148,7 @@ export default function Home() {
           align-items: center;
           justify-content: center;
           width: 100%;
-          aspect-ratio: 4 / 5;
+          min-width: 0;
           overflow: hidden;
           border-radius: 20px;
           background: #0b0b0b;
@@ -161,7 +163,7 @@ export default function Home() {
         .promoImage {
           display: block;
           width: 100%;
-          height: 100%;
+          height: auto;
           max-width: 100%;
           object-fit: contain;
           object-position: center;
@@ -245,25 +247,41 @@ export default function Home() {
 
         @media (max-width: 520px) {
           .linkPage {
-            padding: 10px;
+            width: 100%;
+            min-height: 100svh;
+            padding: 0 0 24px;
             align-items: flex-start;
           }
 
           .landingCard {
-            margin-top: 4px;
-            padding: 9px;
-            border-radius: 22px;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
           }
 
+          .freeLayoutStack { gap: 8px; }
           .promoLink {
-            border-radius: 17px;
+            border-radius: 0;
+            border-left: 0;
+            border-right: 0;
+            box-shadow: none;
           }
-
+          .promoLink + .promoLink { margin-top: 0; }
           .registerButton {
             min-height: 54px;
             font-size: 16px;
+            border-radius: 12px;
           }
+          .actionButtons { margin: 10px 12px 0; }
+          .customButtonRow { margin: 8px 12px 0; }
+          .imageStack .allButtons { left: 10px; right: 10px; }
         }
+
       `}</style>
     </main>
   );
