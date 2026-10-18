@@ -104,15 +104,26 @@ export default function Home() {
       </section>
 
       <style jsx>{`
+        :global(html), :global(body) {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+          min-width: 0 !important;
+          overflow-x: hidden !important;
+        }
+        :global(*) { box-sizing: border-box; }
         .linkPage {
           position: relative;
+          width: 100%;
+          max-width: 100vw;
           min-height: 100svh;
           display: flex;
           justify-content: center;
           align-items: flex-start;
-          overflow-x: hidden;
+          overflow-x: clip;
           overflow-y: visible;
-          padding: 12px 10px 28px;
+          padding: 0 0 24px;
+          margin: 0;
           box-sizing: border-box;
           background: var(--page-background, radial-gradient(circle at 50% 10%, rgba(255, 194, 55, 0.10), transparent 28%), radial-gradient(circle at 15% 70%, rgba(0, 220, 255, 0.07), transparent 30%), #050505);
         }
@@ -120,8 +131,10 @@ export default function Home() {
         .landingCard {
           position: relative;
           z-index: 2;
-          width: min(100%, 560px);
+          width: 100%;
+          max-width: 560px;
           min-width: 0;
+          margin: 0 auto;
           padding: 0;
           box-sizing: border-box;
           border: 0;
@@ -133,8 +146,8 @@ export default function Home() {
             inset 0 1px 0 rgba(255, 255, 255, 0.06);
         }
 
-        .freeLayoutStack { display: flex; flex-direction: column; gap: 12px; width: 100%; min-width: 0; }
-        .freeLayoutStack > * { margin-top: 0 !important; min-width: 0; }
+        .freeLayoutStack { display: flex; flex-direction: column; gap: 0; width: 100% !important; max-width: 100%; min-width: 0; }
+        .freeLayoutStack > * { margin-top: 0 !important; width: 100% !important; max-width: 100% !important; min-width: 0; }
         .imageStack { position: relative; }
         .imageStack .promoLink + .promoLink { margin-top: 12px; }
         .allButtons { position: relative; z-index: 2; }
@@ -147,10 +160,13 @@ export default function Home() {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 100%;
+          display: block;
+          width: 100% !important;
+          max-width: 100% !important;
           min-width: 0;
+          margin: 0 !important;
           overflow: hidden;
-          border-radius: 20px;
+          border-radius: 0;
           background: #0b0b0b;
           border: 1px solid rgba(255, 255, 255, 0.09);
           box-shadow:
@@ -161,10 +177,11 @@ export default function Home() {
         .promoLink + .promoLink { margin-top: 12px; }
 
         .promoImage {
-          display: block;
-          width: 100%;
-          height: auto;
-          max-width: 100%;
+          display: block !important;
+          width: 100% !important;
+          height: auto !important;
+          max-width: 100% !important;
+          margin: 0 !important;
           object-fit: contain;
           object-position: center;
         }
@@ -245,17 +262,19 @@ export default function Home() {
           background: rgba(0, 180, 255, 0.08);
         }
 
-        @media (max-width: 520px) {
+        @media (max-width: 767px) {
           .linkPage {
-            width: 100%;
+            width: 100vw;
+            max-width: 100vw;
             min-height: 100svh;
-            padding: 0 0 24px;
+            padding: 0 0 16px;
+            margin: 0;
             align-items: flex-start;
           }
 
           .landingCard {
-            width: 100%;
-            max-width: 100%;
+            width: 100% !important;
+            max-width: 100% !important;
             margin: 0;
             padding: 0;
             border: 0;
@@ -264,14 +283,17 @@ export default function Home() {
             box-shadow: none;
           }
 
-          .freeLayoutStack { gap: 8px; }
+          .freeLayoutStack { gap: 0; }
+          .freeLayoutStack > *, .promoLink, .promoImage {
+            width: 100% !important;
+            max-width: 100% !important;
+          }
           .promoLink {
             border-radius: 0;
-            border-left: 0;
-            border-right: 0;
+            border: 0;
             box-shadow: none;
           }
-          .promoLink + .promoLink { margin-top: 0; }
+          .promoLink + .promoLink { margin-top: 0 !important; }
           .registerButton {
             min-height: 54px;
             font-size: 16px;
