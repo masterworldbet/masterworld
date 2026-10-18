@@ -54,16 +54,16 @@ export default function Home() {
       <div className="landingGlow landingGlowTwo" aria-hidden="true" />
 
       <section className="landingCard" aria-label="Masterworld สมัครสมาชิก">
-        {config.showImage ? (
-          <div className="promoLink">
+        {(config.images ?? [{ id: "legacy-main-image", url: config.promoImageUrl, alt: config.imageAlt, enabled: config.showImage }]).filter((image) => image.enabled).map((image, index) => (
+          <div className="promoLink" key={image.id}>
             <img
-              src={config.promoImageUrl}
-              alt={config.imageAlt}
-              fetchPriority="high"
+              src={image.url}
+              alt={image.alt}
+              fetchPriority={index === 0 ? "high" : "auto"}
               className="promoImage"
             />
           </div>
-        ) : null}
+        ))}
 
         {config.showButton ? (
           <div className="actionButtons">
@@ -138,11 +138,14 @@ export default function Home() {
             0 0 24px rgba(255, 190, 40, 0.08);
         }
 
+        .promoLink + .promoLink { margin-top: 12px; }
+
         .promoImage {
           display: block;
           width: 100%;
           height: auto;
           max-width: 100%;
+          object-fit: contain;
         }
 
         .actionButtons {

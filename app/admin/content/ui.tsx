@@ -1,10 +1,11 @@
 "use client";
 
 import { ChangeEvent, useEffect, useState } from "react";
-import type { CustomButton, SiteConfig } from "../../../lib/site-config";
+import type { CustomButton, SiteConfig, SiteImage } from "../../../lib/site-config";
 
 const defaults: SiteConfig = {
   customButtons: [],
+  images: [{ id: "legacy-main-image", url: "/promo-square.png", alt: "Masterworld", enabled: true }],
   promoImageUrl: "/promo-square.png",
   imageAlt: "Masterworld",
   registerUrl: "https://masterworldbet.com/sign-up?ref_agent=1feacd0466b9&ref_zean=9ED5866AF713",
@@ -49,20 +50,46 @@ export default function ContentEditor() {
   }
 
   async function uploadImage(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
+    const files = Array.from(event.target.files ?? []);
     event.target.value = "";
-    if (!file) return;
+    if (!files.length) return;
     setUploading(true); setError(""); setMessage("");
+    const uploaded: SiteImage[] = [];
     try {
-      const form = new FormData(); form.append("file", file);
-      const response = await fetch("/api/admin/upload", { method: "POST", body: form });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "อัปโหลดรูปไม่สำเร็จ");
-      update("promoImageUrl", data.url);
-      setMessage("อัปโหลดรูปแล้ว อย่าลืมกดบันทึกการเปลี่ยนแปลง");
+      for (const file of files) {
+        const form = new FormData(); form.append("file", file);
+        const response = await fetch("/api/admin/upload", { method: "POST", body: form });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || `อัปโหลด ${file.name} ไม่สำเร็จ`);
+        uploaded.push({ id: `image-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, url: data.url, alt: file.name.replace(/\.[^.]+$/, "").slice(0, 160) || "Masterworld", enabled: true });
+      }
+      const nextImages = [...(config.images ?? []), ...uploaded];
+      setConfig((current) => ({ ...current, images: nextImages, promoImageUrl: nextImages[0]?.url ?? current.promoImageUrl, imageAlt: nextImages[0]?.alt ?? current.imageAlt, showImage: nextImages[0]?.enabled ?? current.showImage }));
+      setMessage(`อัปโหลดรูปสำเร็จ ${uploaded.length} รูป อย่าลืมกดบันทึกการเปลี่ยนแปลง`);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "อัปโหลดรูปไม่สำเร็จ");
     } finally { setUploading(false); }
+  }
+
+  function updateImage(id: string, patch: Partial<SiteImage>) {
+    const nextImages = (config.images ?? []).map((image) => image.id === id ? { ...image, ...patch } : image);
+    setConfig((current) => ({ ...current, images: nextImages, promoImageUrl: nextImages[0]?.url ?? current.promoImageUrl, imageAlt: nextImages[0]?.alt ?? current.imageAlt, showImage: nextImages[0]?.enabled ?? current.showImage }));
+    setMessage("");
+  }
+
+  function moveImage(index: number, direction: -1 | 1) {
+    const next = [...(config.images ?? [])];
+    const target = index + direction;
+    if (target < 0 || target >= next.length) return;
+    [next[index], next[target]] = [next[target], next[index]];
+    setConfig((current) => ({ ...current, images: next, promoImageUrl: next[0]?.url ?? current.promoImageUrl, imageAlt: next[0]?.alt ?? current.imageAlt, showImage: next[0]?.enabled ?? current.showImage }));
+    setMessage("");
+  }
+
+  function removeImage(id: string) {
+    const nextImages = (config.images ?? []).filter((image) => image.id !== id);
+    setConfig((current) => ({ ...current, images: nextImages, promoImageUrl: nextImages[0]?.url ?? "/promo-square.png", imageAlt: nextImages[0]?.alt ?? "Masterworld", showImage: nextImages[0]?.enabled ?? false }));
+    setMessage("");
   }
 
   async function save() {
@@ -132,12 +159,14 @@ export default function ContentEditor() {
           <div className="panelHeading"><span className="panelNumber">01</span><div><h2>รูปภาพและปุ่ม</h2><p>กำหนดเนื้อหาที่แสดงบนหน้าเว็บหลัก</p></div></div>
 
           <label className="toggleRow"><span><strong>แสดงรูปโปรโมชัน</strong><small>เปิดหรือซ่อนรูปหลักบนหน้าเว็บ</small></span><input type="checkbox" checked={config.showImage} onChange={(e) => update("showImage", e.target.checked)} /></label>
-          <label className="fieldLabel" htmlFor="image-url">URL รูปภาพ</label>
-          <input id="image-url" className="textField" value={config.promoImageUrl} onChange={(e) => update("promoImageUrl", e.target.value)} placeholder="/promo-square.png หรือ URL รูป" />
-          <label className="fieldLabel" htmlFor="image-alt">คำอธิบายรูป</label>
-          <input id="image-alt" className="textField" value={config.imageAlt} maxLength={160} onChange={(e) => update("imageAlt", e.target.value)} />
-          <label className="uploadField"><span>{uploading ? "กำลังอัปโหลด…" : "＋ อัปโหลดรูปใหม่"}<small>JPG, PNG, WEBP หรือ GIF · ไม่เกิน 8 MB</small></span><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" disabled={uploading} onChange={uploadImage} /></label>
-          {config.showImage && config.promoImageUrl ? <div className="imagePreview"><img src={config.promoImageUrl} alt="ตัวอย่างรูปที่ตั้งค่า" onError={(e) => { e.currentTarget.style.display = "none"; }} /><span>ตัวอย่างรูปปัจจุบัน</span></div> : <p className="mutedNote">ขณะนี้ซ่อนรูปบนหน้าเว็บหลัก</p>}
+          <p className="fieldHint">อัปโหลดได้หลายรูปพร้อมกัน รูปจะแสดงเรียงลงด้านล่างและแสดงเต็มรูปโดยไม่ตัดขอบ รองรับ JPG, PNG, WEBP หรือ GIF ขนาดไม่เกิน 8 MB ต่อรูป</p>
+          <label className="uploadField"><span>{uploading ? "กำลังอัปโหลดรูป…" : "＋ อัปโหลดรูปหลายรูป"}<small>เลือกไฟล์ได้หลายรูป · ตั้งชื่อไฟล์บนระบบให้อัตโนมัติ</small></span><input type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple disabled={uploading} onChange={uploadImage} /></label>
+          {(config.images ?? []).length ? <div className="imageList">{(config.images ?? []).map((image, index) => <div className="imageItem" key={image.id}>
+            <img src={image.url} alt={image.alt} />
+            <div className="imageItemFields"><strong>รูปที่ {index + 1}</strong><label className="toggleRow"><span><small>แสดงรูปนี้</small></span><input type="checkbox" checked={image.enabled} onChange={(e) => updateImage(image.id, { enabled: e.target.checked })} /></label>
+              <label className="fieldLabel">คำอธิบายรูป</label><input className="textField" value={image.alt} maxLength={160} onChange={(e) => updateImage(image.id, { alt: e.target.value })} />
+              <div className="smallActions"><button type="button" onClick={() => moveImage(index, -1)} disabled={index === 0}>↑ เลื่อนขึ้น</button><button type="button" onClick={() => moveImage(index, 1)} disabled={index === (config.images ?? []).length - 1}>↓ เลื่อนลง</button><button type="button" onClick={() => removeImage(image.id)}>ลบรูป</button></div>
+            </div></div>)}</div> : <p className="mutedNote">ยังไม่มีรูปในรายการ กดอัปโหลดรูปหลายรูปเพื่อเพิ่มรูปแรก</p>}
 
           <div className="sectionRule" />
           <label className="toggleRow"><span><strong>แสดงปุ่มหลัก</strong><small>เปิดหรือซ่อนปุ่มบนหน้าเว็บ</small></span><input type="checkbox" checked={config.showButton} onChange={(e) => update("showButton", e.target.checked)} /></label>
@@ -177,7 +206,7 @@ export default function ContentEditor() {
           <div className="panelHeading"><span className="panelNumber">03</span><div><h2>ตัวอย่างก่อนบันทึก</h2><p>ตัวอย่างจำลองคร่าว ๆ ไม่ใช่หน้าเว็บที่เผยแพร่แล้ว</p></div></div>
           <div className="livePreview" style={{ backgroundColor: config.pageBackgroundColor || "#050505" }}>
             <div className="previewCard" style={{ backgroundColor: config.cardBackgroundColor || "#141414" }}>
-              {config.showImage ? <div className="previewImageWrap"><img src={config.promoImageUrl} alt={config.imageAlt} /></div> : <p className="previewHidden">ซ่อนรูปภาพอยู่</p>}
+              {(config.images ?? []).some((image) => image.enabled) ? (config.images ?? []).filter((image) => image.enabled).map((image) => <div className="previewImageWrap" key={image.id}><img src={image.url} alt={image.alt} /></div>) : <p className="previewHidden">ซ่อนรูปภาพอยู่</p>}
               {config.showButton ? <div className="previewButton" style={{ backgroundColor: config.buttonBackgroundColor || "#f0a900", color: config.buttonTextColor || "#171000" }}>{config.buttonText || "ข้อความบนปุ่ม"}<span>›</span></div> : <p className="previewHidden">ซ่อนปุ่มอยู่</p>}
             </div>
           </div>
@@ -193,9 +222,10 @@ export default function ContentEditor() {
         .editorGrid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}.editorPanel{padding:22px;border:1px solid #292d34;border-radius:18px;background:#111419;box-shadow:0 16px 45px #0002;min-width:0}
         .panelHeading{display:flex;align-items:center;gap:12px;margin-bottom:22px}.panelNumber{width:38px;height:38px;display:grid;place-items:center;flex:0 0 38px;border-radius:12px;background:#292316;color:#f0c85b;font-size:12px;font-weight:900}.panelHeading h2{font-size:17px;margin:0}.panelHeading p{font-size:12px;color:#969da8;margin:5px 0 0;line-height:1.5}
         .fieldLabel{display:block;margin:16px 0 7px;color:#d8dce2;font-size:12px;font-weight:700}.textField{width:100%;min-width:0;min-height:44px;border:1px solid #343943;border-radius:10px;padding:10px 12px;background:#090b0e;color:#f4f5f7;font-size:13px;outline:none}.textField:focus{border-color:#c9a33f}.fieldHint,.mutedNote{font-size:11px;color:#8b929e;line-height:1.6}.toggleRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #282c33}.toggleRow strong,.toggleRow small{display:block}.toggleRow strong{font-size:13px}.toggleRow small{margin-top:4px;color:#9299a4;font-size:11px}.toggleRow input{width:19px;height:19px;accent-color:#d9ad38;cursor:pointer;flex:0 0 auto}
-        .uploadField{display:flex;align-items:center;justify-content:center;text-align:center;margin-top:12px;padding:15px;border:1px dashed #555b66;border-radius:12px;color:#f0cb65;font-size:13px;font-weight:800;cursor:pointer;position:relative}.uploadField small{display:block;margin-top:5px;color:#959ca7;font-size:10px;font-weight:400}.uploadField input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}.imagePreview{margin-top:15px;overflow:hidden;border:1px solid #2b3038;border-radius:12px;background:#08090b}.imagePreview img{display:block;width:100%;max-height:260px;object-fit:contain}.imagePreview span{display:block;padding:8px 10px;color:#a6acb5;font-size:10px;background:#111419}
+        .uploadField{display:flex;align-items:center;justify-content:center;text-align:center;margin-top:12px;padding:15px;border:1px dashed #555b66;border-radius:12px;color:#f0cb65;font-size:13px;font-weight:800;cursor:pointer;position:relative}.uploadField small{display:block;margin-top:5px;color:#959ca7;font-size:10px;font-weight:400}.uploadField input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}.imageList{display:grid;gap:12px;margin-top:14px}.imageItem{display:grid;grid-template-columns:minmax(90px,140px) minmax(0,1fr);gap:12px;padding:12px;border:1px solid #30343b;border-radius:12px;background:#0c0f13}.imageItem>img{display:block;width:100%;height:auto;max-height:220px;object-fit:contain;align-self:start;background:#08090b;border-radius:8px}.imageItemFields{min-width:0}.imageItemFields>.toggleRow{padding:4px 0}.imageItemFields .smallActions{margin-top:10px;flex-wrap:wrap}.previewImageWrap+.previewImageWrap{margin-top:8px}
         .sectionRule{height:1px;background:#2a2e35;margin:22px 0}.colorRow{padding:12px 0;border-bottom:1px solid #272b32}.colorRow>label{display:block;margin-bottom:9px;color:#d9dce1;font-size:12px;font-weight:700}.colorControl{display:flex;align-items:center;gap:10px}.colorControl input{width:40px;height:36px;padding:2px;border:1px solid #3a3f48;border-radius:8px;background:#0a0c0f;cursor:pointer}.colorControl code{flex:1;color:#a9b0bb;font-size:11px}.colorControl button,.resetButton{border:1px solid #353a43;border-radius:8px;padding:8px 10px;background:#191d23;color:#c6cbd3;font-size:11px;cursor:pointer}.resetButton{margin-top:14px}
-        .addButton{width:100%;padding:12px;border:1px dashed #b88c2b;border-radius:10px;background:#282216;color:#ffd45e;font-weight:800;cursor:pointer}.customButtonEditor{margin-top:12px;padding:14px;border:1px solid #30343b;border-radius:12px;background:#0c0f13}.customButtonEditorTop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}.smallActions{display:flex;gap:5px}.smallActions button{padding:6px 9px;border:1px solid #353a43;border-radius:7px;background:#191d23;color:#e8eaf0;cursor:pointer}.smallActions button:disabled{opacity:.35;cursor:default}.customButtonFields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.customButtonFields label{display:grid;gap:6px;color:#aab1bd;font-size:11px}.customButtonFields input[type=color]{width:100%;height:34px;border:1px solid #343943;border-radius:6px;background:#111419}.customButtonFields select{width:100%;min-width:0;padding:8px;border:1px solid #343943;border-radius:6px;background:#090b0e;color:#fff}.customButtonSample{display:flex;margin-top:12px;padding:10px;background:#08090b;border-radius:8px}.customButtonSample span{display:inline-block;border-radius:8px;font-weight:800}.livePreview{margin-top:10px;padding:14px;border-radius:16px;background-image:radial-gradient(circle at 50% 10%,rgba(255,194,55,.10),transparent 28%),radial-gradient(circle at 15% 70%,rgba(0,220,255,.07),transparent 30%)}.previewCard{width:min(100%,300px);margin:auto;padding:8px;border:1px solid #ffffff1a;border-radius:18px;background:linear-gradient(180deg,#141414,#070707);box-shadow:0 15px 30px #0008}.previewImageWrap{overflow:hidden;border:1px solid #ffffff18;border-radius:13px}.previewImageWrap img{display:block;width:100%;height:auto;max-height:230px;object-fit:contain}.previewButton{position:relative;display:grid;place-items:center;min-height:46px;margin-top:10px;padding:8px 32px;border-radius:11px;font-size:13px;font-weight:900;text-align:center}.previewButton span{position:absolute;right:14px;font-size:23px}.previewHidden{text-align:center;color:#8e949e;font-size:12px;padding:12px}.saveArea{margin-top:20px;padding-top:17px;border-top:1px solid #2a2e35}.saveArea p{color:#9299a4;font-size:11px;line-height:1.5}.saveButton{width:100%;min-height:48px;border:0;border-radius:11px;background:linear-gradient(180deg,#ffdc76,#e9a800);color:#211700;font-size:13px;font-weight:900;cursor:pointer}.saveButton:disabled{opacity:.55;cursor:wait}.editorLoading{min-height:100svh;display:grid;place-items:center;background:#090b0e;color:#eee}
+        .addButton{width:100%;padding:12px;border:1px dashed #b88c2b;border-radius:10px;background:#282216;color:#ffd45e;font-weight:800;cursor:pointer}.customButtonEditor{margin-top:12px;padding:14px;border:1px solid #30343b;border-radius:12px;background:#0c0f13}.customButtonEditorTop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}.smallActions{display:flex;gap:5px}.smallActions button{padding:6px 9px;border:1px solid #353a43;border-radius:7px;background:#191d23;color:#e8eaf0;cursor:pointer}.smallActions button:disabled{opacity:.35;cursor:default}.customButtonFields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.customButtonFields label{display:grid;gap:6px;color:#aab1bd;font-size:11px}.customButtonFields input[type=color]{width:100%;height:34px;border:1px solid #343943;border-radius:6px;background:#111419}.customButtonFields select{width:100%;min-width:0;padding:8px;border:1px solid #343943;border-radius:6px;background:#090b0e;color:#fff}.customButtonSample{display:flex;margin-top:12px;padding:10px;background:#08090b;border-radius:8px}.customButtonSample span{display:inline-block;border-radius:8px;font-weight:800}.livePreview{margin-top:10px;padding:14px;border-radius:16px;background-image:radial-gradient(circle at 50% 10%,rgba(255,194,55,.10),transparent 28%),radial-gradient(circle at 15% 70%,rgba(0,220,255,.07),transparent 30%)}.previewCard{width:min(100%,300px);margin:auto;padding:8px;border:1px solid #ffffff1a;border-radius:18px;background:linear-gradient(180deg,#141414,#070707);box-shadow:0 15px 30px #0008}.previewImageWrap{overflow:hidden;border:1px solid #ffffff18;border-radius:13px}.previewImageWrap img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}.previewButton{position:relative;display:grid;place-items:center;min-height:46px;margin-top:10px;padding:8px 32px;border-radius:11px;font-size:13px;font-weight:900;text-align:center}.previewButton span{position:absolute;right:14px;font-size:23px}.previewHidden{text-align:center;color:#8e949e;font-size:12px;padding:12px}.saveArea{margin-top:20px;padding-top:17px;border-top:1px solid #2a2e35}.saveArea p{color:#9299a4;font-size:11px;line-height:1.5}.saveButton{width:100%;min-height:48px;border:0;border-radius:11px;background:linear-gradient(180deg,#ffdc76,#e9a800);color:#211700;font-size:13px;font-weight:900;cursor:pointer}.saveButton:disabled{opacity:.55;cursor:wait}.editorLoading{min-height:100svh;display:grid;place-items:center;background:#090b0e;color:#eee}
+        @media(max-width:520px){.imageItem{grid-template-columns:1fr}.imageItem>img{max-height:300px}}
         @media(max-width:850px){.editorGrid{grid-template-columns:1fr}.editorPanel{padding:18px}.editorHeaderActions{width:100%}.customButtonFields{grid-template-columns:repeat(2,minmax(0,1fr))}}
       `}</style>
     </main>

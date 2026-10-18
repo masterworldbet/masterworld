@@ -9,8 +9,11 @@ export type CustomButton = {
   enabled: boolean;
 };
 
+export type SiteImage = { id: string; url: string; alt: string; enabled: boolean };
+
 export type SiteConfig = {
   customButtons: CustomButton[];
+  images: SiteImage[];
   promoImageUrl: string;
   imageAlt: string;
   registerUrl: string;
@@ -25,6 +28,7 @@ export type SiteConfig = {
 
 export const DEFAULT_SITE_CONFIG: SiteConfig = {
   customButtons: [],
+  images: [{ id: "legacy-main-image", url: "/promo-square.png", alt: "Masterworld", enabled: true }],
   promoImageUrl: "/promo-square.png",
   imageAlt: "Masterworld",
   registerUrl: "https://masterworldbet.com/sign-up?ref_agent=1feacd0466b9&ref_zean=9ED5866AF713",
@@ -102,13 +106,29 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
     });
   }
 
+  const rawImages = value.images === undefined
+    ? [{ id: "legacy-main-image", url: promoImageUrl, alt: value.imageAlt, enabled: value.showImage }]
+    : value.images;
+  if (!Array.isArray(rawImages) || rawImages.length > 50) return null;
+  const images: SiteImage[] = [];
+  for (const raw of rawImages) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+    const image = raw as Record<string, unknown>;
+    const url = safeImageUrl(image.url);
+    if (typeof image.id !== "string" || image.id.length < 1 || image.id.length > 100 || !url ||
+        typeof image.alt !== "string" || image.alt.length > 160 || typeof image.enabled !== "boolean") return null;
+    images.push({ id: image.id, url, alt: image.alt, enabled: image.enabled });
+  }
+  const firstImage = images[0];
+
   return {
     customButtons,
-    promoImageUrl,
-    imageAlt: value.imageAlt,
+    images,
+    promoImageUrl: firstImage?.url ?? promoImageUrl,
+    imageAlt: firstImage?.alt ?? value.imageAlt,
     registerUrl,
     buttonText: value.buttonText.trim(),
-    showImage: value.showImage,
+    showImage: firstImage?.enabled ?? value.showImage,
     showButton: value.showButton,
     pageBackgroundColor,
     cardBackgroundColor,
@@ -119,6 +139,11 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
 
 export function mergeSiteConfig(input: unknown): SiteConfig {
   if (!input || typeof input !== "object" || Array.isArray(input)) return DEFAULT_SITE_CONFIG;
-  const merged = { ...DEFAULT_SITE_CONFIG, ...(input as Partial<SiteConfig>) };
+  const source = input as Partial<SiteConfig>;
+  const merged = { ...DEFAULT_SITE_CONFIG, ...source };
+  // Migrate existing saved configurations that predate the multi-image gallery.
+  if (!Array.isArray(source.images) && typeof source.promoImageUrl === "string") {
+    merged.images = [{ id: "legacy-main-image", url: source.promoImageUrl, alt: source.imageAlt || "Masterworld", enabled: source.showImage ?? true }];
+  }
   return sanitizeSiteConfig(merged) ?? DEFAULT_SITE_CONFIG;
 }
