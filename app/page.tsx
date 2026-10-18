@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
-
-const registerUrl =
-  "https://masterworldbet.com/sign-up?ref_agent=1feacd0466b9&ref_zean=9ED5866AF713";
+import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
+import { DEFAULT_SITE_CONFIG, type SiteConfig } from "../lib/site-config";
 
 function trackEvent(event: "page_view" | "register_click") {
   if (typeof window === "undefined") return;
@@ -28,40 +27,61 @@ function trackEvent(event: "page_view" | "register_click") {
 }
 
 export default function Home() {
+  const [config, setConfig] = useState<SiteConfig>(DEFAULT_SITE_CONFIG);
+
   useEffect(() => {
     trackEvent("page_view");
+    let active = true;
+    fetch("/api/site-config", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : null)
+      .then((data) => {
+        if (active && data?.config) setConfig({ ...DEFAULT_SITE_CONFIG, ...data.config });
+      })
+      .catch(() => undefined);
+    return () => { active = false; };
   }, []);
 
+  const customStyles = {
+    ...(config.pageBackgroundColor ? { "--page-background": config.pageBackgroundColor } : {}),
+    ...(config.cardBackgroundColor ? { "--card-background": config.cardBackgroundColor } : {}),
+    ...(config.buttonBackgroundColor ? { "--button-background": `linear-gradient(180deg, color-mix(in srgb, ${config.buttonBackgroundColor} 40%, white), ${config.buttonBackgroundColor})` } : {}),
+    ...(config.buttonTextColor ? { "--button-text-color": config.buttonTextColor } : {}),
+  } as unknown as CSSProperties;
+
   return (
-    <main className="linkPage">
+    <main className="linkPage" style={customStyles}>
       <div className="landingGlow landingGlowOne" aria-hidden="true" />
       <div className="landingGlow landingGlowTwo" aria-hidden="true" />
 
       <section className="landingCard" aria-label="Masterworld สมัครสมาชิก">
-        <div className="promoLink">
-          <img
-            src="/promo-square.png"
-            alt="Masterworld"
-            fetchPriority="high"
-            className="promoImage"
-          />
-        </div>
+        {config.showImage ? (
+          <div className="promoLink">
+            <img
+              src={config.promoImageUrl}
+              alt={config.imageAlt}
+              fetchPriority="high"
+              className="promoImage"
+            />
+          </div>
+        ) : null}
 
-        <div className="actionButtons">
-          <a
-            className="registerButton"
-            href={registerUrl}
-            onClick={() => trackEvent("register_click")}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="สมัครสมาชิก Masterworld"
-          >
-            <span>สมัครเลย</span>
-            <span className="buttonArrow" aria-hidden="true">
-              ›
-            </span>
-          </a>
-        </div>
+        {config.showButton ? (
+          <div className="actionButtons">
+            <a
+              className="registerButton"
+              href={config.registerUrl}
+              onClick={() => trackEvent("register_click")}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={config.buttonText}
+            >
+              <span>{config.buttonText}</span>
+              <span className="buttonArrow" aria-hidden="true">
+                ›
+              </span>
+            </a>
+          </div>
+        ) : null}
       </section>
 
       <style jsx>{`
@@ -74,18 +94,7 @@ export default function Home() {
           overflow: hidden;
           padding: 18px 14px;
           box-sizing: border-box;
-          background:
-            radial-gradient(
-              circle at 50% 10%,
-              rgba(255, 194, 55, 0.10),
-              transparent 28%
-            ),
-            radial-gradient(
-              circle at 15% 70%,
-              rgba(0, 220, 255, 0.07),
-              transparent 30%
-            ),
-            #050505;
+          background: var(--page-background, radial-gradient(circle at 50% 10%, rgba(255, 194, 55, 0.10), transparent 28%), radial-gradient(circle at 15% 70%, rgba(0, 220, 255, 0.07), transparent 30%), #050505);
         }
 
         .landingCard {
@@ -96,11 +105,7 @@ export default function Home() {
           box-sizing: border-box;
           border: 1px solid rgba(255, 255, 255, 0.10);
           border-radius: 26px;
-          background: linear-gradient(
-            180deg,
-            rgba(20, 20, 20, 0.96),
-            rgba(7, 7, 7, 0.98)
-          );
+          background: var(--card-background, linear-gradient(180deg, rgba(20, 20, 20, 0.96), rgba(7, 7, 7, 0.98)));
           box-shadow:
             0 28px 80px rgba(0, 0, 0, 0.60),
             0 0 45px rgba(255, 190, 40, 0.07),
@@ -143,8 +148,8 @@ export default function Home() {
           padding: 0 48px;
           border-radius: 15px;
           border: 1px solid rgba(255, 215, 100, 0.55);
-          background: linear-gradient(180deg, #ffd76a, #f0a900);
-          color: #171000;
+          background: var(--button-background, linear-gradient(180deg, #ffd76a, #f0a900));
+          color: var(--button-text-color, #171000);
           text-decoration: none;
           font-size: 17px;
           font-weight: 900;

@@ -22,7 +22,9 @@ export default function AnalyticsLoginPage() {
         setError(result.error || "เข้าสู่ระบบไม่สำเร็จ");
         return;
       }
-      window.location.href = "/admin/analytics";
+      const requestedNext = new URLSearchParams(window.location.search).get("next");
+      const safeNext = requestedNext && requestedNext.startsWith("/admin/") && !requestedNext.startsWith("//") ? requestedNext : "/admin/analytics";
+      window.location.href = safeNext;
     } catch {
       setError("เชื่อมต่อไม่ได้ กรุณาลองใหม่");
     } finally {
@@ -35,7 +37,7 @@ export default function AnalyticsLoginPage() {
       <form className="loginCard" onSubmit={submit}>
         <div className="loginMark">MW</div>
         <p className="eyebrow">MASTER WORLD CLASS</p>
-        <h1>เข้าสู่ระบบสถิติ</h1>
+        <h1>เข้าสู่ระบบผู้ดูแล</h1>
         <p className="loginDescription">พื้นที่สำหรับผู้ดูแลเว็บไซต์เท่านั้น</p>
         <label htmlFor="admin-password">รหัสผ่านผู้ดูแล</label>
         <input
