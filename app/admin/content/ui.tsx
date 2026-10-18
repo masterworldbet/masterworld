@@ -16,6 +16,7 @@ const defaults: SiteConfig = {
   showImage: true,
   showButton: true,
   buttonPlacement: "below",
+  layoutOrder: ["image:legacy-main-image", "main-button"],
   pageBackgroundColor: null,
   cardBackgroundColor: null,
   buttonBackgroundColor: null,
@@ -27,7 +28,6 @@ type ColorKey = keyof typeof colorDefaults;
 
 export default function ContentEditor() {
   const [config, setConfig] = useState<SiteConfig>(defaults);
-  const [draggingButtonId, setDraggingButtonId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -136,16 +136,36 @@ export default function ContentEditor() {
     update("customButtons", next);
   }
 
-  function reorderCustomButton(draggedId: string, targetId: string) {
-    if (!draggedId || draggedId === targetId) return;
-    const next = [...config.customButtons];
-    const from = next.findIndex((button) => button.id === draggedId);
-    const to = next.findIndex((button) => button.id === targetId);
+  function normalizedLayoutOrder(): string[] {
+    const valid = [
+      ...(config.images ?? []).map((image) => `image:${image.id}`),
+      "main-button",
+      ...(config.customButtons ?? []).map((button) => `button:${button.id}`),
+    ];
+    const current = (config.layoutOrder ?? []).filter((id) => valid.includes(id));
+    for (const id of valid) if (!current.includes(id)) current.push(id);
+    return current;
+  }
+
+  function moveLayoutItem(sourceId: string, targetId: string) {
+    if (sourceId === targetId) return;
+    const next = normalizedLayoutOrder();
+    const from = next.indexOf(sourceId);
+    const to = next.indexOf(targetId);
     if (from < 0 || to < 0) return;
-    const [dragged] = next.splice(from, 1);
-    next.splice(to, 0, dragged);
-    update("customButtons", next);
-    setMessage("เปลี่ยนลำดับปุ่มแล้ว อย่าลืมกดบันทึกการเปลี่ยนแปลง");
+    next.splice(from, 1);
+    next.splice(to, 0, sourceId);
+    update("layoutOrder", next);
+  }
+
+  function layoutItemLabel(id: string) {
+    if (id === "main-button") return `ปุ่มหลัก: ${config.buttonText}`;
+    if (id.startsWith("image:")) {
+      const image = config.images.find((item) => `image:${item.id}` === id);
+      return image ? `รูปภาพ: ${image.alt || image.url}` : "รูปภาพ";
+    }
+    const button = config.customButtons.find((item) => `button:${item.id}` === id);
+    return button ? `ปุ่มเพิ่มเติม: ${button.text}` : "ปุ่มเพิ่มเติม";
   }
 
   async function logout() {
@@ -210,9 +230,8 @@ export default function ContentEditor() {
           <button type="button" className="addButton" onClick={addCustomButton}>＋ เพิ่มปุ่มใหม่</button>
           {config.customButtons.length === 0 ? <p className="mutedNote">ยังไม่มีปุ่มเพิ่มเติม กด “เพิ่มปุ่มใหม่” เพื่อสร้างปุ่มแรก</p> : null}
           {config.customButtons.map((button, index) => (
-            <div className={`customButtonEditor ${draggingButtonId === button.id ? "isDraggingButton" : ""}`} key={button.id} draggable onDragStart={(event) => { setDraggingButtonId(button.id); event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", button.id); }} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; }} onDrop={(event) => { event.preventDefault(); const draggedId = event.dataTransfer.getData("text/plain") || draggingButtonId; if (draggedId) reorderCustomButton(draggedId, button.id); setDraggingButtonId(null); }} onDragEnd={() => setDraggingButtonId(null)}>
-              <div className="customButtonEditorTop"><strong><span className="dragHandle" aria-hidden="true">⠿</span> ปุ่มเพิ่มเติม {index + 1}</strong><div className="smallActions"><button type="button" title="เลื่อนขึ้น" onClick={() => moveCustomButton(index, -1)} disabled={index === 0} aria-label="เลื่อนปุ่มขึ้น">↑</button><button type="button" title="เลื่อนลง" onClick={() => moveCustomButton(index, 1)} disabled={index === config.customButtons.length - 1} aria-label="เลื่อนปุ่มลง">↓</button><button type="button" onClick={() => updateCustomButton(button.id, { enabled: !button.enabled })}>{button.enabled ? "ซ่อน" : "แสดง"}</button><button type="button" onClick={() => update("customButtons", config.customButtons.filter((item) => item.id !== button.id))}>ลบ</button></div></div>
-              <p className="dragHint">ลากการ์ดนี้ขึ้นหรือลงเพื่อเปลี่ยนลำดับปุ่ม</p>
+            <div className="customButtonEditor" key={button.id}>
+              <div className="customButtonEditorTop"><strong>ปุ่มเพิ่มเติม {index + 1}</strong><div className="smallActions"><button type="button" onClick={() => moveCustomButton(index, -1)} disabled={index === 0} aria-label="เลื่อนปุ่มขึ้น">↑</button><button type="button" onClick={() => moveCustomButton(index, 1)} disabled={index === config.customButtons.length - 1} aria-label="เลื่อนปุ่มลง">↓</button><button type="button" onClick={() => updateCustomButton(button.id, { enabled: !button.enabled })}>{button.enabled ? "ซ่อน" : "แสดง"}</button><button type="button" onClick={() => update("customButtons", config.customButtons.filter((item) => item.id !== button.id))}>ลบ</button></div></div>
               <label className="fieldLabel">ข้อความบนปุ่ม</label><input className="textField" value={button.text} maxLength={80} onChange={(e) => updateCustomButton(button.id, { text: e.target.value })} />
               <label className="fieldLabel">ลิงก์ปลายทาง (HTTPS)</label><input className="textField" type="url" value={button.url} onChange={(e) => updateCustomButton(button.id, { url: e.target.value })} />
               <div className="customButtonFields"><label>สีปุ่ม<input type="color" value={button.backgroundColor} onChange={(e) => updateCustomButton(button.id, { backgroundColor: e.target.value })} /></label><label>สีข้อความ<input type="color" value={button.textColor} onChange={(e) => updateCustomButton(button.id, { textColor: e.target.value })} /></label><label>ขนาด<select value={button.size} onChange={(e) => updateCustomButton(button.id, { size: e.target.value as CustomButton["size"] })}><option value="small">เล็ก</option><option value="medium">กลาง</option><option value="large">ใหญ่</option></select></label><label>ตำแหน่ง<select value={button.align} onChange={(e) => updateCustomButton(button.id, { align: e.target.value as CustomButton["align"] })}><option value="left">ซ้าย</option><option value="center">กลาง</option><option value="right">ขวา</option></select></label></div>
@@ -220,6 +239,13 @@ export default function ContentEditor() {
               <div className="customButtonSample" style={{ justifyContent: button.align }}><span style={{ background: button.backgroundColor, color: button.textColor, fontSize: button.size === "small" ? 12 : button.size === "large" ? 17 : 14, padding: button.size === "small" ? "8px 12px" : button.size === "large" ? "14px 20px" : "11px 16px", opacity: button.enabled ? 1 : .45 }}>{button.text || "ตัวอย่างปุ่ม"}　›</span></div>
             </div>
           ))}
+
+          <div className="sectionRule" />
+          <div className="panelHeading"><span className="panelNumber">06</span><div><h2>จัดลำดับรูปและปุ่ม</h2><p>ลากรายการขึ้นหรือลง เพื่อวางปุ่มไว้เหนือรูป ใต้รูป หรือแทรกระหว่างรูปแต่ละรูป</p></div></div>
+          <p className="fieldHint">ลากรายการแล้วปล่อยตรงตำแหน่งที่ต้องการ จากนั้นกดบันทึกการเปลี่ยนแปลง รายการที่ปิดการแสดงผลจะยังอยู่ในลำดับแต่ไม่แสดงบนหน้าเว็บ</p>
+          <div className="layoutOrderList">{normalizedLayoutOrder().map((id, index) => <div className="layoutOrderItem" key={id} draggable onDragStart={(event) => { event.dataTransfer.setData("text/plain", id); event.dataTransfer.effectAllowed = "move"; }} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; }} onDrop={(event) => { event.preventDefault(); const sourceId = event.dataTransfer.getData("text/plain"); moveLayoutItem(sourceId, id); }}>
+            <span className="dragHandle" aria-hidden="true">⠿</span><span className="layoutOrderNumber">{index + 1}</span><span className="layoutOrderLabel">{layoutItemLabel(id)}</span><span className="dragHint">ลากเพื่อย้าย</span>
+          </div>)}</div>
         </section>
 
         <section className="editorPanel">
@@ -258,7 +284,7 @@ export default function ContentEditor() {
         .fieldLabel{display:block;margin:16px 0 7px;color:#d8dce2;font-size:12px;font-weight:700}.textField{width:100%;min-width:0;min-height:44px;border:1px solid #343943;border-radius:10px;padding:10px 12px;background:#090b0e;color:#f4f5f7;font-size:13px;outline:none}.textField:focus{border-color:#c9a33f}.fieldHint,.mutedNote{font-size:11px;color:#8b929e;line-height:1.6}.toggleRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #282c33}.toggleRow strong,.toggleRow small{display:block}.toggleRow strong{font-size:13px}.toggleRow small{margin-top:4px;color:#9299a4;font-size:11px}.toggleRow input{width:19px;height:19px;accent-color:#d9ad38;cursor:pointer;flex:0 0 auto}
         .uploadField{display:flex;align-items:center;justify-content:center;text-align:center;margin-top:12px;padding:15px;border:1px dashed #555b66;border-radius:12px;color:#f0cb65;font-size:13px;font-weight:800;cursor:pointer;position:relative}.uploadField small{display:block;margin-top:5px;color:#959ca7;font-size:10px;font-weight:400}.uploadField input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}.imageList{display:grid;gap:12px;margin-top:14px}.imageItem{display:grid;grid-template-columns:minmax(90px,140px) minmax(0,1fr);gap:12px;padding:12px;border:1px solid #30343b;border-radius:12px;background:#0c0f13}.imageItem>img{display:block;width:100%;height:auto;max-height:220px;object-fit:contain;align-self:start;background:#08090b;border-radius:8px}.imageItemFields{min-width:0}.imageItemFields>.toggleRow{padding:4px 0}.imageItemFields .smallActions{margin-top:10px;flex-wrap:wrap}.previewImageWrap+.previewImageWrap{margin-top:8px}
         .sectionRule{height:1px;background:#2a2e35;margin:22px 0}.colorRow{padding:12px 0;border-bottom:1px solid #272b32}.colorRow>label{display:block;margin-bottom:9px;color:#d9dce1;font-size:12px;font-weight:700}.colorControl{display:flex;align-items:center;gap:10px}.colorControl input{width:40px;height:36px;padding:2px;border:1px solid #3a3f48;border-radius:8px;background:#0a0c0f;cursor:pointer}.colorControl code{flex:1;color:#a9b0bb;font-size:11px}.colorControl button,.resetButton{border:1px solid #353a43;border-radius:8px;padding:8px 10px;background:#191d23;color:#c6cbd3;font-size:11px;cursor:pointer}.resetButton{margin-top:14px}
-        .addButton{width:100%;padding:12px;border:1px dashed #b88c2b;border-radius:10px;background:#282216;color:#ffd45e;font-weight:800;cursor:pointer}.customButtonEditor{margin-top:12px;padding:14px;border:1px solid #30343b;border-radius:12px;background:#0c0f13;cursor:grab}.customButtonEditor:active{cursor:grabbing}.customButtonEditor.isDraggingButton{opacity:.5;border-color:#e6b844;border-style:dashed}.dragHandle{display:inline-block;color:#e6b844;font-size:20px;vertical-align:middle;cursor:grab}.dragHint{margin:6px 0 0;color:#8b929e;font-size:10px}.customButtonEditorTop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}.smallActions{display:flex;gap:5px}.smallActions button{padding:6px 9px;border:1px solid #353a43;border-radius:7px;background:#191d23;color:#e8eaf0;cursor:pointer}.smallActions button:disabled{opacity:.35;cursor:default}.customButtonFields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.customButtonFields label{display:grid;gap:6px;color:#aab1bd;font-size:11px}.customButtonFields input[type=color]{width:100%;height:34px;border:1px solid #343943;border-radius:6px;background:#111419}.customButtonFields select{width:100%;min-width:0;padding:8px;border:1px solid #343943;border-radius:6px;background:#090b0e;color:#fff}.customButtonSample{display:flex;margin-top:12px;padding:10px;background:#08090b;border-radius:8px}.customButtonSample span{display:inline-block;border-radius:8px;font-weight:800}.livePreview{margin-top:10px;padding:14px;border-radius:16px;background-image:radial-gradient(circle at 50% 10%,rgba(255,194,55,.10),transparent 28%),radial-gradient(circle at 15% 70%,rgba(0,220,255,.07),transparent 30%)}.previewCard{width:min(100%,300px);margin:auto;padding:8px;border:1px solid #ffffff1a;border-radius:18px;background:linear-gradient(180deg,#141414,#070707);box-shadow:0 15px 30px #0008}.previewImageWrap{overflow:hidden;border:1px solid #ffffff18;border-radius:13px}.previewImageWrap img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}.previewButton{position:relative;display:grid;place-items:center;min-height:46px;margin-top:10px;padding:8px 32px;border-radius:11px;font-size:13px;font-weight:900;text-align:center}.previewButton span{position:absolute;right:14px;font-size:23px}.previewHidden{text-align:center;color:#8e949e;font-size:12px;padding:12px}.saveArea{margin-top:20px;padding-top:17px;border-top:1px solid #2a2e35}.saveArea p{color:#9299a4;font-size:11px;line-height:1.5}.saveButton{width:100%;min-height:48px;border:0;border-radius:11px;background:linear-gradient(180deg,#ffdc76,#e9a800);color:#211700;font-size:13px;font-weight:900;cursor:pointer}.saveButton:disabled{opacity:.55;cursor:wait}.editorLoading{min-height:100svh;display:grid;place-items:center;background:#090b0e;color:#eee}
+        .layoutOrderList{display:grid;gap:8px;margin-top:12px}.layoutOrderItem{display:flex;align-items:center;gap:9px;padding:11px;border:1px solid #3b414b;border-radius:10px;background:#0b0e12;cursor:grab;user-select:none}.layoutOrderItem:active{cursor:grabbing}.dragHandle{font-size:20px;color:#f0c44f}.layoutOrderNumber{display:grid;place-items:center;min-width:25px;height:25px;border-radius:7px;background:#302816;color:#ffd45e;font-size:11px;font-weight:800}.layoutOrderLabel{flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px;color:#f2f4f8}.dragHint{font-size:10px;color:#8f98a6}.addButton{width:100%;padding:12px;border:1px dashed #b88c2b;border-radius:10px;background:#282216;color:#ffd45e;font-weight:800;cursor:pointer}.customButtonEditor{margin-top:12px;padding:14px;border:1px solid #30343b;border-radius:12px;background:#0c0f13}.customButtonEditorTop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}.smallActions{display:flex;gap:5px}.smallActions button{padding:6px 9px;border:1px solid #353a43;border-radius:7px;background:#191d23;color:#e8eaf0;cursor:pointer}.smallActions button:disabled{opacity:.35;cursor:default}.customButtonFields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.customButtonFields label{display:grid;gap:6px;color:#aab1bd;font-size:11px}.customButtonFields input[type=color]{width:100%;height:34px;border:1px solid #343943;border-radius:6px;background:#111419}.customButtonFields select{width:100%;min-width:0;padding:8px;border:1px solid #343943;border-radius:6px;background:#090b0e;color:#fff}.customButtonSample{display:flex;margin-top:12px;padding:10px;background:#08090b;border-radius:8px}.customButtonSample span{display:inline-block;border-radius:8px;font-weight:800}.livePreview{margin-top:10px;padding:14px;border-radius:16px;background-image:radial-gradient(circle at 50% 10%,rgba(255,194,55,.10),transparent 28%),radial-gradient(circle at 15% 70%,rgba(0,220,255,.07),transparent 30%)}.previewCard{width:min(100%,300px);margin:auto;padding:8px;border:1px solid #ffffff1a;border-radius:18px;background:linear-gradient(180deg,#141414,#070707);box-shadow:0 15px 30px #0008}.previewImageWrap{overflow:hidden;border:1px solid #ffffff18;border-radius:13px}.previewImageWrap img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}.previewButton{position:relative;display:grid;place-items:center;min-height:46px;margin-top:10px;padding:8px 32px;border-radius:11px;font-size:13px;font-weight:900;text-align:center}.previewButton span{position:absolute;right:14px;font-size:23px}.previewHidden{text-align:center;color:#8e949e;font-size:12px;padding:12px}.saveArea{margin-top:20px;padding-top:17px;border-top:1px solid #2a2e35}.saveArea p{color:#9299a4;font-size:11px;line-height:1.5}.saveButton{width:100%;min-height:48px;border:0;border-radius:11px;background:linear-gradient(180deg,#ffdc76,#e9a800);color:#211700;font-size:13px;font-weight:900;cursor:pointer}.saveButton:disabled{opacity:.55;cursor:wait}.editorLoading{min-height:100svh;display:grid;place-items:center;background:#090b0e;color:#eee}
         @media(max-width:520px){.imageItem{grid-template-columns:1fr}.imageItem>img{max-height:300px}}
         @media(max-width:850px){.editorGrid{grid-template-columns:1fr}.editorPanel{padding:18px}.editorHeaderActions{width:100%}.customButtonFields{grid-template-columns:repeat(2,minmax(0,1fr))}}
       `}</style>
