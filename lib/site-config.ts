@@ -45,8 +45,6 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   pixelId: "",
   pixelIdA: "",
   pixelIdB: "",
-  pixelIdA: "",
-  pixelIdB: "",
   mainButtonEventType: "none",
   mainButtonEventName: "",
   showImage: true,
