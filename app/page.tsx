@@ -56,9 +56,9 @@ export default function Home() {
   } as unknown as CSSProperties;
 
   const renderMainButton = () => config.showButton ? (
-    <div className="actionButtons" key="main-button" style={{ display: "flex", flexDirection: "column", width: "auto", margin: "12px", gap: 10 }}>
-      <a className="registerButton" href={config.registerUrl} onClick={() => { trackEvent("register_click"); sendPixelEvent(config.mainButtonEventType, config.mainButtonEventName); }} target="_blank" rel="noopener noreferrer" aria-label={config.buttonText} style={{ width: "100%", minHeight: 56, display: "flex", alignItems: "center", justifyContent: "center", position: "relative", boxSizing: "border-box", padding: "0 48px", borderRadius: 14, border: "1px solid rgba(255,215,100,.65)", background: config.buttonBackgroundColor ? `linear-gradient(180deg, color-mix(in srgb, ${config.buttonBackgroundColor} 40%, white), ${config.buttonBackgroundColor})` : "linear-gradient(180deg,#ffd76a,#f0a900)", color: config.buttonTextColor || "#171000", textDecoration: "none", fontSize: 17, fontWeight: 900, boxShadow: "0 8px 24px rgba(0,0,0,.35), 0 0 20px rgba(255,190,40,.12)" }}>
-        <span>{config.buttonText}</span><span className="buttonArrow" aria-hidden="true" style={{ position: "absolute", right: 18, fontSize: 26, lineHeight: 1, color: "rgba(23,16,0,.75)" }}>›</span>
+    <div className="actionButtons" key="main-button" style={{ display: "flex", width: "auto", margin: "12px", minWidth: 0 }}>
+      <a className="registerButton" href={config.registerUrl} onClick={() => { trackEvent("register_click"); sendPixelEvent(config.mainButtonEventType, config.mainButtonEventName); }} target="_blank" rel="noopener noreferrer" aria-label={config.buttonText} style={{ display: "flex", alignItems: "center", justifyContent: "center", position: "relative", width: "100%", minHeight: 56, boxSizing: "border-box", padding: "0 48px", borderRadius: 14, border: "1px solid rgba(255,215,100,.65)", background: config.buttonBackgroundColor || "linear-gradient(180deg,#ffd76a,#f0a900)", color: config.buttonTextColor || "#171000", textDecoration: "none", textAlign: "center", fontSize: 17, fontWeight: 900, lineHeight: 1.35, boxShadow: "0 8px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.35)" }}>
+        <span>{config.buttonText}</span><span aria-hidden="true" style={{ position: "absolute", right: 18, fontSize: 26, lineHeight: 1 }}>›</span>
       </a>
     </div>
   ) : null;
@@ -66,7 +66,7 @@ export default function Home() {
   const renderCustomButton = (buttonId: string) => {
     const button = config.customButtons?.find((item) => `button:${item.id}` === buttonId);
     if (!button || !button.enabled) return null;
-    return <div className="customButtonRow" key={button.id} style={{ display: "flex", justifyContent: button.align, width: "auto", margin: "10px 12px 0" }}><a className={`customButton customButton-${button.size}`} href={button.url} onClick={() => sendPixelEvent(button.eventType, button.eventName)} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18, maxWidth: "100%", minHeight: button.size === "small" ? 36 : button.size === "large" ? 56 : 46, padding: "12px 18px", borderRadius: 12, textDecoration: "none", fontWeight: 800, boxSizing: "border-box", background: button.backgroundColor, color: button.textColor, fontSize: button.size === "small" ? 13 : button.size === "large" ? 17 : 15, width: button.size === "large" ? "100%" : "auto" }}><span>{button.text}</span><span aria-hidden="true">›</span></a></div>;
+    return <div className="customButtonRow" key={button.id} style={{ display: "flex", justifyContent: button.align, width: "auto", minWidth: 0, margin: "10px 12px 0" }}><a className={`customButton customButton-${button.size}`} href={button.url} onClick={() => sendPixelEvent(button.eventType, button.eventName)} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18, width: button.size === "large" ? "100%" : "auto", maxWidth: "100%", minHeight: button.size === "small" ? 36 : button.size === "medium" ? 46 : 56, boxSizing: "border-box", padding: "12px 18px", borderRadius: 12, textDecoration: "none", fontWeight: 800, fontSize: button.size === "small" ? 13 : button.size === "medium" ? 15 : 17, background: button.backgroundColor, color: button.textColor }}><span>{button.text}</span><span aria-hidden="true">›</span></a></div>;
   };
 
   const legacyImages = config.images ?? [{ id: "legacy-main-image", url: config.promoImageUrl, alt: config.imageAlt, enabled: config.showImage }];
@@ -76,7 +76,8 @@ export default function Home() {
     ...(config.customButtons ?? []).map((button) => `button:${button.id}`),
   ];
   const validLayoutIds = new Set(defaultLayoutItems);
-  const savedLayoutOrder = Array.isArray(config.layoutOrder) ? config.layoutOrder : [];
+  const configuredOrder = (config as SiteConfig & { layoutOrder?: string[] }).layoutOrder;
+  const savedLayoutOrder = Array.isArray(configuredOrder) ? configuredOrder : [];
   const layoutOrder = savedLayoutOrder.filter((id) => typeof id === "string" && validLayoutIds.has(id));
   // Recover from stale/incomplete saved orders so an enabled button cannot disappear.
   for (const id of defaultLayoutItems) {
@@ -89,18 +90,18 @@ export default function Home() {
     if (id.startsWith("image:")) {
       const image = legacyImages.find((item) => `image:${item.id}` === id);
       if (!image?.enabled) return null;
-      return <div className="promoLink" key={image.id} style={{ display: "block", width: "100%", minWidth: 0, maxWidth: "100%", margin: 0, padding: 0, overflow: "hidden", borderRadius: 0, border: 0, background: "transparent", boxShadow: "none", lineHeight: 0 }}><img src={image.url} alt={image.alt} className="promoImage" loading="lazy" style={{ display: "block", width: "100%", height: "auto", maxWidth: "100%", minWidth: 0, objectFit: "contain", objectPosition: "center" }} /></div>;
+      return <div className="promoLink" key={image.id} style={{ display: "block", width: "100%", maxWidth: "100%", minWidth: 0, margin: 0, padding: 0, overflow: "hidden", boxSizing: "border-box", border: 0, borderRadius: 0, lineHeight: 0 }}><img src={image.url} alt={image.alt} className="promoImage" style={{ display: "block", width: "100%", maxWidth: "100%", height: "auto", margin: 0, padding: 0, objectFit: "contain" }} /></div>;
     }
     return null;
   };
 
   return (
-    <main className="linkPage" style={{ ...customStyles, position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", width: "100%", maxWidth: "100vw", minHeight: "100svh", margin: 0, padding: 0, boxSizing: "border-box", overflowX: "clip", background: config.pageBackgroundColor || "#050505" }}>
+    <main className="linkPage" style={{ ...customStyles, width: "100%", minHeight: "100svh", margin: 0, padding: 0, display: "flex", justifyContent: "center", alignItems: "flex-start", boxSizing: "border-box", overflowX: "clip", overflowY: "visible" }}>
       <div className="landingGlow landingGlowOne" aria-hidden="true" />
       <div className="landingGlow landingGlowTwo" aria-hidden="true" />
 
-      <section className="landingCard" aria-label="Masterworld content" style={{ position: "relative", zIndex: 2, display: "block", width: "100%", maxWidth: 560, minWidth: 0, margin: "0 auto", padding: 0, boxSizing: "border-box", border: 0, borderRadius: 0, background: "transparent", boxShadow: "none" }}>
-        <div className="freeLayoutStack" style={{ display: "flex", flexDirection: "column", alignItems: "stretch", gap: 0, width: "100%", maxWidth: "100%", minWidth: 0 }}>{layoutOrder.map((id) => renderLayoutItem(id))}</div>
+      <section className="landingCard" aria-label="Masterworld content" style={{ position: "relative", zIndex: 2, width: "100%", maxWidth: 560, minWidth: 0, margin: "0 auto", padding: 0, boxSizing: "border-box" }}>
+        <div className="freeLayoutStack" style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%", minWidth: 0 }}>{layoutOrder.map((id) => renderLayoutItem(id))}</div>
       </section>
 
       <style jsx>{`
@@ -112,10 +113,7 @@ export default function Home() {
           align-items: flex-start;
           overflow-x: hidden;
           overflow-y: visible;
-          width: 100%;
-          max-width: 100vw;
-          margin: 0;
-          padding: 0 0 24px;
+          padding: 0;
           box-sizing: border-box;
           background: var(--page-background, radial-gradient(circle at 50% 10%, rgba(255, 194, 55, 0.10), transparent 28%), radial-gradient(circle at 15% 70%, rgba(0, 220, 255, 0.07), transparent 30%), #050505);
         }
@@ -125,4 +123,6 @@ export default function Home() {
           z-index: 2;
           width: 100%;
           max-width: 560px;
+          margin: 0 auto;
           min-width: 0;
+          padding: 0;
