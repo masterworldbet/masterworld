@@ -5,12 +5,38 @@ import { ADMIN_COOKIE_NAME, isValidAdminSession } from "../../../../lib/admin-au
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+const TIME_ZONE = "Asia/Bangkok";
 type AnalyticsEvent = {
   event_type: "page_view" | "register_click";
   created_at: string;
   referrer: string | null;
   device_type: string | null;
 };
+type Count = { name: string; count: number };
+
+function bangkokDateKey(value: Date) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: TIME_ZONE, year: "numeric", month: "2-digit", day: "2-digit",
+  }).formatToParts(value);
+  const get = (type: string) => parts.find((part) => part.type === type)?.value || "00";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+}
+
+function bangkokHour(value: Date) {
+  return Number(new Intl.DateTimeFormat("en-GB", {
+    timeZone: TIME_ZONE, hour: "2-digit", hourCycle: "h23",
+  }).format(value));
+}
+
+function shiftDateKey(value: string, amount: number) {
+  const date = new Date(`${value}T12:00:00+07:00`);
+  date.setUTCDate(date.getUTCDate() + amount);
+  return date.toISOString().slice(0, 10);
+}
+
+function countBreakdown(counts: Record<string, number>): Count[] {
+  return Object.entries(counts).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+}
 
 export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
@@ -24,17 +50,26 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "missing_database_config" }, { status: 503 });
   }
 
+  const params = request.nextUrl.searchParams;
+  const requestedDate = params.get("date");
+  const isDaily = !!requestedDate && /^\d{4}-\d{2}-\d{2}$/.test(requestedDate);
+  const today = bangkokDateKey(new Date());
+  const selectedDate = isDaily ? (requestedDate! > today ? today : requestedDate!) : null;
   const allowedDays = new Set([7, 30, 90]);
-  const requestedDays = Number(request.nextUrl.searchParams.get("days") || 7);
+  const requestedDays = Number(params.get("days") || 7);
   const days = allowedDays.has(requestedDays) ? requestedDays : 7;
-  const from = new Date();
-  from.setDate(from.getDate() - (days - 1));
-  from.setHours(0, 0, 0, 0);
+
+  // Convert Bangkok calendar boundaries to UTC instants for the database query.
+  const startDate = selectedDate || shiftDateKey(today, -(days - 1));
+  const endDateExclusive = selectedDate ? shiftDateKey(selectedDate, 1) : shiftDateKey(today, 1);
+  const from = new Date(`${startDate}T00:00:00+07:00`);
+  const until = new Date(`${endDateExclusive}T00:00:00+07:00`);
 
   try {
     const query = new URLSearchParams({
       select: "event_type,created_at,referrer,device_type",
       created_at: `gte.${from.toISOString()}`,
+      and: `(created_at.lt.${until.toISOString()})`,
       order: "created_at.asc",
       limit: "10000",
     });
@@ -49,11 +84,14 @@ export async function GET(request: NextRequest) {
 
     const events = (await response.json()) as AnalyticsEvent[];
     const byDay = new Map<string, { date: string; views: number; clicks: number }>();
-    for (let offset = 0; offset < days; offset++) {
-      const date = new Date(from);
-      date.setDate(from.getDate() + offset);
-      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-      byDay.set(key, { date: key, views: 0, clicks: 0 });
+    const byHour = new Map<number, { hour: number; views: number; clicks: number }>();
+    if (selectedDate) {
+      for (let hour = 0; hour < 24; hour++) byHour.set(hour, { hour, views: 0, clicks: 0 });
+    } else {
+      for (let offset = 0; offset < days; offset++) {
+        const key = shiftDateKey(startDate, offset);
+        byDay.set(key, { date: key, views: 0, clicks: 0 });
+      }
     }
 
     let pageViews = 0;
@@ -62,11 +100,13 @@ export async function GET(request: NextRequest) {
     const sources: Record<string, number> = {};
     for (const event of events) {
       const timestamp = new Date(event.created_at);
-      const key = `${timestamp.getFullYear()}-${String(timestamp.getMonth() + 1).padStart(2, "0")}-${String(timestamp.getDate()).padStart(2, "0")}`;
+      const key = bangkokDateKey(timestamp);
       const day = byDay.get(key);
+      const hour = byHour.get(bangkokHour(timestamp));
       if (event.event_type === "page_view") {
         pageViews++;
         if (day) day.views++;
+        if (hour) hour.views++;
         const device = event.device_type || "unknown";
         devices[device] = (devices[device] || 0) + 1;
         let source = "Direct / ไม่ทราบแหล่งที่มา";
@@ -77,17 +117,20 @@ export async function GET(request: NextRequest) {
       } else if (event.event_type === "register_click") {
         clicks++;
         if (day) day.clicks++;
+        if (hour) hour.clicks++;
       }
     }
 
     return NextResponse.json({
-      days,
+      days: selectedDate ? 1 : days,
+      selectedDate,
       pageViews,
       clicks,
       clickRate: pageViews ? Math.round((clicks / pageViews) * 1000) / 10 : 0,
-      daily: Array.from(byDay.values()),
-      devices: Object.entries(devices).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count),
-      sources: Object.entries(sources).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 8),
+      daily: selectedDate ? [] : Array.from(byDay.values()),
+      hourly: selectedDate ? Array.from(byHour.values()) : [],
+      devices: countBreakdown(devices),
+      sources: countBreakdown(sources).slice(0, 8),
       note: events.length >= 10000 ? "แสดงข้อมูลได้สูงสุด 10,000 เหตุการณ์ในช่วงที่เลือก" : null,
     }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
