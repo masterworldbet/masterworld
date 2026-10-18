@@ -65,7 +65,7 @@ export default function AnalyticsDashboard() {
       <div className="dashboardShell">
         <header className="topbar">
           <div className="brandLockup"><div className="brandIcon">MW</div><div><strong>MASTER WORLD CLASS</strong><span>WEBSITE ANALYTICS</span></div></div>
-          <div className="topActions"><span className="secureLabel"><i /> Admin session</span><a className="contentLink" href="/admin/content">จัดการหน้าเว็บ</a><button className="logoutButton" onClick={logout}>ออกจากระบบ</button></div>
+          <div className="topActions"><span className="secureLabel"><i /> Admin session</span><a className="contentLink" href="/admin">เมนูหลัก</a><a className="contentLink" href="/admin/content">ตกแต่งเว็บ</a><button className="logoutButton" onClick={logout}>ออกจากระบบ</button></div>
         </header>
 
         <section className="pageIntro">

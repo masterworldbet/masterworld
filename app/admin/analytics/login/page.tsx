@@ -23,7 +23,7 @@ export default function AnalyticsLoginPage() {
         return;
       }
       const requestedNext = new URLSearchParams(window.location.search).get("next");
-      const safeNext = requestedNext && requestedNext.startsWith("/admin/") && !requestedNext.startsWith("//") ? requestedNext : "/admin/analytics";
+      const safeNext = requestedNext && requestedNext.startsWith("/admin/") && !requestedNext.startsWith("//") ? requestedNext : "/admin";
       window.location.href = safeNext;
     } catch {
       setError("เชื่อมต่อไม่ได้ กรุณาลองใหม่");

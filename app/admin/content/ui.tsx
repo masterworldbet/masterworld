@@ -98,7 +98,7 @@ export default function ContentEditor() {
     <main className="editorPage">
       <header className="editorHeader">
         <div><p className="editorEyebrow">MASTER WORLD CLASS</p><h1>จัดการหน้าเว็บไซต์</h1><p className="editorSub">เปลี่ยนรูป ข้อความ ลิงก์ และสี โดยไม่ต้องแก้โค้ด</p></div>
-        <div className="editorHeaderActions"><a href="/" target="_blank" rel="noreferrer">ดูหน้าเว็บ ↗</a><a href="/admin/analytics">สถิติ</a><button type="button" className="logoutButton" onClick={logout}>ออกจากระบบ</button></div>
+        <div className="editorHeaderActions"><a href="/admin">เมนูหลัก</a><a href="/" target="_blank" rel="noreferrer">ดูหน้าเว็บ ↗</a><a href="/admin/analytics">สถิติ</a><button type="button" className="logoutButton" onClick={logout}>ออกจากระบบ</button></div>
       </header>
 
       {error ? <div className="editorNotice editorError" role="alert">{error}</div> : null}
