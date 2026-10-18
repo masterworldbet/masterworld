@@ -92,7 +92,7 @@ export default function Home() {
         {config.buttonPlacement === "below" || !config.buttonPlacement ? buttonGroup : null}
       </section>
 
-      <style jsx>{`
+      <style jsx global>{`
         .linkPage {
           position: relative;
           min-height: 100svh;
