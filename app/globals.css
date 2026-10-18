@@ -385,3 +385,72 @@ a { color: inherit; text-decoration: none; }
     box-shadow: 0 30px 100px rgba(0,0,0,.45);
   }
 }
+
+/* Premium button motion: affects existing main and custom buttons only. */
+.registerButton,
+.customButton {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transform: translateZ(0);
+  transition: transform .22s ease, filter .22s ease, box-shadow .22s ease;
+  animation: buttonGlow 3.2s ease-in-out infinite;
+}
+
+.registerButton::after,
+.customButton::after {
+  content: "";
+  position: absolute;
+  top: -45%;
+  bottom: -45%;
+  left: -65%;
+  width: 38%;
+  pointer-events: none;
+  z-index: 0;
+  transform: skewX(-22deg);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.42), transparent);
+  animation: buttonShine 4.8s ease-in-out infinite;
+}
+
+.registerButton > span,
+.customButton > span {
+  position: relative;
+  z-index: 1;
+}
+
+.registerButton:hover,
+.customButton:hover {
+  filter: brightness(1.09) saturate(1.06);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(244,189,79,.24);
+}
+
+.registerButton:active,
+.customButton:active {
+  transform: translateY(0) scale(.985);
+}
+
+.registerButton:focus-visible,
+.customButton:focus-visible {
+  outline: 2px solid #ffe6a5;
+  outline-offset: 3px;
+}
+
+@keyframes buttonShine {
+  0%, 58% { left: -65%; opacity: 0; }
+  65% { opacity: .9; }
+  82%, 100% { left: 135%; opacity: 0; }
+}
+
+@keyframes buttonGlow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.045); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .registerButton, .customButton,
+  .registerButton::after, .customButton::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
