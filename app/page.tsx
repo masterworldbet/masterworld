@@ -70,9 +70,18 @@ export default function Home() {
   };
 
   const legacyImages = config.images ?? [{ id: "legacy-main-image", url: config.promoImageUrl, alt: config.imageAlt, enabled: config.showImage }];
-  const validLayoutIds = new Set([ ...legacyImages.map((image) => `image:${image.id}`), "main-button", ...(config.customButtons ?? []).map((button) => `button:${button.id}`) ]);
-  const layoutOrder = [...(config.layoutOrder ?? []).filter((id) => validLayoutIds.has(id))];
-  for (const id of [ ...legacyImages.map((image) => `image:${image.id}`), "main-button", ...(config.customButtons ?? []).map((button) => `button:${button.id}`) ]) if (!layoutOrder.includes(id)) layoutOrder.push(id);
+  const defaultLayoutItems = [
+    ...legacyImages.map((image) => `image:${image.id}`),
+    "main-button",
+    ...(config.customButtons ?? []).map((button) => `button:${button.id}`),
+  ];
+  const validLayoutIds = new Set(defaultLayoutItems);
+  const savedLayoutOrder = Array.isArray(config.layoutOrder) ? config.layoutOrder : [];
+  const layoutOrder = savedLayoutOrder.filter((id) => typeof id === "string" && validLayoutIds.has(id));
+  // Recover from stale/incomplete saved orders so an enabled button cannot disappear.
+  for (const id of defaultLayoutItems) {
+    if (!layoutOrder.includes(id)) layoutOrder.push(id);
+  }
 
   const renderLayoutItem = (id: string) => {
     if (id === "main-button") return renderMainButton();
@@ -133,8 +142,11 @@ export default function Home() {
         .imageStack .allButtons .actionButtons { margin-top: 0; }
         .imageStack .allButtons .customButtonRow { margin-top: 8px; }
         .promoLink {
-          display: block;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           width: 100%;
+          aspect-ratio: 4 / 5;
           overflow: hidden;
           border-radius: 20px;
           background: #0b0b0b;
@@ -149,9 +161,10 @@ export default function Home() {
         .promoImage {
           display: block;
           width: 100%;
-          height: auto;
+          height: 100%;
           max-width: 100%;
           object-fit: contain;
+          object-position: center;
         }
 
         .actionButtons {
@@ -242,15 +255,7 @@ export default function Home() {
             border-radius: 22px;
           }
 
-          .imageStack { position: relative; }
-        .imageStack .promoLink + .promoLink { margin-top: 12px; }
-        .allButtons { position: relative; z-index: 2; }
-        .imageStack .allButtons { position: absolute; left: 14px; right: 14px; z-index: 5; }
-        .imageStack .allButtons.overlayTop { top: 14px; }
-        .imageStack .allButtons.overlayBottom { bottom: 14px; }
-        .imageStack .allButtons .actionButtons { margin-top: 0; }
-        .imageStack .allButtons .customButtonRow { margin-top: 8px; }
-        .promoLink {
+          .promoLink {
             border-radius: 17px;
           }
 
