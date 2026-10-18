@@ -15,6 +15,8 @@ type Stats = {
   selectedDate: string | null;
   devices: Breakdown[];
   sources: Breakdown[];
+  sourceCampaigns?: Array<{ name: string; views: number; clicks: number }>;
+  buttonClicks?: Breakdown[];
   note: string | null;
 };
 
@@ -124,6 +126,10 @@ export default function AnalyticsDashboard() {
         </section>
 
         <section className="panel sourcesPanel"><div className="panelHeader"><div><h2>แหล่งที่มาของผู้เข้าชม</h2><p>อ้างอิงจาก referrer ที่เบราว์เซอร์ส่งมา</p></div></div>{stats?.sources.length ? <BreakdownList items={stats.sources} total={stats.pageViews} /> : <div className="smallEmpty">ยังไม่มีข้อมูลแหล่งที่มา บางแอปอาจไม่ส่ง referrer มาให้</div>}</section>
+        <div className="contentGrid">
+          <section className="panel"><div className="panelHeader"><div><h2>สถิติแยกตามลิงก์ A/B</h2><p>แยกตามพารามิเตอร์ mw_source ของผู้เข้าชม</p></div></div>{stats?.sourceCampaigns?.length ? <BreakdownList items={stats.sourceCampaigns.map((item) => ({ name: `${item.name} · เข้าชม ${number(item.views)}`, count: item.clicks }))} total={stats.clicks} /> : <div className="smallEmpty">ยังไม่มีข้อมูล A/B</div>}</section>
+          <section className="panel"><div className="panelHeader"><div><h2>คลิกแยกตามปุ่ม</h2><p>รวมจำนวนคลิกที่บันทึกได้</p></div></div>{stats?.buttonClicks?.length ? <BreakdownList items={stats.buttonClicks} total={stats.clicks} /> : <div className="smallEmpty">ยังไม่มีข้อมูลคลิกปุ่ม</div>}</section>
+        </div>
         <footer className="dashboardFooter">ข้อมูลนี้นับเฉพาะการเข้าชมและคลิกที่ระบบบันทึกได้ ไม่ได้ยืนยันการสมัครสำเร็จบนเว็บไซต์ปลายทาง{updatedAt ? ` · อัปเดต ${updatedAt} น.` : ""}</footer>
       </div>
       <style jsx>{`

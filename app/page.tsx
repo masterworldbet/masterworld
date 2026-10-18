@@ -32,7 +32,7 @@ function sendPixelEvent(
   }
 }
 
-function trackEvent(event: "page_view" | "register_click") {
+function trackEvent(event: "page_view" | "register_click", buttonName?: string) {
   if (typeof window === "undefined") return;
 
   const width = window.innerWidth;
@@ -44,6 +44,8 @@ function trackEvent(event: "page_view" | "register_click") {
     path: window.location.pathname,
     referrer: document.referrer || null,
     device,
+    source: new URLSearchParams(window.location.search).get("mw_source") || window.sessionStorage.getItem("mw_source") || "direct",
+    buttonName: buttonName || null,
   });
 
   try {
@@ -113,7 +115,7 @@ export default function Home() {
           className="registerButton"
           href={config.registerUrl}
           onClick={() => {
-            trackEvent("register_click");
+            trackEvent("register_click", "main_button");
             sendPixelEvent(
               config.mainButtonEventType,
               config.mainButtonEventName
@@ -186,7 +188,7 @@ export default function Home() {
           href={button.url}
           onClick={() => {
             // Count custom-button clicks in the same Dashboard metric as the main button.
-            trackEvent("register_click");
+            trackEvent("register_click", `custom:${button.id}:${button.text}`);
             // Keep the optional Meta Pixel event configured for this button.
             sendPixelEvent(button.eventType, button.eventName);
           }}

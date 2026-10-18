@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, reason: "analytics_not_configured" }, { status: 503 });
   }
 
-  let body: { event?: unknown; path?: unknown; referrer?: unknown; device?: unknown };
+  let body: { event?: unknown; path?: unknown; referrer?: unknown; device?: unknown; source?: unknown; buttonName?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -25,6 +25,8 @@ export async function POST(request: NextRequest) {
   const path = typeof body.path === "string" ? body.path.slice(0, 200) : "/";
   const referrer = typeof body.referrer === "string" ? body.referrer.slice(0, 500) : null;
   const device = body.device === "mobile" || body.device === "tablet" || body.device === "desktop" ? body.device : "unknown";
+  const source = body.source === "a" || body.source === "b" ? body.source : "direct";
+  const buttonName = body.event === "register_click" && typeof body.buttonName === "string" ? body.buttonName.slice(0, 120) : null;
 
   try {
     const response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/rest/v1/analytics_events`, {
@@ -35,7 +37,7 @@ export async function POST(request: NextRequest) {
         "Content-Type": "application/json",
         Prefer: "return=minimal",
       },
-      body: JSON.stringify({ event_type: body.event, path, referrer, device_type: device }),
+      body: JSON.stringify({ event_type: body.event, path, referrer, device_type: device, source_label: source, button_name: buttonName }),
       cache: "no-store",
     });
 

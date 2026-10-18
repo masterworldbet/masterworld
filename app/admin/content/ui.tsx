@@ -11,6 +11,8 @@ const defaults: SiteConfig = {
   registerUrl: "https://masterworldbet.com/sign-up?ref_agent=1feacd0466b9&ref_zean=9ED5866AF713",
   buttonText: "สมัครเลย",
   pixelId: "",
+  pixelIdA: "",
+  pixelIdB: "",
   mainButtonEventType: "none",
   mainButtonEventName: "",
   showImage: true,
@@ -439,9 +441,13 @@ export default function ContentEditor() {
             <div><h2>การตั้งค่าทั่วไป</h2><p>Pixel สี ตัวอย่าง และลำดับแสดงผล</p></div>
           </div>
 
-          <label className="fieldLabel">Meta Pixel ID</label>
-          <input className="textField" inputMode="numeric" value={config.pixelId} maxLength={100} placeholder="ใส่ Pixel ID หรือเว้นว่างเพื่อใช้ค่าเดิมจาก Vercel" onChange={(event) => update("pixelId", event.target.value.replace(/[^0-9,\s]/g, ""))} />
-          <p className="fieldHint">ใส่ได้หลาย ID โดยคั่นด้วยจุลภาค หากเว้นว่าง ระบบจะใช้ NEXT_PUBLIC_META_PIXEL_ID เดิม</p>
+          <label className="fieldLabel">Meta Pixel ID — แหล่ง A</label>
+          <input className="textField" inputMode="numeric" value={config.pixelIdA} maxLength={30} placeholder="Pixel ID สำหรับลิงก์ mw_source=a" onChange={(event) => update("pixelIdA", event.target.value.replace(/\D/g, ""))} />
+          <label className="fieldLabel">Meta Pixel ID — แหล่ง B</label>
+          <input className="textField" inputMode="numeric" value={config.pixelIdB} maxLength={30} placeholder="Pixel ID สำหรับลิงก์ mw_source=b" onChange={(event) => update("pixelIdB", event.target.value.replace(/\D/g, ""))} />
+          <p className="fieldHint">ลิงก์ A ใช้ ?mw_source=a และลิงก์ B ใช้ ?mw_source=b ระบบจะส่ง Pixel event ไปยัง ID ที่ตรงกับแหล่งที่มาเท่านั้น</p>
+          <label className="fieldLabel">Pixel ID เดิม (สำรอง)</label>
+          <input className="textField" inputMode="numeric" value={config.pixelId} maxLength={100} placeholder="ค่าเดิม ถ้าต้องการคงการทำงานเดิม" onChange={(event) => update("pixelId", event.target.value.replace(/[^0-9,\s]/g, ""))} />
 
           <div className="sectionRule" />
           <div className="panelHeading compactHeading"><span className="panelNumber">05</span><div><h2>ปรับแต่งสี</h2><p>ไม่เปลี่ยนสีเดิมจนกว่าจะบันทึกค่าที่เลือก</p></div></div>
