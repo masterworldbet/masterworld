@@ -1,0 +1,19 @@
+MASTERWORLD — Meta Pixel A/B + click statistics
+
+Files in this package are only the changed files. Copy each file into the same path in your GitHub repository, replacing the existing file.
+
+Before deploying:
+1. Open Supabase SQL Editor and run supabase/analytics-pixel-ab-migration.sql.
+2. Copy the included files into the repository using their relative paths.
+3. Commit changes and wait for Vercel deployment to succeed.
+4. In website admin settings, enter Pixel ID A and Pixel ID B.
+5. Use source-specific URLs:
+   A: https://YOUR-SITE/?mw_source=a
+   B: https://YOUR-SITE/?mw_source=b
+6. Test each link and verify PageView/Contact in the corresponding Meta Events Manager and counts in the admin analytics page.
+
+Clicks on the main and custom buttons are tracked in the site dashboard with the source label and button text. The browser sends Contact for a button click when a source-specific Pixel is configured. It does NOT send CompleteRegistration on a click; use CompleteRegistration only after a real, confirmed registration flow is connected.
+
+Direct visitors without mw_source=a or mw_source=b use the legacy Pixel ID / NEXT_PUBLIC_META_PIXEL_ID fallback. Existing historical analytics rows are preserved and will appear under direct because they predate source tracking.
+
+The deployment and live Meta events have not been verified from this package. Check Vercel build logs and Meta Events Manager after installation.

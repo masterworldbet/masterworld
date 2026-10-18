@@ -15,7 +15,7 @@ type Stats = {
   selectedDate: string | null;
   devices: Breakdown[];
   sources: Breakdown[];
-  sourceCampaigns?: Array<{ name: string; views: number; clicks: number }>;
+  trafficSources?: Record<string, { pageViews: number; clicks: number }>;
   buttonClicks?: Breakdown[];
   note: string | null;
 };
@@ -115,6 +115,11 @@ export default function AnalyticsDashboard() {
           <Metric title="ข้อมูลล่าสุด" value={updatedAt || "—"} detail="เวลาโหลดข้อมูลสำเร็จ" icon="◷" accent="green" />
         </section>
 
+        <section className="metricGrid" style={{ marginTop: 14 }}>
+          <Metric title="Pixel A · เข้าชม" value={stats ? number(stats.trafficSources?.a?.pageViews ?? 0) : "—"} detail={`คลิกปุ่ม ${stats ? number(stats.trafficSources?.a?.clicks ?? 0) : "—"}`} icon="A" accent="blue" />
+          <Metric title="Pixel B · เข้าชม" value={stats ? number(stats.trafficSources?.b?.pageViews ?? 0) : "—"} detail={`คลิกปุ่ม ${stats ? number(stats.trafficSources?.b?.clicks ?? 0) : "—"}`} icon="B" accent="purple" />
+        </section>
+
         <section className="contentGrid">
           <div className="panel chartPanel">
             <div className="panelHeader"><div><h2>ยอดเข้าชมและคลิก</h2><p>{viewMode === "day" ? `รายชั่วโมง · ${dateLabel(selectedDate)}` : "เปรียบเทียบรายวัน"}</p></div><div className="legend"><span><i className="viewDot" />เข้าชม</span><span><i className="clickDot" />คลิก</span></div></div>
@@ -125,11 +130,9 @@ export default function AnalyticsDashboard() {
           <div className="panel breakdownPanel"><div className="panelHeader"><div><h2>อุปกรณ์</h2><p>จำแนกตามประเภทอุปกรณ์</p></div></div>{stats?.devices.length ? <BreakdownList items={stats.devices.map((item) => ({ ...item, name: ({ mobile: "มือถือ", tablet: "แท็บเล็ต", desktop: "คอมพิวเตอร์", unknown: "ไม่ทราบ" } as Record<string, string>)[item.name] || item.name }))} total={stats.pageViews} /> : <div className="smallEmpty">ยังไม่มีข้อมูล</div>}</div>
         </section>
 
+        <section className="panel sourcesPanel"><div className="panelHeader"><div><h2>คลิกแยกตามปุ่ม</h2><p>จำนวนคลิกของแต่ละปุ่มในช่วงเวลาที่เลือก</p></div></div>{stats?.buttonClicks?.length ? <BreakdownList items={stats.buttonClicks} total={stats.clicks} /> : <div className="smallEmpty">ยังไม่มีข้อมูลคลิกปุ่ม</div>}</section>
+
         <section className="panel sourcesPanel"><div className="panelHeader"><div><h2>แหล่งที่มาของผู้เข้าชม</h2><p>อ้างอิงจาก referrer ที่เบราว์เซอร์ส่งมา</p></div></div>{stats?.sources.length ? <BreakdownList items={stats.sources} total={stats.pageViews} /> : <div className="smallEmpty">ยังไม่มีข้อมูลแหล่งที่มา บางแอปอาจไม่ส่ง referrer มาให้</div>}</section>
-        <div className="contentGrid">
-          <section className="panel"><div className="panelHeader"><div><h2>สถิติแยกตามลิงก์ A/B</h2><p>แยกตามพารามิเตอร์ mw_source ของผู้เข้าชม</p></div></div>{stats?.sourceCampaigns?.length ? <BreakdownList items={stats.sourceCampaigns.map((item) => ({ name: `${item.name} · เข้าชม ${number(item.views)}`, count: item.clicks }))} total={stats.clicks} /> : <div className="smallEmpty">ยังไม่มีข้อมูล A/B</div>}</section>
-          <section className="panel"><div className="panelHeader"><div><h2>คลิกแยกตามปุ่ม</h2><p>รวมจำนวนคลิกที่บันทึกได้</p></div></div>{stats?.buttonClicks?.length ? <BreakdownList items={stats.buttonClicks} total={stats.clicks} /> : <div className="smallEmpty">ยังไม่มีข้อมูลคลิกปุ่ม</div>}</section>
-        </div>
         <footer className="dashboardFooter">ข้อมูลนี้นับเฉพาะการเข้าชมและคลิกที่ระบบบันทึกได้ ไม่ได้ยืนยันการสมัครสำเร็จบนเว็บไซต์ปลายทาง{updatedAt ? ` · อัปเดต ${updatedAt} น.` : ""}</footer>
       </div>
       <style jsx>{`

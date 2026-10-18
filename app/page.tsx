@@ -11,25 +11,21 @@ declare global {
   }
 }
 
-function sendPixelEvent(
-  type: "none" | "standard" | "custom" | undefined,
-  name?: string
-) {
-  if (
-    !type ||
-    type === "none" ||
-    !name ||
-    typeof window === "undefined" ||
-    !window.fbq
-  ) {
-    return;
-  }
+function sendSourcePixelEvent() {
+  if (typeof window === "undefined" || !window.fbq) return;
+  const params = new URLSearchParams(window.location.search);
+  const querySource = params.get("mw_source");
+  if (querySource === "a" || querySource === "b") sessionStorage.setItem("mw_source", querySource);
+  const saved = sessionStorage.getItem("mw_source");
+  if (saved === "a" || saved === "b") window.fbq("track", "Contact");
+}
 
-  if (type === "standard") {
-    window.fbq("track", name);
-  } else {
-    window.fbq("trackCustom", name);
-  }
+function getTrafficSource(): "a" | "b" | "direct" {
+  if (typeof window === "undefined") return "direct";
+  const value = new URLSearchParams(window.location.search).get("mw_source");
+  if (value === "a" || value === "b") { sessionStorage.setItem("mw_source", value); return value; }
+  const saved = sessionStorage.getItem("mw_source");
+  return saved === "a" || saved === "b" ? saved : "direct";
 }
 
 function trackEvent(event: "page_view" | "register_click", buttonName?: string) {
@@ -41,11 +37,11 @@ function trackEvent(event: "page_view" | "register_click", buttonName?: string) 
 
   const payload = JSON.stringify({
     event,
+    source: getTrafficSource(),
+    buttonName: buttonName || null,
     path: window.location.pathname,
     referrer: document.referrer || null,
     device,
-    source: new URLSearchParams(window.location.search).get("mw_source") || window.sessionStorage.getItem("mw_source") || "direct",
-    buttonName: buttonName || null,
   });
 
   try {
@@ -115,11 +111,9 @@ export default function Home() {
           className="registerButton"
           href={config.registerUrl}
           onClick={() => {
-            trackEvent("register_click", "main_button");
-            sendPixelEvent(
-              config.mainButtonEventType,
-              config.mainButtonEventName
-            );
+            trackEvent("register_click", config.buttonText || "main_button");
+            // Clicks are recorded as Contact, not CompleteRegistration.
+            sendSourcePixelEvent();
           }}
           target="_blank"
           rel="noopener noreferrer"
@@ -188,9 +182,9 @@ export default function Home() {
           href={button.url}
           onClick={() => {
             // Count custom-button clicks in the same Dashboard metric as the main button.
-            trackEvent("register_click", `custom:${button.id}:${button.text}`);
-            // Keep the optional Meta Pixel event configured for this button.
-            sendPixelEvent(button.eventType, button.eventName);
+            trackEvent("register_click", button.text || "custom_button");
+            // A click is a contact/action event, not proof of a completed registration.
+            sendSourcePixelEvent();
           }}
           target="_blank"
           rel="noopener noreferrer"

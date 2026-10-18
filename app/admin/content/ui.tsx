@@ -367,21 +367,7 @@ export default function ContentEditor() {
           </select>
           <p className="fieldHint">ตำแหน่งแสดงผลจริงอาจขึ้นกับวิธีจัดเรียงในส่วน “ลำดับการแสดงผล” ด้านล่าง</p>
 
-          <label className="fieldLabel">Meta Pixel Event ของปุ่มหลัก</label>
-          <select className="textField" value={config.mainButtonEventType} onChange={(event) => update("mainButtonEventType", event.target.value as SiteConfig["mainButtonEventType"])}>
-            <option value="none">ไม่ส่ง Event</option>
-            <option value="standard">Standard Event</option>
-            <option value="custom">Custom Event</option>
-          </select>
-          {config.mainButtonEventType === "standard" ? (
-            <select className="textField" value={config.mainButtonEventName} onChange={(event) => update("mainButtonEventName", event.target.value)}>
-              {standardEvents.map((eventName) => <option key={eventName} value={eventName}>{eventName}</option>)}
-            </select>
-          ) : null}
-          {config.mainButtonEventType === "custom" ? (
-            <input className="textField" value={config.mainButtonEventName} maxLength={80} placeholder="เช่น MyButtonClick" onChange={(event) => update("mainButtonEventName", event.target.value.replace(/[^a-zA-Z0-9_]/g, ""))} />
-          ) : null}
-          <p className="fieldHint">เลือก Event ให้ตรงกับการกระทำที่เกิดขึ้นจริง การคลิกปุ่มไม่ควรนับเป็นการสมัครสำเร็จหากยังไม่ได้สมัคร</p>
+          <p className="fieldHint">ระบบส่ง Contact เมื่อคลิกปุ่มตามแหล่ง A/B โดยอัตโนมัติ ไม่ต้องตั้ง Event รายปุ่ม</p>
 
           <div className="sectionRule" />
           <div className="panelHeading compactHeading">
@@ -414,18 +400,6 @@ export default function ContentEditor() {
                 <label>ตำแหน่ง<select value={button.align} onChange={(event) => updateCustomButton(button.id, { align: event.target.value as CustomButton["align"] })}><option value="left">ซ้าย</option><option value="center">กลาง</option><option value="right">ขวา</option></select></label>
               </div>
 
-              <label className="fieldLabel">Meta Pixel Event ของปุ่มนี้</label>
-              <select className="textField" value={button.eventType ?? "none"} onChange={(event) => updateCustomButton(button.id, { eventType: event.target.value as CustomButton["eventType"] })}>
-                <option value="none">ไม่ส่ง Event</option><option value="standard">Standard Event</option><option value="custom">Custom Event</option>
-              </select>
-              {button.eventType === "standard" ? (
-                <select className="textField" value={button.eventName || "Lead"} onChange={(event) => updateCustomButton(button.id, { eventName: event.target.value })}>
-                  {standardEvents.map((eventName) => <option key={eventName} value={eventName}>{eventName}</option>)}
-                </select>
-              ) : null}
-              {button.eventType === "custom" ? (
-                <input className="textField" value={button.eventName || ""} maxLength={80} placeholder="เช่น MyButtonClick" onChange={(event) => updateCustomButton(button.id, { eventName: event.target.value.replace(/[^a-zA-Z0-9_]/g, "") })} />
-              ) : null}
               <div className="customButtonSample" style={{ justifyContent: button.align }}>
                 <span style={{ background: button.backgroundColor, color: button.textColor, fontSize: button.size === "small" ? 12 : button.size === "large" ? 17 : 14, padding: button.size === "small" ? "8px 12px" : button.size === "large" ? "14px 20px" : "11px 16px", opacity: button.enabled ? 1 : 0.45 }}>
                   {button.text || "ตัวอย่างปุ่ม"}　›
@@ -442,12 +416,12 @@ export default function ContentEditor() {
           </div>
 
           <label className="fieldLabel">Meta Pixel ID — แหล่ง A</label>
-          <input className="textField" inputMode="numeric" value={config.pixelIdA} maxLength={30} placeholder="Pixel ID สำหรับลิงก์ mw_source=a" onChange={(event) => update("pixelIdA", event.target.value.replace(/\D/g, ""))} />
+          <input className="textField" inputMode="numeric" value={config.pixelIdA ?? ""} maxLength={30} placeholder="Pixel ID สำหรับลิงก์ mw_source=a" onChange={(event) => update("pixelIdA", event.target.value.replace(/\D/g, ""))} />
           <label className="fieldLabel">Meta Pixel ID — แหล่ง B</label>
-          <input className="textField" inputMode="numeric" value={config.pixelIdB} maxLength={30} placeholder="Pixel ID สำหรับลิงก์ mw_source=b" onChange={(event) => update("pixelIdB", event.target.value.replace(/\D/g, ""))} />
+          <input className="textField" inputMode="numeric" value={config.pixelIdB ?? ""} maxLength={30} placeholder="Pixel ID สำหรับลิงก์ mw_source=b" onChange={(event) => update("pixelIdB", event.target.value.replace(/\D/g, ""))} />
           <p className="fieldHint">ลิงก์ A ใช้ ?mw_source=a และลิงก์ B ใช้ ?mw_source=b ระบบจะส่ง Pixel event ไปยัง ID ที่ตรงกับแหล่งที่มาเท่านั้น</p>
           <label className="fieldLabel">Pixel ID เดิม (สำรอง)</label>
-          <input className="textField" inputMode="numeric" value={config.pixelId} maxLength={100} placeholder="ค่าเดิม ถ้าต้องการคงการทำงานเดิม" onChange={(event) => update("pixelId", event.target.value.replace(/[^0-9,\s]/g, ""))} />
+          <input className="textField" inputMode="numeric" value={config.pixelId ?? ""} maxLength={100} placeholder="ค่าเดิม ถ้าต้องการคงการทำงานเดิม" onChange={(event) => update("pixelId", event.target.value.replace(/[^0-9,\s]/g, ""))} />
 
           <div className="sectionRule" />
           <div className="panelHeading compactHeading"><span className="panelNumber">05</span><div><h2>ปรับแต่งสี</h2><p>ไม่เปลี่ยนสีเดิมจนกว่าจะบันทึกค่าที่เลือก</p></div></div>

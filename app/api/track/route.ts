@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   const referrer = typeof body.referrer === "string" ? body.referrer.slice(0, 500) : null;
   const device = body.device === "mobile" || body.device === "tablet" || body.device === "desktop" ? body.device : "unknown";
   const source = body.source === "a" || body.source === "b" ? body.source : "direct";
-  const buttonName = body.event === "register_click" && typeof body.buttonName === "string" ? body.buttonName.slice(0, 120) : null;
+  const buttonName = typeof body.buttonName === "string" ? body.buttonName.slice(0, 100) : null;
 
   try {
     const response = await fetch(`${supabaseUrl.replace(/\/$/, "")}/rest/v1/analytics_events`, {

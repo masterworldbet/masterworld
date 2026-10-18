@@ -100,19 +100,19 @@ export async function GET(request: NextRequest) {
     let clicks = 0;
     const devices: Record<string, number> = {};
     const sources: Record<string, number> = {};
+    const byTrafficSource: Record<string, { pageViews: number; clicks: number }> = { a: { pageViews: 0, clicks: 0 }, b: { pageViews: 0, clicks: 0 }, direct: { pageViews: 0, clicks: 0 } };
     const buttonClicks: Record<string, number> = {};
-    const sourceCounts: Record<string, { views: number; clicks: number }> = { a: { views: 0, clicks: 0 }, b: { views: 0, clicks: 0 }, direct: { views: 0, clicks: 0 } };
     for (const event of events) {
       const timestamp = new Date(event.created_at);
       const key = bangkokDateKey(timestamp);
       const day = byDay.get(key);
       const hour = byHour.get(bangkokHour(timestamp));
+      const trafficSource = event.source_label === "a" || event.source_label === "b" ? event.source_label : "direct";
       if (event.event_type === "page_view") {
+        byTrafficSource[trafficSource].pageViews++;
         pageViews++;
         if (day) day.views++;
         if (hour) hour.views++;
-        const sourceLabel = event.source_label === "a" || event.source_label === "b" ? event.source_label : "direct";
-        sourceCounts[sourceLabel].views++;
         const device = event.device_type || "unknown";
         devices[device] = (devices[device] || 0) + 1;
         let source = "Direct / ไม่ทราบแหล่งที่มา";
@@ -121,9 +121,8 @@ export async function GET(request: NextRequest) {
         }
         sources[source] = (sources[source] || 0) + 1;
       } else if (event.event_type === "register_click") {
-        const sourceLabel = event.source_label === "a" || event.source_label === "b" ? event.source_label : "direct";
-        sourceCounts[sourceLabel].clicks++;
-        const buttonName = event.button_name || "ปุ่มไม่ระบุ";
+        byTrafficSource[trafficSource].clicks++;
+        const buttonName = event.button_name || "ปุ่มไม่ระบุชื่อ";
         buttonClicks[buttonName] = (buttonClicks[buttonName] || 0) + 1;
         clicks++;
         if (day) day.clicks++;
@@ -140,9 +139,9 @@ export async function GET(request: NextRequest) {
       daily: selectedDate ? [] : Array.from(byDay.values()),
       hourly: selectedDate ? Array.from(byHour.values()) : [],
       devices: countBreakdown(devices),
+      trafficSources: byTrafficSource,
+      buttonClicks: countBreakdown(buttonClicks).slice(0, 20),
       sources: countBreakdown(sources).slice(0, 8),
-      sourceCampaigns: [ { name: "A", ...sourceCounts.a }, { name: "B", ...sourceCounts.b }, { name: "Direct/อื่นๆ", ...sourceCounts.direct } ],
-      buttonClicks: countBreakdown(buttonClicks),
       note: events.length >= 10000 ? "แสดงข้อมูลได้สูงสุด 10,000 เหตุการณ์ในช่วงที่เลือก" : null,
     }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
