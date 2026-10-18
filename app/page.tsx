@@ -48,54 +48,41 @@ export default function Home() {
     ...(config.buttonTextColor ? { "--button-text-color": config.buttonTextColor } : {}),
   } as unknown as CSSProperties;
 
+  const buttonGroup = (
+    <div className={`allButtons ${config.buttonPlacement === "overlay-top" ? "overlayTop" : config.buttonPlacement === "overlay-bottom" ? "overlayBottom" : ""}`}>
+      {config.showButton ? (
+        <div className="actionButtons">
+          <a className="registerButton" href={config.registerUrl} onClick={() => trackEvent("register_click")} target="_blank" rel="noopener noreferrer" aria-label={config.buttonText}>
+            <span>{config.buttonText}</span><span className="buttonArrow" aria-hidden="true">›</span>
+          </a>
+        </div>
+      ) : null}
+      {config.customButtons?.filter((button) => button.enabled).map((button) => (
+        <div className="customButtonRow" key={button.id} style={{ justifyContent: button.align }}>
+          <a className={`customButton customButton-${button.size}`} href={button.url} target="_blank" rel="noopener noreferrer" style={{ background: button.backgroundColor, color: button.textColor }}>
+            <span>{button.text}</span><span aria-hidden="true">›</span>
+          </a>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <main className="linkPage" style={customStyles}>
       <div className="landingGlow landingGlowOne" aria-hidden="true" />
       <div className="landingGlow landingGlowTwo" aria-hidden="true" />
 
       <section className="landingCard" aria-label="Masterworld สมัครสมาชิก">
-        {(config.images ?? [{ id: "legacy-main-image", url: config.promoImageUrl, alt: config.imageAlt, enabled: config.showImage }]).filter((image) => image.enabled).map((image, index) => (
-          <div className="promoLink" key={image.id}>
-            <img
-              src={image.url}
-              alt={image.alt}
-              fetchPriority={index === 0 ? "high" : "auto"}
-              className="promoImage"
-            />
-          </div>
-        ))}
-
-        {config.showButton ? (
-          <div className="actionButtons">
-            <a
-              className="registerButton"
-              href={config.registerUrl}
-              onClick={() => trackEvent("register_click")}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={config.buttonText}
-            >
-              <span>{config.buttonText}</span>
-              <span className="buttonArrow" aria-hidden="true">
-                ›
-              </span>
-            </a>
-          </div>
-        ) : null}
-
-        {config.customButtons?.filter((button) => button.enabled).map((button) => (
-          <div className="customButtonRow" key={button.id} style={{ justifyContent: button.align }}>
-            <a
-              className={`customButton customButton-${button.size}`}
-              href={button.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ background: button.backgroundColor, color: button.textColor }}
-            >
-              <span>{button.text}</span><span aria-hidden="true">›</span>
-            </a>
-          </div>
-        ))}
+        {config.buttonPlacement === "above" ? buttonGroup : null}
+        <div className={`imageStack ${config.buttonPlacement === "overlay-top" ? "hasOverlayTop" : config.buttonPlacement === "overlay-bottom" ? "hasOverlayBottom" : ""}`}>
+          {(config.images ?? [{ id: "legacy-main-image", url: config.promoImageUrl, alt: config.imageAlt, enabled: config.showImage }]).filter((image) => image.enabled).map((image, index) => (
+            <div className="promoLink" key={image.id}>
+              <img src={image.url} alt={image.alt} fetchPriority={index === 0 ? "high" : "auto"} className="promoImage" />
+            </div>
+          ))}
+          {(config.buttonPlacement === "overlay-top" || config.buttonPlacement === "overlay-bottom") ? buttonGroup : null}
+        </div>
+        {config.buttonPlacement === "below" || !config.buttonPlacement ? buttonGroup : null}
       </section>
 
       <style jsx>{`
@@ -126,6 +113,14 @@ export default function Home() {
             inset 0 1px 0 rgba(255, 255, 255, 0.06);
         }
 
+        .imageStack { position: relative; }
+        .imageStack .promoLink + .promoLink { margin-top: 12px; }
+        .allButtons { position: relative; z-index: 2; }
+        .imageStack .allButtons { position: absolute; left: 14px; right: 14px; z-index: 5; }
+        .imageStack .allButtons.overlayTop { top: 14px; }
+        .imageStack .allButtons.overlayBottom { bottom: 14px; }
+        .imageStack .allButtons .actionButtons { margin-top: 0; }
+        .imageStack .allButtons .customButtonRow { margin-top: 8px; }
         .promoLink {
           display: block;
           width: 100%;
@@ -236,7 +231,15 @@ export default function Home() {
             border-radius: 22px;
           }
 
-          .promoLink {
+          .imageStack { position: relative; }
+        .imageStack .promoLink + .promoLink { margin-top: 12px; }
+        .allButtons { position: relative; z-index: 2; }
+        .imageStack .allButtons { position: absolute; left: 14px; right: 14px; z-index: 5; }
+        .imageStack .allButtons.overlayTop { top: 14px; }
+        .imageStack .allButtons.overlayBottom { bottom: 14px; }
+        .imageStack .allButtons .actionButtons { margin-top: 0; }
+        .imageStack .allButtons .customButtonRow { margin-top: 8px; }
+        .promoLink {
             border-radius: 17px;
           }
 

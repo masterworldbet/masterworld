@@ -20,6 +20,7 @@ export type SiteConfig = {
   buttonText: string;
   showImage: boolean;
   showButton: boolean;
+  buttonPlacement: "above" | "below" | "overlay-top" | "overlay-bottom";
   pageBackgroundColor: string | null;
   cardBackgroundColor: string | null;
   buttonBackgroundColor: string | null;
@@ -35,6 +36,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   buttonText: "สมัครเลย",
   showImage: true,
   showButton: true,
+  buttonPlacement: "below",
   // Null means preserve the original CSS exactly until the owner customizes a color.
   pageBackgroundColor: null,
   cardBackgroundColor: null,
@@ -75,6 +77,10 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
   if (typeof value.buttonText !== "string" || value.buttonText.trim().length < 1 || value.buttonText.length > 80) return null;
   if (typeof value.imageAlt !== "string" || value.imageAlt.length > 160) return null;
   if (typeof value.showImage !== "boolean" || typeof value.showButton !== "boolean") return null;
+
+  const buttonPlacement = ["above", "below", "overlay-top", "overlay-bottom"].includes(String(value.buttonPlacement))
+    ? value.buttonPlacement as SiteConfig["buttonPlacement"]
+    : "below";
 
   const optionalColor = (key: string): string | null | undefined => {
     const item = value[key];
@@ -130,6 +136,7 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
     buttonText: value.buttonText.trim(),
     showImage: firstImage?.enabled ?? value.showImage,
     showButton: value.showButton,
+    buttonPlacement,
     pageBackgroundColor,
     cardBackgroundColor,
     buttonBackgroundColor,

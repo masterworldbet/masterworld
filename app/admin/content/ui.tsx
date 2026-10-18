@@ -12,6 +12,7 @@ const defaults: SiteConfig = {
   buttonText: "สมัครเลย",
   showImage: true,
   showButton: true,
+  buttonPlacement: "below",
   pageBackgroundColor: null,
   cardBackgroundColor: null,
   buttonBackgroundColor: null,
@@ -170,6 +171,14 @@ export default function ContentEditor() {
 
           <div className="sectionRule" />
           <label className="toggleRow"><span><strong>แสดงปุ่มหลัก</strong><small>เปิดหรือซ่อนปุ่มบนหน้าเว็บ</small></span><input type="checkbox" checked={config.showButton} onChange={(e) => update("showButton", e.target.checked)} /></label>
+          <label className="fieldLabel" htmlFor="button-placement">ตำแหน่งปุ่มเทียบกับรูปภาพ</label>
+          <select id="button-placement" className="textField" value={config.buttonPlacement ?? "below"} onChange={(e) => update("buttonPlacement", e.target.value as SiteConfig["buttonPlacement"])}>
+            <option value="above">วางปุ่มเหนือรูปทั้งหมด</option>
+            <option value="below">วางปุ่มใต้รูปทั้งหมด</option>
+            <option value="overlay-top">วางปุ่มซ้อนบนรูปแรก (ด้านบน)</option>
+            <option value="overlay-bottom">วางปุ่มซ้อนบนรูปแรก (ด้านล่าง)</option>
+          </select>
+          <p className="fieldHint">ตำแหน่งนี้ใช้กับปุ่มหลักและปุ่มเพิ่มเติมทั้งหมด หากเลือกซ้อนบนรูป ปุ่มจะอยู่บนรูปแรกที่แสดง</p>
           <label className="fieldLabel" htmlFor="button-text">ข้อความบนปุ่ม</label>
           <input id="button-text" className="textField" value={config.buttonText} maxLength={80} onChange={(e) => update("buttonText", e.target.value)} />
           <label className="fieldLabel" htmlFor="register-url">ลิงก์ปลายทางของปุ่ม (HTTPS)</label>
