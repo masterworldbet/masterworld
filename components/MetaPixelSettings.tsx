@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { DEFAULT_SITE_CONFIG } from "../lib/site-config";
 
 declare global { interface Window { fbq?: (...args: unknown[]) => void; _fbq?: unknown; __mwPixelIds?: string[] } }
 
@@ -14,10 +13,17 @@ export default function MetaPixelSettings() {
       if (!ids.length) return;
       const w = window;
       if (!w.fbq) {
-        const fbq = function(this: unknown, ...args: unknown[]) {
-          const fn = fbq as unknown as { callMethod?: (...a: unknown[]) => void; queue: unknown[][]; loaded?: boolean; version?: string; push?: (...a: unknown[]) => void };
-          if (fn.callMethod) fn.callMethod(...args); else fn.queue.push(args);
-        } as typeof w.fbq & { queue: unknown[][]; loaded?: boolean; version?: string; push?: (...a: unknown[]) => void };
+        type FbqFunction = ((...args: unknown[]) => void) & {
+          callMethod?: (...args: unknown[]) => void;
+          queue: unknown[][];
+          loaded?: boolean;
+          version?: string;
+          push?: (...args: unknown[]) => void;
+        };
+        const fbq: FbqFunction = function (...args: unknown[]) {
+          if (fbq.callMethod) fbq.callMethod(...args);
+          else fbq.queue.push(args);
+        };
         fbq.queue = []; fbq.loaded = true; fbq.version = "2.0"; fbq.push = (...args: unknown[]) => fbq.queue.push(args);
         w.fbq = fbq; w._fbq = fbq;
         const script = document.createElement("script"); script.async = true; script.src = "https://connect.facebook.net/en_US/fbevents.js"; document.head.appendChild(script);
