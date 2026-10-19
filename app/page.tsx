@@ -8,6 +8,7 @@ import { DEFAULT_SITE_CONFIG, type SiteConfig } from "../lib/site-config";
 declare global {
   interface Window {
     fbq?: (...args: unknown[]) => void;
+    __mwSelectedPixelId?: string;
   }
 }
 
@@ -17,7 +18,10 @@ function sendSourcePixelEvent() {
   const querySource = params.get("mw_source");
   if (querySource === "a" || querySource === "b") sessionStorage.setItem("mw_source", querySource);
   const saved = sessionStorage.getItem("mw_source");
-  if (saved === "a" || saved === "b") window.fbq("track", "Contact");
+  const selectedId = window.__mwSelectedPixelId;
+  if ((saved === "a" || saved === "b") && selectedId) {
+    window.fbq("trackSingle", selectedId, "Contact");
+  }
 }
 
 function getTrafficSource(): "a" | "b" | "direct" {
