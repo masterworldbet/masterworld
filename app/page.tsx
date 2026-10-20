@@ -104,9 +104,10 @@ export default function Home() {
         key="main-button"
         style={{
           display: "flex",
-          width: "auto",
+          width: "calc(100% - 24px)",
           margin: "12px",
           minWidth: 0,
+          boxSizing: "border-box",
         }}
       >
         <a
@@ -177,10 +178,11 @@ export default function Home() {
         key={button.id}
         style={{
           display: "flex",
-          justifyContent: button.align,
-          width: "auto",
+          justifyContent: "stretch",
+          width: "calc(100% - 24px)",
           minWidth: 0,
           margin: "10px 12px 0",
+          boxSizing: "border-box",
         }}
       >
         <a
@@ -199,7 +201,8 @@ export default function Home() {
             alignItems: "center",
             justifyContent: "space-between",
             gap: 10,
-            width: (button.fullWidth ?? button.size === "large") ? "100%" : "auto",
+            width: "100%",
+            flex: "1 1 100%",
             maxWidth: "100%",
             minHeight:
               button.size === "small"
@@ -461,7 +464,19 @@ export default function Home() {
 
         .actionButtons,
         .customButtonRow {
+          display: flex;
+          width: calc(100% - 24px);
           min-width: 0;
+          box-sizing: border-box;
+          align-items: stretch;
+        }
+
+        .actionButtons > .registerButton,
+        .customButtonRow > .customButton {
+          width: 100% !important;
+          min-width: 0;
+          max-width: 100%;
+          flex: 1 1 100%;
           box-sizing: border-box;
         }
 
