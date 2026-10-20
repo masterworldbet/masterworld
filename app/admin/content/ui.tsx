@@ -501,47 +501,37 @@ export default function ContentEditor() {
             <div className="previewCard" style={{ backgroundColor: config.cardBackgroundColor || "#141414" }}>
               {config.pageHeadline ? <h3 style={{ margin: "4px 0 8px", textAlign: "center", color: "#fff", fontSize: 20, fontWeight: 800 }}>{config.pageHeadline}</h3> : null}
               {config.pageDescription ? <p style={{ margin: "0 0 12px", whiteSpace: "pre-wrap", textAlign: "center", color: "#e5e7eb", fontSize: 14, lineHeight: 1.65 }}>{config.pageDescription}</p> : null}
-              {(config.images ?? []).filter((image) => image.enabled).map((image) => (
-                <div className="previewImageWrap" key={image.id}><img src={image.url} alt={image.alt} /></div>
-              ))}
-              {!config.images.some((image) => image.enabled) ? <p className="previewHidden">ซ่อนรูปภาพอยู่</p> : null}
-              {config.showButton ? (
-                <div
-                  className="previewButton"
-                  style={{ display: "flex", justifyContent: "center",
-                    background: config.buttonBackgroundColor || "linear-gradient(180deg,#00f51b,#00d91b)",
-                    color: config.buttonTextColor || "#071507",
-                    borderRadius: config.mainButtonBorderRadius ?? 14,
-                    fontSize: config.mainButtonFontSize ?? 17,
-                    fontFamily: config.mainButtonFontFamily && config.mainButtonFontFamily !== "inherit" ? config.mainButtonFontFamily : "inherit",
-                    width: config.mainButtonFullWidth === false ? "auto" : "100%",
-                  }}
-                >
-                  {config.mainButtonIcon ? <span aria-hidden="true" style={{ marginRight: 8 }}>{config.mainButtonIcon}</span> : null}
-                  <span className="previewButtonText">{config.buttonText}</span>
-                  <span className="previewButtonArrow" aria-hidden="true">›</span>
-                </div>
-              ) : <p className="previewHidden">ซ่อนปุ่มอยู่</p>}
-              {config.customButtons.filter((button) => button.enabled).map((button) => (
-                <div className="previewCustomButton" key={button.id}>
-                  <div
-                    className="previewCustomButtonInner"
-                    style={{
-                      background: button.backgroundColor,
-                      color: button.textColor,
-                      fontSize: button.fontSize ?? (button.size === "small" ? 13 : button.size === "large" ? 17 : 15),
-                      fontFamily: button.fontFamily && button.fontFamily !== "inherit" ? button.fontFamily : "inherit",
-                      borderRadius: button.borderRadius ?? 12,
-                      minHeight: button.size === "small" ? 36 : button.size === "medium" ? 46 : 56,
-                      padding: button.size === "small" ? "9px 14px" : button.size === "large" ? "14px 20px" : "11px 16px",
-                    }}
-                  >
-                    {button.icon ? <span className="previewCustomIcon" aria-hidden="true">{button.icon}</span> : null}
-                    <span className="previewCustomText">{button.text || "ตัวอย่างปุ่ม"}</span>
-                    <span className="previewCustomArrow" aria-hidden="true">›</span>
-                  </div>
-                </div>
-              ))}
+              <div className="previewLayoutStack" style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%" }}>
+                {normalizedLayoutOrder().map((id) => {
+                  if (id.startsWith("image:")) {
+                    const image = config.images.find((item) => `image:${item.id}` === id);
+                    if (!image?.enabled) return null;
+                    return <div className="previewImageWrap" key={id}><img src={image.url} alt={image.alt} /></div>;
+                  }
+                  if (id === "main-button") {
+                    if (!config.showButton) return null;
+                    return (
+                      <div key={id} className="previewButton" style={{ display: "flex", justifyContent: "center", alignItems: "center", boxSizing: "border-box", width: config.mainButtonFullWidth === false ? "auto" : "100%", background: config.buttonBackgroundColor || "linear-gradient(180deg,#00f51b,#00d91b)", color: config.buttonTextColor || "#071507", borderRadius: config.mainButtonBorderRadius ?? 14, fontSize: config.mainButtonFontSize ?? 17, fontFamily: config.mainButtonFontFamily && config.mainButtonFontFamily !== "inherit" ? config.mainButtonFontFamily : "inherit" }}>
+                        {config.mainButtonIcon ? <span aria-hidden="true" style={{ marginRight: 8 }}>{config.mainButtonIcon}</span> : null}
+                        <span className="previewButtonText">{config.buttonText}</span><span className="previewButtonArrow" aria-hidden="true">›</span>
+                      </div>
+                    );
+                  }
+                  if (id.startsWith("button:")) {
+                    const button = config.customButtons.find((item) => `button:${item.id}` === id);
+                    if (!button?.enabled) return null;
+                    return (
+                      <div className="previewCustomButton" key={id} style={{ width: "100%", boxSizing: "border-box" }}>
+                        <div className="previewCustomButtonInner" style={{ boxSizing: "border-box", width: "100%", background: button.backgroundColor, color: button.textColor, fontSize: button.fontSize ?? (button.size === "small" ? 13 : button.size === "large" ? 17 : 15), fontFamily: button.fontFamily && button.fontFamily !== "inherit" ? button.fontFamily : "inherit", borderRadius: button.borderRadius ?? 12, minHeight: button.size === "small" ? 36 : button.size === "medium" ? 46 : 56, padding: button.size === "small" ? "9px 14px" : button.size === "large" ? "14px 20px" : "11px 16px" }}>
+                          {button.icon ? <span className="previewCustomIcon" aria-hidden="true">{button.icon}</span> : null}
+                          <span className="previewCustomText">{button.text || "ตัวอย่างปุ่ม"}</span><span className="previewCustomArrow" aria-hidden="true">›</span>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
             </div>
           </div>
 
