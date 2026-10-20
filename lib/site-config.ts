@@ -9,6 +9,11 @@ export type CustomButton = {
   enabled: boolean;
   eventType?: "none" | "standard" | "custom";
   eventName?: string;
+  icon?: string;
+  fontSize?: number;
+  fontFamily?: "inherit" | "Arial" | "Tahoma" | "Noto Sans Thai" | "Georgia";
+  borderRadius?: number;
+  fullWidth?: boolean;
 };
 
 export type SiteImage = { id: string; url: string; alt: string; enabled: boolean };
@@ -20,9 +25,7 @@ export type SiteConfig = {
   imageAlt: string;
   registerUrl: string;
   buttonText: string;
-  pixelId: string; // legacy fallback
-  pixelIdA: string;
-  pixelIdB: string;
+  pixelId: string;
   mainButtonEventType: "none" | "standard" | "custom";
   mainButtonEventName: string;
   showImage: boolean;
@@ -43,8 +46,6 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   registerUrl: "https://masterworldbet.com/sign-up?ref_agent=1feacd0466b9&ref_zean=9ED5866AF713",
   buttonText: "สมัครเลย",
   pixelId: "",
-  pixelIdA: "",
-  pixelIdB: "",
   mainButtonEventType: "none",
   mainButtonEventName: "",
   showImage: true,
@@ -91,8 +92,6 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
   if (typeof value.buttonText !== "string" || value.buttonText.trim().length < 1 || value.buttonText.length > 80) return null;
   if (typeof value.imageAlt !== "string" || value.imageAlt.length > 160) return null;
   const pixelId = typeof value.pixelId === "string" && value.pixelId.trim().length <= 100 && /^[0-9,\s]*$/.test(value.pixelId) ? value.pixelId.trim() : null;
-  const pixelIdA = typeof value.pixelIdA === "string" && value.pixelIdA.trim().length <= 30 && /^[0-9]*$/.test(value.pixelIdA.trim()) ? value.pixelIdA.trim() : "";
-  const pixelIdB = typeof value.pixelIdB === "string" && value.pixelIdB.trim().length <= 30 && /^[0-9]*$/.test(value.pixelIdB.trim()) ? value.pixelIdB.trim() : "";
   const mainButtonEventType = ["none", "standard", "custom"].includes(String(value.mainButtonEventType ?? "none")) ? String(value.mainButtonEventType ?? "none") as "none" | "standard" | "custom" : null;
   const mainButtonEventName = typeof value.mainButtonEventName === "string" && value.mainButtonEventName.length <= 80 ? value.mainButtonEventName.trim() : null;
   if (pixelId === null || mainButtonEventType === null || mainButtonEventName === null) return null;
@@ -126,12 +125,22 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
         !["small", "medium", "large"].includes(String(button.size)) ||
         !["left", "center", "right"].includes(String(button.align)) || typeof button.enabled !== "boolean" ||
         !["none", "standard", "custom"].includes(String(button.eventType ?? "none")) ||
-        (button.eventName !== undefined && (typeof button.eventName !== "string" || button.eventName.length > 80))) return null;
+        (button.eventName !== undefined && (typeof button.eventName !== "string" || button.eventName.length > 80)) ||
+        (button.icon !== undefined && (typeof button.icon !== "string" || button.icon.length > 24)) ||
+        (button.fontSize !== undefined && (!Number.isFinite(button.fontSize) || Number(button.fontSize) < 10 || Number(button.fontSize) > 32)) ||
+        (button.fontFamily !== undefined && !["inherit", "Arial", "Tahoma", "Noto Sans Thai", "Georgia"].includes(String(button.fontFamily))) ||
+        (button.borderRadius !== undefined && (!Number.isFinite(button.borderRadius) || Number(button.borderRadius) < 0 || Number(button.borderRadius) > 40)) ||
+        (button.fullWidth !== undefined && typeof button.fullWidth !== "boolean")) return null;
     customButtons.push({
       id: button.id, text: button.text.trim(), url,
       backgroundColor: button.backgroundColor, textColor: button.textColor,
       size: button.size as CustomButton["size"], align: button.align as CustomButton["align"], enabled: button.enabled,
       eventType: (button.eventType ?? "none") as CustomButton["eventType"], eventName: typeof button.eventName === "string" ? button.eventName.trim() : "",
+      icon: typeof button.icon === "string" ? button.icon.trim() : "",
+      fontSize: Number.isFinite(button.fontSize) ? Number(button.fontSize) : (button.size === "small" ? 13 : button.size === "large" ? 17 : 15),
+      fontFamily: ["inherit", "Arial", "Tahoma", "Noto Sans Thai", "Georgia"].includes(String(button.fontFamily)) ? button.fontFamily as CustomButton["fontFamily"] : "inherit",
+      borderRadius: Number.isFinite(button.borderRadius) ? Number(button.borderRadius) : 12,
+      fullWidth: typeof button.fullWidth === "boolean" ? button.fullWidth : button.size === "large",
     });
   }
 
@@ -168,7 +177,7 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
     imageAlt: firstImage?.alt ?? value.imageAlt,
     registerUrl,
     buttonText: value.buttonText.trim(),
-    pixelId, pixelIdA, pixelIdB, mainButtonEventType, mainButtonEventName,
+    pixelId, mainButtonEventType, mainButtonEventName,
     showImage: firstImage?.enabled ?? value.showImage,
     showButton: value.showButton,
     buttonPlacement,

@@ -8,31 +8,31 @@ import { DEFAULT_SITE_CONFIG, type SiteConfig } from "../lib/site-config";
 declare global {
   interface Window {
     fbq?: (...args: unknown[]) => void;
-    __mwSelectedPixelId?: string;
   }
 }
 
-function sendSourcePixelEvent() {
-  if (typeof window === "undefined" || !window.fbq) return;
-  const params = new URLSearchParams(window.location.search);
-  const querySource = params.get("mw_source");
-  if (querySource === "a" || querySource === "b") sessionStorage.setItem("mw_source", querySource);
-  const saved = sessionStorage.getItem("mw_source");
-  const selectedId = window.__mwSelectedPixelId;
-  if ((saved === "a" || saved === "b") && selectedId) {
-    window.fbq("trackSingle", selectedId, "Contact");
+function sendPixelEvent(
+  type: "none" | "standard" | "custom" | undefined,
+  name?: string
+) {
+  if (
+    !type ||
+    type === "none" ||
+    !name ||
+    typeof window === "undefined" ||
+    !window.fbq
+  ) {
+    return;
+  }
+
+  if (type === "standard") {
+    window.fbq("track", name);
+  } else {
+    window.fbq("trackCustom", name);
   }
 }
 
-function getTrafficSource(): "a" | "b" | "direct" {
-  if (typeof window === "undefined") return "direct";
-  const value = new URLSearchParams(window.location.search).get("mw_source");
-  if (value === "a" || value === "b") { sessionStorage.setItem("mw_source", value); return value; }
-  const saved = sessionStorage.getItem("mw_source");
-  return saved === "a" || saved === "b" ? saved : "direct";
-}
-
-function trackEvent(event: "page_view" | "register_click", buttonName?: string) {
+function trackEvent(event: "page_view" | "register_click") {
   if (typeof window === "undefined") return;
 
   const width = window.innerWidth;
@@ -41,8 +41,6 @@ function trackEvent(event: "page_view" | "register_click", buttonName?: string) 
 
   const payload = JSON.stringify({
     event,
-    source: getTrafficSource(),
-    buttonName: buttonName || null,
     path: window.location.pathname,
     referrer: document.referrer || null,
     device,
@@ -115,9 +113,11 @@ export default function Home() {
           className="registerButton"
           href={config.registerUrl}
           onClick={() => {
-            trackEvent("register_click", config.buttonText || "main_button");
-            // Clicks are recorded as Contact, not CompleteRegistration.
-            sendSourcePixelEvent();
+            trackEvent("register_click");
+            sendPixelEvent(
+              config.mainButtonEventType,
+              config.mainButtonEventName
+            );
           }}
           target="_blank"
           rel="noopener noreferrer"
@@ -186,9 +186,9 @@ export default function Home() {
           href={button.url}
           onClick={() => {
             // Count custom-button clicks in the same Dashboard metric as the main button.
-            trackEvent("register_click", button.text || "custom_button");
-            // A click is a contact/action event, not proof of a completed registration.
-            sendSourcePixelEvent();
+            trackEvent("register_click");
+            // Keep the optional Meta Pixel event configured for this button.
+            sendPixelEvent(button.eventType, button.eventName);
           }}
           target="_blank"
           rel="noopener noreferrer"
@@ -196,8 +196,8 @@ export default function Home() {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: 18,
-            width: button.size === "large" ? "100%" : "auto",
+            gap: 10,
+            width: (button.fullWidth ?? button.size === "large") ? "100%" : "auto",
             maxWidth: "100%",
             minHeight:
               button.size === "small"
@@ -206,22 +206,19 @@ export default function Home() {
                   ? 46
                   : 56,
             boxSizing: "border-box",
-            padding: "12px 18px",
-            borderRadius: 12,
+            padding: button.size === "small" ? "9px 14px" : button.size === "large" ? "14px 20px" : "11px 16px",
+            borderRadius: button.borderRadius ?? 12,
             textDecoration: "none",
             fontWeight: 800,
-            fontSize:
-              button.size === "small"
-                ? 13
-                : button.size === "medium"
-                  ? 15
-                  : 17,
+            fontFamily: button.fontFamily && button.fontFamily !== "inherit" ? button.fontFamily : "inherit",
+            fontSize: button.fontSize ?? (button.size === "small" ? 13 : button.size === "medium" ? 15 : 17),
             background: button.backgroundColor,
             color: button.textColor,
           }}
         >
-          <span>{button.text}</span>
-          <span aria-hidden="true">›</span>
+          {button.icon ? <span aria-hidden="true" style={{ flex: "0 0 auto", lineHeight: 1 }}>{button.icon}</span> : null}
+          <span style={{ flex: "1 1 auto", textAlign: "center" }}>{button.text}</span>
+          <span aria-hidden="true" style={{ flex: "0 0 auto", lineHeight: 1 }}>›</span>
         </a>
       </div>
     );

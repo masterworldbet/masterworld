@@ -11,8 +11,6 @@ const defaults: SiteConfig = {
   registerUrl: "https://masterworldbet.com/sign-up?ref_agent=1feacd0466b9&ref_zean=9ED5866AF713",
   buttonText: "สมัครเลย",
   pixelId: "",
-  pixelIdA: "",
-  pixelIdB: "",
   mainButtonEventType: "none",
   mainButtonEventName: "",
   showImage: true,
@@ -190,6 +188,11 @@ export default function ContentEditor() {
       enabled: true,
       eventType: "none",
       eventName: "",
+      icon: "✨",
+      fontSize: 15,
+      fontFamily: "inherit",
+      borderRadius: 12,
+      fullWidth: false,
     };
     update("customButtons", [...config.customButtons, button]);
   }
@@ -367,7 +370,21 @@ export default function ContentEditor() {
           </select>
           <p className="fieldHint">ตำแหน่งแสดงผลจริงอาจขึ้นกับวิธีจัดเรียงในส่วน “ลำดับการแสดงผล” ด้านล่าง</p>
 
-          <p className="fieldHint">ระบบส่ง Contact เมื่อคลิกปุ่มตามแหล่ง A/B โดยอัตโนมัติ ไม่ต้องตั้ง Event รายปุ่ม</p>
+          <label className="fieldLabel">Meta Pixel Event ของปุ่มหลัก</label>
+          <select className="textField" value={config.mainButtonEventType} onChange={(event) => update("mainButtonEventType", event.target.value as SiteConfig["mainButtonEventType"])}>
+            <option value="none">ไม่ส่ง Event</option>
+            <option value="standard">Standard Event</option>
+            <option value="custom">Custom Event</option>
+          </select>
+          {config.mainButtonEventType === "standard" ? (
+            <select className="textField" value={config.mainButtonEventName} onChange={(event) => update("mainButtonEventName", event.target.value)}>
+              {standardEvents.map((eventName) => <option key={eventName} value={eventName}>{eventName}</option>)}
+            </select>
+          ) : null}
+          {config.mainButtonEventType === "custom" ? (
+            <input className="textField" value={config.mainButtonEventName} maxLength={80} placeholder="เช่น MyButtonClick" onChange={(event) => update("mainButtonEventName", event.target.value.replace(/[^a-zA-Z0-9_]/g, ""))} />
+          ) : null}
+          <p className="fieldHint">เลือก Event ให้ตรงกับการกระทำที่เกิดขึ้นจริง การคลิกปุ่มไม่ควรนับเป็นการสมัครสำเร็จหากยังไม่ได้สมัคร</p>
 
           <div className="sectionRule" />
           <div className="panelHeading compactHeading">
@@ -390,6 +407,13 @@ export default function ContentEditor() {
               </div>
               <label className="fieldLabel">ข้อความบนปุ่ม</label>
               <input className="textField" value={button.text} maxLength={80} onChange={(event) => updateCustomButton(button.id, { text: event.target.value })} />
+              <div className="customButtonFields customButtonFieldsWide">
+                <label>ไอคอน (Emoji)<input className="textField" value={button.icon ?? ""} maxLength={24} placeholder="เช่น 💬 หรือ 🟢" onChange={(event) => updateCustomButton(button.id, { icon: event.target.value })} /></label>
+                <label>ขนาดตัวอักษร: {button.fontSize ?? (button.size === "small" ? 13 : button.size === "large" ? 17 : 15)} px<input type="range" min="10" max="32" value={button.fontSize ?? (button.size === "small" ? 13 : button.size === "large" ? 17 : 15)} onChange={(event) => updateCustomButton(button.id, { fontSize: Number(event.target.value) })} /></label>
+                <label>ฟอนต์<select value={button.fontFamily ?? "inherit"} onChange={(event) => updateCustomButton(button.id, { fontFamily: event.target.value as CustomButton["fontFamily"] })}><option value="inherit">ฟอนต์เว็บไซต์</option><option value="Arial">Arial</option><option value="Tahoma">Tahoma</option><option value="Noto Sans Thai">Noto Sans Thai</option><option value="Georgia">Georgia</option></select></label>
+                <label>ความโค้งมุม: {button.borderRadius ?? 12} px<input type="range" min="0" max="40" value={button.borderRadius ?? 12} onChange={(event) => updateCustomButton(button.id, { borderRadius: Number(event.target.value) })} /></label>
+              </div>
+              <label className="toggleRow"><span><strong>ปุ่มเต็มความกว้าง</strong><small>เปิดเพื่อให้ปุ่มขยายเต็มพื้นที่เหมือนตัวอย่าง</small></span><input type="checkbox" checked={button.fullWidth ?? button.size === "large"} onChange={(event) => updateCustomButton(button.id, { fullWidth: event.target.checked })} /></label>
               <label className="fieldLabel">ลิงก์ปลายทาง (HTTPS)</label>
               <input className="textField" type="url" value={button.url} onChange={(event) => updateCustomButton(button.id, { url: event.target.value })} />
 
@@ -400,9 +424,21 @@ export default function ContentEditor() {
                 <label>ตำแหน่ง<select value={button.align} onChange={(event) => updateCustomButton(button.id, { align: event.target.value as CustomButton["align"] })}><option value="left">ซ้าย</option><option value="center">กลาง</option><option value="right">ขวา</option></select></label>
               </div>
 
-              <div className="customButtonSample" style={{ justifyContent: button.align }}>
-                <span style={{ background: button.backgroundColor, color: button.textColor, fontSize: button.size === "small" ? 12 : button.size === "large" ? 17 : 14, padding: button.size === "small" ? "8px 12px" : button.size === "large" ? "14px 20px" : "11px 16px", opacity: button.enabled ? 1 : 0.45 }}>
-                  {button.text || "ตัวอย่างปุ่ม"}　›
+              <label className="fieldLabel">Meta Pixel Event ของปุ่มนี้</label>
+              <select className="textField" value={button.eventType ?? "none"} onChange={(event) => updateCustomButton(button.id, { eventType: event.target.value as CustomButton["eventType"] })}>
+                <option value="none">ไม่ส่ง Event</option><option value="standard">Standard Event</option><option value="custom">Custom Event</option>
+              </select>
+              {button.eventType === "standard" ? (
+                <select className="textField" value={button.eventName || "Lead"} onChange={(event) => updateCustomButton(button.id, { eventName: event.target.value })}>
+                  {standardEvents.map((eventName) => <option key={eventName} value={eventName}>{eventName}</option>)}
+                </select>
+              ) : null}
+              {button.eventType === "custom" ? (
+                <input className="textField" value={button.eventName || ""} maxLength={80} placeholder="เช่น MyButtonClick" onChange={(event) => updateCustomButton(button.id, { eventName: event.target.value.replace(/[^a-zA-Z0-9_]/g, "") })} />
+              ) : null}
+              <div className="customButtonSample" style={{ justifyContent: button.fullWidth ?? button.size === "large" ? "stretch" : button.align }}>
+                <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, width: (button.fullWidth ?? button.size === "large") ? "100%" : "auto", background: button.backgroundColor, color: button.textColor, fontSize: button.fontSize ?? (button.size === "small" ? 13 : button.size === "large" ? 17 : 15), fontFamily: button.fontFamily === "inherit" ? "inherit" : button.fontFamily, borderRadius: button.borderRadius ?? 12, padding: button.size === "small" ? "9px 14px" : button.size === "large" ? "14px 20px" : "11px 16px", opacity: button.enabled ? 1 : 0.45 }}>
+                  {button.icon ? <span aria-hidden="true">{button.icon}</span> : null}{button.text || "ตัวอย่างปุ่ม"}
                 </span>
               </div>
             </div>
@@ -415,13 +451,9 @@ export default function ContentEditor() {
             <div><h2>การตั้งค่าทั่วไป</h2><p>Pixel สี ตัวอย่าง และลำดับแสดงผล</p></div>
           </div>
 
-          <label className="fieldLabel">Meta Pixel ID — แหล่ง A</label>
-          <input className="textField" inputMode="numeric" value={config.pixelIdA ?? ""} maxLength={30} placeholder="Pixel ID สำหรับลิงก์ mw_source=a" onChange={(event) => update("pixelIdA", event.target.value.replace(/\D/g, ""))} />
-          <label className="fieldLabel">Meta Pixel ID — แหล่ง B</label>
-          <input className="textField" inputMode="numeric" value={config.pixelIdB ?? ""} maxLength={30} placeholder="Pixel ID สำหรับลิงก์ mw_source=b" onChange={(event) => update("pixelIdB", event.target.value.replace(/\D/g, ""))} />
-          <p className="fieldHint">ลิงก์ A ใช้ ?mw_source=a และลิงก์ B ใช้ ?mw_source=b ระบบจะส่ง Pixel event ไปยัง ID ที่ตรงกับแหล่งที่มาเท่านั้น</p>
-          <label className="fieldLabel">Pixel ID เดิม (สำรอง)</label>
-          <input className="textField" inputMode="numeric" value={config.pixelId ?? ""} maxLength={100} placeholder="ค่าเดิม ถ้าต้องการคงการทำงานเดิม" onChange={(event) => update("pixelId", event.target.value.replace(/[^0-9,\s]/g, ""))} />
+          <label className="fieldLabel">Meta Pixel ID</label>
+          <input className="textField" inputMode="numeric" value={config.pixelId} maxLength={100} placeholder="ใส่ Pixel ID หรือเว้นว่างเพื่อใช้ค่าเดิมจาก Vercel" onChange={(event) => update("pixelId", event.target.value.replace(/[^0-9,\s]/g, ""))} />
+          <p className="fieldHint">ใส่ได้หลาย ID โดยคั่นด้วยจุลภาค หากเว้นว่าง ระบบจะใช้ NEXT_PUBLIC_META_PIXEL_ID เดิม</p>
 
           <div className="sectionRule" />
           <div className="panelHeading compactHeading"><span className="panelNumber">05</span><div><h2>ปรับแต่งสี</h2><p>ไม่เปลี่ยนสีเดิมจนกว่าจะบันทึกค่าที่เลือก</p></div></div>
@@ -505,7 +537,7 @@ export default function ContentEditor() {
         .imageList{display:grid;gap:12px;margin-top:14px}.imageItem{display:grid;grid-template-columns:minmax(90px,140px) minmax(0,1fr);gap:12px;padding:12px;border:1px solid #30343b;border-radius:12px;background:#0c0f13}.imageItem>img{display:block;width:100%;height:auto;max-height:220px;object-fit:contain;align-self:start;background:#08090b;border-radius:8px}.imageItemFields{min-width:0}.imageItemFields>.toggleRow{padding:4px 0}
         .sectionRule{height:1px;background:#2a2e35;margin:22px 0}.smallActions{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}.smallActions button{padding:6px 9px;border:1px solid #353a43;border-radius:7px;background:#191d23;color:#e8eaf0;cursor:pointer}.smallActions button:disabled{opacity:.35;cursor:default}
         .addButton{width:100%;padding:12px;border:1px dashed #b88c2b;border-radius:10px;background:#282216;color:#ffd45e;font-weight:800;cursor:pointer}.customButtonEditor{margin-top:12px;padding:14px;border:1px solid #30343b;border-radius:12px;background:#0c0f13}.customButtonEditorTop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
-        .customButtonFields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.customButtonFields label{display:grid;gap:6px;color:#aab1bd;font-size:11px}.customButtonFields input[type=color]{width:100%;height:34px;border:1px solid #343943;border-radius:6px;background:#111419}.customButtonFields select{width:100%;min-width:0;padding:8px;border:1px solid #343943;border-radius:6px;background:#090b0e;color:#fff}
+        .customButtonFields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.customButtonFields label{display:grid;gap:6px;color:#aab1bd;font-size:11px}.customButtonFields input[type=range]{width:100%;accent-color:#e6b844}.customButtonFields input[type=color]{width:100%;height:34px;border:1px solid #343943;border-radius:6px;background:#111419}.customButtonFields select{width:100%;min-width:0;padding:8px;border:1px solid #343943;border-radius:6px;background:#090b0e;color:#fff}
         .customButtonSample{display:flex;margin-top:12px;padding:10px;background:#08090b;border-radius:8px}.customButtonSample span{display:inline-block;border-radius:8px;font-weight:800}
         .colorRow{padding:12px 0;border-bottom:1px solid #272b32}.colorRow>label{display:block;margin-bottom:9px;color:#d9dce1;font-size:12px;font-weight:700}.colorControl{display:flex;align-items:center;gap:10px}.colorControl input{width:40px;height:36px;padding:2px;border:1px solid #3a3f48;border-radius:8px;background:#0a0c0f;cursor:pointer}.colorControl code{flex:1;color:#a9b0bb;font-size:11px}.colorControl button,.resetButton{border:1px solid #353a43;border-radius:8px;padding:8px 10px;background:#191d23;color:#c6cbd3;font-size:11px;cursor:pointer}.resetButton{margin-top:14px}
         .layoutOrderList{display:grid;gap:8px;margin-top:12px}.layoutOrderItem{display:flex;align-items:center;gap:9px;padding:11px;border:1px solid #3b414b;border-radius:10px;background:#0b0e12;cursor:grab;user-select:none}.layoutOrderItem:active{cursor:grabbing}.dragHandle{font-size:20px;color:#f0c44f}.layoutOrderNumber{display:grid;place-items:center;min-width:25px;height:25px;border-radius:7px;background:#302816;color:#ffd45e;font-size:11px;font-weight:800}.layoutOrderLabel{flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px;color:#f2f4f8}.dragHint{font-size:10px;color:#8f98a6}
