@@ -236,11 +236,11 @@ export default function Home() {
   ];
 
   const defaultLayoutItems = [
+    "headline",
+    "description",
     ...legacyImages.map((image) => `image:${image.id}`),
     "main-button",
-    ...(config.customButtons ?? []).map(
-      (button) => `button:${button.id}`
-    ),
+    ...(config.customButtons ?? []).map((button) => `button:${button.id}`),
   ];
 
   const validLayoutIds = new Set(defaultLayoutItems);
@@ -257,14 +257,29 @@ export default function Home() {
     (id) => typeof id === "string" && validLayoutIds.has(id)
   );
 
-  // Recover missing items so configured buttons and images remain available.
+  // Keep the default text-first layout for older saved configurations while
+  // allowing both text blocks to be moved anywhere through layoutOrder.
+  const missingTextItems = ["headline", "description"].filter(
+    (id) => !layoutOrder.includes(id)
+  );
+  layoutOrder.unshift(...missingTextItems);
   for (const id of defaultLayoutItems) {
-    if (!layoutOrder.includes(id)) {
-      layoutOrder.push(id);
-    }
+    if (!layoutOrder.includes(id)) layoutOrder.push(id);
   }
 
   const renderLayoutItem = (id: string) => {
+    if (id === "headline") return config.pageHeadline ? (
+      <h1 key="headline" style={{ margin: "8px 14px 4px", color: "#fff", textAlign: "center", fontSize: 22, fontWeight: 800, lineHeight: 1.4, overflowWrap: "anywhere" }}>
+        {config.pageHeadline}
+      </h1>
+    ) : null;
+
+    if (id === "description") return config.pageDescription ? (
+      <p key="description" style={{ margin: "0 16px 12px", color: "#e5e7eb", textAlign: "center", fontSize: 14, lineHeight: 1.7, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
+        {config.pageDescription}
+      </p>
+    ) : null;
+
     if (id === "main-button") return renderMainButton();
 
     if (id.startsWith("button:")) {
@@ -357,16 +372,6 @@ export default function Home() {
           boxSizing: "border-box",
         }}
       >
-        {config.pageHeadline ? (
-          <h1 style={{ margin: "8px 14px 4px", color: "#fff", textAlign: "center", fontSize: 22, fontWeight: 800, lineHeight: 1.4, overflowWrap: "anywhere" }}>
-            {config.pageHeadline}
-          </h1>
-        ) : null}
-        {config.pageDescription ? (
-          <p style={{ margin: "0 16px 12px", color: "#e5e7eb", textAlign: "center", fontSize: 14, lineHeight: 1.7, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
-            {config.pageDescription}
-          </p>
-        ) : null}
         <div
           className="freeLayoutStack"
           style={{

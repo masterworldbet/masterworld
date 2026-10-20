@@ -223,11 +223,16 @@ export default function ContentEditor() {
 
   function normalizedLayoutOrder(): string[] {
     const valid = [
+      "headline",
+      "description",
       ...(config.images ?? []).map((image) => `image:${image.id}`),
       "main-button",
       ...(config.customButtons ?? []).map((button) => `button:${button.id}`),
     ];
     const current = (config.layoutOrder ?? []).filter((id) => valid.includes(id));
+    // Add both text blocks in the original text-first order for older saved layouts.
+    const missingText = ["headline", "description"].filter((id) => !current.includes(id));
+    current.unshift(...missingText);
     for (const id of valid) if (!current.includes(id)) current.push(id);
     return current;
   }
@@ -243,7 +248,17 @@ export default function ContentEditor() {
     update("layoutOrder", next);
   }
 
+  function moveLayoutItemByStep(index: number, direction: -1 | 1) {
+    const next = normalizedLayoutOrder();
+    const target = index + direction;
+    if (target < 0 || target >= next.length) return;
+    [next[index], next[target]] = [next[target], next[index]];
+    update("layoutOrder", next);
+  }
+
   function layoutItemLabel(id: string) {
+    if (id === "headline") return `หัวข้อหน้าเว็บ: ${config.pageHeadline || "ยังไม่ได้กรอก"}`;
+    if (id === "description") return `รายละเอียดเว็บไซต์: ${config.pageDescription ? config.pageDescription.slice(0, 45) : "ยังไม่ได้กรอก"}`;
     if (id === "main-button") return `ปุ่มหลัก: ${config.buttonText}`;
     if (id.startsWith("image:")) {
       const image = config.images.find((item) => `image:${item.id}` === id);
@@ -490,7 +505,11 @@ export default function ContentEditor() {
                 <span className="dragHandle" aria-hidden="true">⠿</span>
                 <span className="layoutOrderNumber">{index + 1}</span>
                 <span className="layoutOrderLabel">{layoutItemLabel(id)}</span>
-                <span className="dragHint">ลากเพื่อย้าย</span>
+                <div className="layoutOrderControls">
+                  <button type="button" onClick={() => moveLayoutItemByStep(index, -1)} disabled={index === 0} aria-label="เลื่อนขึ้น">↑</button>
+                  <button type="button" onClick={() => moveLayoutItemByStep(index, 1)} disabled={index === normalizedLayoutOrder().length - 1} aria-label="เลื่อนลง">↓</button>
+                </div>
+                <span className="dragHint">ลากหรือใช้ปุ่มลูกศร</span>
               </div>
             ))}
           </div>
@@ -499,35 +518,49 @@ export default function ContentEditor() {
           <div className="panelHeading compactHeading"><span className="panelNumber">07</span><div><h2>ตัวอย่างก่อนบันทึก</h2><p>ตัวอย่างจำลองคร่าว ๆ ไม่ใช่หน้าเว็บที่เผยแพร่แล้ว</p></div></div>
           <div className="livePreview" style={{ backgroundColor: config.pageBackgroundColor || "#050505" }}>
             <div className="previewCard" style={{ backgroundColor: config.cardBackgroundColor || "#141414" }}>
-              {config.pageHeadline ? <h3 style={{ margin: "4px 0 8px", textAlign: "center", color: "#fff", fontSize: 20, fontWeight: 800 }}>{config.pageHeadline}</h3> : null}
-              {config.pageDescription ? <p style={{ margin: "0 0 12px", whiteSpace: "pre-wrap", textAlign: "center", color: "#e5e7eb", fontSize: 14, lineHeight: 1.65 }}>{config.pageDescription}</p> : null}
-              <div className="previewLayoutStack" style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%" }}>
+              <div className="previewLayoutStack">
                 {normalizedLayoutOrder().map((id) => {
+                  if (id === "headline") return config.pageHeadline ? <h3 key={id} className="previewHeadline">{config.pageHeadline}</h3> : null;
+                  if (id === "description") return config.pageDescription ? <p key={id} className="previewDescription">{config.pageDescription}</p> : null;
                   if (id.startsWith("image:")) {
-                    const image = config.images.find((item) => `image:${item.id}` === id);
-                    if (!image?.enabled) return null;
-                    return <div className="previewImageWrap" key={id}><img src={image.url} alt={image.alt} /></div>;
+                    const image = (config.images ?? []).find((item) => `image:${item.id}` === id);
+                    return image?.enabled ? <div className="previewImageWrap" key={id}><img src={image.url} alt={image.alt} /></div> : null;
                   }
-                  if (id === "main-button") {
-                    if (!config.showButton) return null;
-                    return (
-                      <div key={id} className="previewButton" style={{ display: "flex", justifyContent: "center", alignItems: "center", boxSizing: "border-box", width: config.mainButtonFullWidth === false ? "auto" : "100%", background: config.buttonBackgroundColor || "linear-gradient(180deg,#00f51b,#00d91b)", color: config.buttonTextColor || "#071507", borderRadius: config.mainButtonBorderRadius ?? 14, fontSize: config.mainButtonFontSize ?? 17, fontFamily: config.mainButtonFontFamily && config.mainButtonFontFamily !== "inherit" ? config.mainButtonFontFamily : "inherit" }}>
-                        {config.mainButtonIcon ? <span aria-hidden="true" style={{ marginRight: 8 }}>{config.mainButtonIcon}</span> : null}
-                        <span className="previewButtonText">{config.buttonText}</span><span className="previewButtonArrow" aria-hidden="true">›</span>
+                  if (id === "main-button") return config.showButton ? (
+                    <div className="previewMainButtonRow" key={id}>
+                      <div className="previewButton" style={{
+                        background: config.buttonBackgroundColor || "linear-gradient(180deg,#00f51b,#00d91b)",
+                        color: config.buttonTextColor || "#071507",
+                        borderRadius: config.mainButtonBorderRadius ?? 14,
+                        fontSize: config.mainButtonFontSize ?? 17,
+                        fontFamily: config.mainButtonFontFamily && config.mainButtonFontFamily !== "inherit" ? config.mainButtonFontFamily : "inherit",
+                        width: config.mainButtonFullWidth === false ? "auto" : "100%",
+                      }}>
+                        {config.mainButtonIcon ? <span aria-hidden="true" className="previewMainIcon">{config.mainButtonIcon}</span> : null}
+                        <span className="previewButtonText">{config.buttonText}</span>
+                        <span className="previewButtonArrow" aria-hidden="true">›</span>
                       </div>
-                    );
-                  }
+                    </div>
+                  ) : null;
                   if (id.startsWith("button:")) {
-                    const button = config.customButtons.find((item) => `button:${item.id}` === id);
+                    const button = (config.customButtons ?? []).find((item) => `button:${item.id}` === id);
                     if (!button?.enabled) return null;
-                    return (
-                      <div className="previewCustomButton" key={id} style={{ width: "100%", boxSizing: "border-box" }}>
-                        <div className="previewCustomButtonInner" style={{ boxSizing: "border-box", width: "100%", background: button.backgroundColor, color: button.textColor, fontSize: button.fontSize ?? (button.size === "small" ? 13 : button.size === "large" ? 17 : 15), fontFamily: button.fontFamily && button.fontFamily !== "inherit" ? button.fontFamily : "inherit", borderRadius: button.borderRadius ?? 12, minHeight: button.size === "small" ? 36 : button.size === "medium" ? 46 : 56, padding: button.size === "small" ? "9px 14px" : button.size === "large" ? "14px 20px" : "11px 16px" }}>
-                          {button.icon ? <span className="previewCustomIcon" aria-hidden="true">{button.icon}</span> : null}
-                          <span className="previewCustomText">{button.text || "ตัวอย่างปุ่ม"}</span><span className="previewCustomArrow" aria-hidden="true">›</span>
-                        </div>
+                    return <div className="previewCustomButton" key={id} style={{ justifyContent: button.align, width: "100%" }}>
+                      <div className="previewCustomButtonInner" style={{
+                        background: button.backgroundColor,
+                        color: button.textColor,
+                        fontSize: button.fontSize ?? (button.size === "small" ? 13 : button.size === "large" ? 17 : 15),
+                        fontFamily: button.fontFamily && button.fontFamily !== "inherit" ? button.fontFamily : "inherit",
+                        borderRadius: button.borderRadius ?? 12,
+                        minHeight: button.size === "small" ? 36 : button.size === "medium" ? 46 : 56,
+                        padding: button.size === "small" ? "9px 14px" : button.size === "large" ? "14px 20px" : "11px 16px",
+                        width: (button.fullWidth ?? button.size === "large") ? "100%" : "auto",
+                      }}>
+                        {button.icon ? <span className="previewCustomIcon" aria-hidden="true">{button.icon}</span> : null}
+                        <span className="previewCustomText">{button.text || "ตัวอย่างปุ่ม"}</span>
+                        <span className="previewCustomArrow" aria-hidden="true">›</span>
                       </div>
-                    );
+                    </div>;
                   }
                   return null;
                 })}
@@ -563,8 +596,8 @@ export default function ContentEditor() {
         .buttonSettingsDetails{margin-top:10px;border-top:1px solid #272b32;padding-top:9px}.buttonSettingsDetails>summary{cursor:pointer;color:#e7c65f;font-size:11px;font-weight:700;padding:5px 0}.buttonSettingsBody{padding-top:5px}.customButtonFields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.customButtonFields label{display:grid;min-width:0;overflow-wrap:anywhere;gap:6px;color:#aab1bd;font-size:11px}.customButtonFields input[type=range]{width:100%;min-width:0;accent-color:#e6b844}.customButtonFields input[type=color]{width:100%;height:34px;border:1px solid #343943;border-radius:6px;background:#111419}.customButtonFields select{width:100%;min-width:0;padding:8px;border:1px solid #343943;border-radius:6px;background:#090b0e;color:#fff}
         .customButtonSample{display:flex;margin-top:12px;padding:10px;background:#08090b;border-radius:8px}.customButtonSample span{display:inline-block;border-radius:8px;font-weight:800}
         .colorRow{padding:12px 0;border-bottom:1px solid #272b32}.colorRow>label{display:block;margin-bottom:9px;color:#d9dce1;font-size:12px;font-weight:700}.colorControl{display:flex;align-items:center;gap:10px}.colorControl input{width:40px;height:36px;padding:2px;border:1px solid #3a3f48;border-radius:8px;background:#0a0c0f;cursor:pointer}.colorControl code{flex:1;color:#a9b0bb;font-size:11px}.colorControl button,.resetButton{border:1px solid #353a43;border-radius:8px;padding:8px 10px;background:#191d23;color:#c6cbd3;font-size:11px;cursor:pointer}.resetButton{margin-top:14px}
-        .layoutOrderList{display:grid;gap:8px;margin-top:12px;max-height:320px;overflow:auto;padding-right:4px;overscroll-behavior:contain}.layoutOrderItem{display:flex;align-items:center;gap:9px;padding:11px;border:1px solid #3b414b;border-radius:10px;background:#0b0e12;cursor:grab;user-select:none}.layoutOrderItem:active{cursor:grabbing}.dragHandle{font-size:20px;color:#f0c44f}.layoutOrderNumber{display:grid;place-items:center;min-width:25px;height:25px;border-radius:7px;background:#302816;color:#ffd45e;font-size:11px;font-weight:800}.layoutOrderLabel{flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px;color:#f2f4f8}.dragHint{font-size:10px;color:#8f98a6}
-        .livePreview{margin-top:10px;padding:14px;border-radius:16px;background-image:radial-gradient(circle at 50% 10%,rgba(255,194,55,.10),transparent 28%),radial-gradient(circle at 15% 70%,rgba(0,220,255,.07),transparent 30%)}.previewCard{width:min(100%,300px);margin:auto;padding:8px;border:1px solid #ffffff1a;border-radius:18px;background:linear-gradient(180deg,#141414,#070707);box-shadow:0 15px 30px #0008;box-sizing:border-box}.previewImageWrap{overflow:hidden;border:1px solid #ffffff18;border-radius:13px}.previewImageWrap+.previewImageWrap{margin-top:8px}.previewImageWrap img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}.previewButton{position:relative;display:flex;align-items:center;justify-content:center;box-sizing:border-box;width:100%;min-height:46px;margin-top:10px;padding:8px 42px;border-radius:11px;font-size:13px;font-weight:900;text-align:center}.previewButtonText{display:block;position:static!important;overflow-wrap:anywhere}.previewButton .previewButtonArrow{position:absolute;right:14px;font-size:23px}.previewCustomButton{display:flex;width:100%;margin-top:8px;min-width:0}.previewCustomButtonInner{display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;width:100%;min-width:0;font-weight:800;text-align:center;overflow-wrap:anywhere}.previewCustomIcon,.previewCustomArrow{flex:0 0 auto;line-height:1}.previewCustomText{flex:1 1 auto;min-width:0}.previewCustomArrow{font-size:23px}.previewHidden{text-align:center;color:#8e949e;font-size:12px;padding:12px}
+        .layoutOrderControls{display:flex;gap:4px;flex:0 0 auto}.layoutOrderControls button{border:1px solid #343b46;border-radius:7px;background:#171b22;color:#f3c84b;padding:4px 8px;cursor:pointer}.layoutOrderControls button:disabled{opacity:.3;cursor:not-allowed}.layoutOrderList{display:grid;gap:8px;margin-top:12px;max-height:320px;overflow:auto;padding-right:4px;overscroll-behavior:contain}.layoutOrderItem{display:flex;align-items:center;gap:9px;padding:11px;border:1px solid #3b414b;border-radius:10px;background:#0b0e12;cursor:grab;user-select:none}.layoutOrderItem:active{cursor:grabbing}.dragHandle{font-size:20px;color:#f0c44f}.layoutOrderNumber{display:grid;place-items:center;min-width:25px;height:25px;border-radius:7px;background:#302816;color:#ffd45e;font-size:11px;font-weight:800}.layoutOrderLabel{flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px;color:#f2f4f8}.dragHint{font-size:10px;color:#8f98a6}
+        .previewLayoutStack{display:flex;flex-direction:column;gap:8px;min-width:0}.previewHeadline{margin:8px 14px 4px;color:#fff;text-align:center;font-size:22px;font-weight:800;line-height:1.4;overflow-wrap:anywhere}.previewDescription{margin:0 16px 12px;color:#e5e7eb;text-align:center;font-size:14px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}.previewMainButtonRow{display:flex;width:auto;min-width:0;margin:12px}.previewMainIcon{margin-right:8px;flex:0 0 auto}.previewButton{position:relative;display:flex;align-items:center;justify-content:center;box-sizing:border-box;min-height:56px;padding:0 48px;border:1px solid rgba(255,215,100,.65);font-weight:900;line-height:1.35;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.35);overflow-wrap:anywhere}.previewButtonText{display:block;min-width:0;overflow-wrap:anywhere}.previewButtonArrow{position:absolute;right:18px;font-size:26px;line-height:1}.previewCustomButtonInner{max-width:100%;overflow-wrap:anywhere}.previewCustomText{overflow-wrap:anywhere}.livePreview{margin-top:10px;padding:14px;border-radius:16px;background-image:radial-gradient(circle at 50% 10%,rgba(255,194,55,.10),transparent 28%),radial-gradient(circle at 15% 70%,rgba(0,220,255,.07),transparent 30%)}.previewCard{width:min(100%,300px);margin:auto;padding:0;border:1px solid #ffffff1a;border-radius:18px;background:linear-gradient(180deg,#141414,#070707);box-shadow:0 15px 30px #0008;box-sizing:border-box}.previewImageWrap{overflow:hidden;border:0;border-radius:0}.previewImageWrap+.previewImageWrap{margin-top:8px}.previewImageWrap img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}.previewButton{position:relative;display:flex;align-items:center;justify-content:center;box-sizing:border-box;width:100%;min-height:46px;margin-top:10px;padding:8px 42px;border-radius:11px;font-size:13px;font-weight:900;text-align:center}.previewButtonText{display:block;position:static!important;overflow-wrap:anywhere}.previewButton .previewButtonArrow{position:absolute;right:14px;font-size:23px}.previewCustomButton{display:flex;width:100%;margin-top:8px;min-width:0}.previewCustomButtonInner{display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;width:100%;min-width:0;font-weight:800;text-align:center;overflow-wrap:anywhere}.previewCustomIcon,.previewCustomArrow{flex:0 0 auto;line-height:1}.previewCustomText{flex:1 1 auto;min-width:0}.previewCustomArrow{font-size:23px}.previewHidden{text-align:center;color:#8e949e;font-size:12px;padding:12px}
         .saveArea{margin-top:20px;padding-top:17px;border-top:1px solid #2a2e35}.saveArea p{color:#9299a4;font-size:11px;line-height:1.5}.saveButton{width:100%;min-height:48px;border:0;border-radius:11px;background:linear-gradient(180deg,#ffdc76,#e9a800);color:#211700;font-size:13px;font-weight:900;cursor:pointer}.saveButton:disabled{opacity:.55;cursor:wait}.editorLoading{min-height:100svh;display:grid;place-items:center;background:#090b0e;color:#eee}
         @media(max-width:850px){.editorSections{grid-template-columns:1fr}.settingsPanel{grid-column:auto}.editorPanel{padding:18px}.editorHeaderActions{width:100%}.customButtonFields{grid-template-columns:repeat(2,minmax(0,1fr))}}
         @media(max-width:520px){.customButtonFields{grid-template-columns:repeat(2,minmax(0,1fr))}.customButtonEditorTop{align-items:flex-start}.imageItem{grid-template-columns:1fr}.imageItem>img{max-height:300px}.colorControl{flex-wrap:wrap}.colorControl code{min-width:80px}}

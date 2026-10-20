@@ -69,7 +69,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   showImage: true,
   showButton: true,
   buttonPlacement: "below",
-  layoutOrder: ["image:legacy-main-image", "main-button"],
+  layoutOrder: ["headline", "description", "image:legacy-main-image", "main-button"],
   // Null means preserve the original CSS exactly until the owner customizes a color.
   pageBackgroundColor: null,
   cardBackgroundColor: null,
@@ -187,13 +187,17 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
   const firstImage = images[0];
 
   const validLayoutIds = new Set<string>([
+    "headline",
+    "description",
     ...images.map((image) => `image:${image.id}`),
     "main-button",
     ...customButtons.map((button) => `button:${button.id}`),
   ]);
   const rawLayoutOrder = Array.isArray(value.layoutOrder) ? value.layoutOrder : [];
   const layoutOrder = rawLayoutOrder.filter((item): item is string => typeof item === "string" && validLayoutIds.has(item));
-  for (const item of [ ...images.map((image) => `image:${image.id}`), "main-button", ...customButtons.map((button) => `button:${button.id}`) ]) {
+  const missingTextItems = ["headline", "description"].filter((item) => !layoutOrder.includes(item));
+  layoutOrder.unshift(...missingTextItems);
+  for (const item of [...images.map((image) => `image:${image.id}`), "main-button", ...customButtons.map((button) => `button:${button.id}`)]) {
     if (!layoutOrder.includes(item)) layoutOrder.push(item);
   }
 
