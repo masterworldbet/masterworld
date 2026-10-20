@@ -131,7 +131,7 @@ export default function Home() {
             minHeight: 56,
             boxSizing: "border-box",
             padding: "0 48px",
-            borderRadius: 14,
+            borderRadius: config.mainButtonBorderRadius ?? 14,
             border: "1px solid rgba(255,215,100,.65)",
             background:
               config.buttonBackgroundColor ||
@@ -139,13 +139,15 @@ export default function Home() {
             color: config.buttonTextColor || "#171000",
             textDecoration: "none",
             textAlign: "center",
-            fontSize: 17,
+            fontSize: config.mainButtonFontSize ?? 17,
+            fontFamily: config.mainButtonFontFamily && config.mainButtonFontFamily !== "inherit" ? config.mainButtonFontFamily : "inherit",
             fontWeight: 900,
             lineHeight: 1.35,
             boxShadow:
               "0 8px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.35)",
           }}
         >
+          {config.mainButtonIcon ? <span aria-hidden="true" style={{ marginRight: 8 }}>{config.mainButtonIcon}</span> : null}
           <span>{config.buttonText}</span>
           <span
             aria-hidden="true"

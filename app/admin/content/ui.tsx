@@ -17,6 +17,11 @@ const defaults: SiteConfig = {
   pixelIdB: "",
   mainButtonEventType: "none",
   mainButtonEventName: "",
+  mainButtonIcon: "",
+  mainButtonFontSize: 17,
+  mainButtonFontFamily: "inherit",
+  mainButtonBorderRadius: 14,
+  mainButtonFullWidth: true,
   showImage: true,
   showButton: true,
   buttonPlacement: "below",
@@ -363,7 +368,7 @@ export default function ContentEditor() {
         <section className="editorPanel">
           <div className="panelHeading">
             <span className="panelNumber">02</span>
-            <div><h2>จัดการปุ่ม</h2><p>ส่วนนี้มีเฉพาะการตั้งค่าปุ่มและ Event ของแต่ละปุ่ม</p></div>
+            <div><h2>จัดการปุ่มทั้งหมด</h2><p>ตั้งค่าปุ่มหลักและปุ่มเพิ่มเติมในพื้นที่เดียวกัน ใช้รูปแบบการปรับแต่งแบบเดียวกัน</p></div>
           </div>
 
           <label className="toggleRow">
@@ -376,6 +381,13 @@ export default function ContentEditor() {
 
           <label className="fieldLabel" htmlFor="register-url">ลิงก์ปลายทางของปุ่มหลัก (HTTPS)</label>
           <input id="register-url" className="textField" type="url" value={config.registerUrl} onChange={(event) => update("registerUrl", event.target.value)} required />
+          <div className="customButtonFields customButtonFieldsWide mainButtonStyleFields">
+            <label>ไอคอน (Emoji)<input className="textField" value={config.mainButtonIcon ?? ""} maxLength={24} placeholder="เช่น ⭐ หรือ 💬" onChange={(event) => update("mainButtonIcon", event.target.value)} /></label>
+            <label>ขนาดตัวอักษร: {config.mainButtonFontSize ?? 17} px<input type="range" min="10" max="32" value={config.mainButtonFontSize ?? 17} onChange={(event) => update("mainButtonFontSize", Number(event.target.value))} /></label>
+            <label>ฟอนต์<select value={config.mainButtonFontFamily ?? "inherit"} onChange={(event) => update("mainButtonFontFamily", event.target.value as SiteConfig["mainButtonFontFamily"])}><option value="inherit">ฟอนต์เว็บไซต์</option><option value="Arial">Arial</option><option value="Tahoma">Tahoma</option><option value="Noto Sans Thai">Noto Sans Thai</option><option value="Georgia">Georgia</option></select></label>
+            <label>ความโค้งมุม: {config.mainButtonBorderRadius ?? 14} px<input type="range" min="0" max="40" value={config.mainButtonBorderRadius ?? 14} onChange={(event) => update("mainButtonBorderRadius", Number(event.target.value))} /></label>
+          </div>
+          <label className="toggleRow"><span><strong>ปุ่มหลักเต็มความกว้าง</strong><small>ให้ขยายเต็มพื้นที่เหมือนปุ่มอื่น</small></span><input type="checkbox" checked={config.mainButtonFullWidth ?? true} onChange={(event) => update("mainButtonFullWidth", event.target.checked)} /></label>
 
           <label className="fieldLabel" htmlFor="button-placement">ตำแหน่งปุ่มหลักเทียบกับรูปภาพ</label>
           <select id="button-placement" className="textField" value={config.buttonPlacement ?? "below"} onChange={(event) => update("buttonPlacement", event.target.value as SiteConfig["buttonPlacement"])}>
@@ -404,8 +416,8 @@ export default function ContentEditor() {
 
           <div className="sectionRule" />
           <div className="panelHeading compactHeading">
-            <span className="panelNumber">03</span>
-            <div><h2>ปุ่มเพิ่มเติม</h2><p>เพิ่มและจัดการปุ่มอื่นแยกจากส่วนรูปภาพ</p></div>
+            <span className="panelNumber">02</span>
+            <div><h2>รายการปุ่ม</h2><p>เพิ่มปุ่ม จัดลำดับ ซ่อนหรือแสดง และเปิดรายละเอียดเฉพาะปุ่มที่ต้องการแก้ไข</p></div>
           </div>
           <button type="button" className="addButton" onClick={addCustomButton}>＋ เพิ่มปุ่มใหม่</button>
           {config.customButtons.length === 0 ? <p className="mutedNote">ยังไม่มีปุ่มเพิ่มเติม กด “เพิ่มปุ่มใหม่” เพื่อสร้างปุ่มแรก</p> : null}
@@ -421,6 +433,9 @@ export default function ContentEditor() {
                   <button type="button" onClick={() => update("customButtons", config.customButtons.filter((item) => item.id !== button.id))}>ลบ</button>
                 </div>
               </div>
+              <details className="buttonSettingsDetails">
+                <summary>แก้ไขข้อความ ไอคอน สี ขนาด ฟอนต์ และลิงก์</summary>
+                <div className="buttonSettingsBody">
               <label className="fieldLabel">ข้อความบนปุ่ม</label>
               <input className="textField" value={button.text} maxLength={80} onChange={(event) => updateCustomButton(button.id, { text: event.target.value })} />
               <div className="customButtonFields customButtonFieldsWide">
@@ -457,6 +472,8 @@ export default function ContentEditor() {
                   {button.icon ? <span aria-hidden="true">{button.icon}</span> : null}{button.text || "ตัวอย่างปุ่ม"}
                 </span>
               </div>
+                </div>
+              </details>
             </div>
           ))}
         </section>
@@ -529,11 +546,16 @@ export default function ContentEditor() {
               {config.showButton ? (
                 <div
                   className="previewButton"
-                  style={{
+                  style={{ display: "flex", justifyContent: "center",
                     background: config.buttonBackgroundColor || "linear-gradient(180deg,#00f51b,#00d91b)",
                     color: config.buttonTextColor || "#071507",
+                    borderRadius: config.mainButtonBorderRadius ?? 14,
+                    fontSize: config.mainButtonFontSize ?? 17,
+                    fontFamily: config.mainButtonFontFamily && config.mainButtonFontFamily !== "inherit" ? config.mainButtonFontFamily : "inherit",
+                    width: config.mainButtonFullWidth === false ? "auto" : "100%",
                   }}
                 >
+                  {config.mainButtonIcon ? <span aria-hidden="true" style={{ marginRight: 8 }}>{config.mainButtonIcon}</span> : null}
                   <span className="previewButtonText">{config.buttonText}</span>
                   <span className="previewButtonArrow" aria-hidden="true">›</span>
                 </div>
@@ -585,15 +607,15 @@ export default function ContentEditor() {
         .uploadField{display:flex;align-items:center;justify-content:center;text-align:center;margin-top:12px;padding:15px;border:1px dashed #555b66;border-radius:12px;color:#f0cb65;font-size:13px;font-weight:800;cursor:pointer;position:relative}.uploadField small{display:block;margin-top:5px;color:#959ca7;font-size:10px;font-weight:400}.uploadField input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
         .imageList{display:grid;gap:12px;margin-top:14px}.imageItem{display:grid;grid-template-columns:minmax(90px,140px) minmax(0,1fr);gap:12px;padding:12px;border:1px solid #30343b;border-radius:12px;background:#0c0f13}.imageItem>img{display:block;width:100%;height:auto;max-height:220px;object-fit:contain;align-self:start;background:#08090b;border-radius:8px}.imageItemFields{min-width:0}.imageItemFields>.toggleRow{padding:4px 0}
         .sectionRule{height:1px;background:#2a2e35;margin:22px 0}.smallActions{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}.smallActions button{padding:6px 9px;border:1px solid #353a43;border-radius:7px;background:#191d23;color:#e8eaf0;cursor:pointer}.smallActions button:disabled{opacity:.35;cursor:default}
-        .addButton{width:100%;padding:12px;border:1px dashed #b88c2b;border-radius:10px;background:#282216;color:#ffd45e;font-weight:800;cursor:pointer}.customButtonEditor{margin-top:12px;padding:14px;border:1px solid #30343b;border-radius:12px;background:#0c0f13}.customButtonEditorTop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
-        .customButtonFields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.customButtonFields label{display:grid;gap:6px;color:#aab1bd;font-size:11px}.customButtonFields input[type=range]{width:100%;accent-color:#e6b844}.customButtonFields input[type=color]{width:100%;height:34px;border:1px solid #343943;border-radius:6px;background:#111419}.customButtonFields select{width:100%;min-width:0;padding:8px;border:1px solid #343943;border-radius:6px;background:#090b0e;color:#fff}
+        .addButton{width:100%;padding:12px;border:1px dashed #b88c2b;border-radius:10px;background:#282216;color:#ffd45e;font-weight:800;cursor:pointer}.customButtonEditor{margin-top:10px;padding:12px;border:1px solid #30343b;border-radius:12px;background:#0c0f13}.customButtonEditorTop{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px}
+        .buttonSettingsDetails{margin-top:10px;border-top:1px solid #272b32;padding-top:9px}.buttonSettingsDetails>summary{cursor:pointer;color:#e7c65f;font-size:11px;font-weight:700;padding:5px 0}.buttonSettingsBody{padding-top:5px}.customButtonFields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}.customButtonFields label{display:grid;min-width:0;overflow-wrap:anywhere;gap:6px;color:#aab1bd;font-size:11px}.customButtonFields input[type=range]{width:100%;min-width:0;accent-color:#e6b844}.customButtonFields input[type=color]{width:100%;height:34px;border:1px solid #343943;border-radius:6px;background:#111419}.customButtonFields select{width:100%;min-width:0;padding:8px;border:1px solid #343943;border-radius:6px;background:#090b0e;color:#fff}
         .customButtonSample{display:flex;margin-top:12px;padding:10px;background:#08090b;border-radius:8px}.customButtonSample span{display:inline-block;border-radius:8px;font-weight:800}
         .colorRow{padding:12px 0;border-bottom:1px solid #272b32}.colorRow>label{display:block;margin-bottom:9px;color:#d9dce1;font-size:12px;font-weight:700}.colorControl{display:flex;align-items:center;gap:10px}.colorControl input{width:40px;height:36px;padding:2px;border:1px solid #3a3f48;border-radius:8px;background:#0a0c0f;cursor:pointer}.colorControl code{flex:1;color:#a9b0bb;font-size:11px}.colorControl button,.resetButton{border:1px solid #353a43;border-radius:8px;padding:8px 10px;background:#191d23;color:#c6cbd3;font-size:11px;cursor:pointer}.resetButton{margin-top:14px}
-        .layoutOrderList{display:grid;gap:8px;margin-top:12px}.layoutOrderItem{display:flex;align-items:center;gap:9px;padding:11px;border:1px solid #3b414b;border-radius:10px;background:#0b0e12;cursor:grab;user-select:none}.layoutOrderItem:active{cursor:grabbing}.dragHandle{font-size:20px;color:#f0c44f}.layoutOrderNumber{display:grid;place-items:center;min-width:25px;height:25px;border-radius:7px;background:#302816;color:#ffd45e;font-size:11px;font-weight:800}.layoutOrderLabel{flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px;color:#f2f4f8}.dragHint{font-size:10px;color:#8f98a6}
+        .layoutOrderList{display:grid;gap:8px;margin-top:12px;max-height:320px;overflow:auto;padding-right:4px;overscroll-behavior:contain}.layoutOrderItem{display:flex;align-items:center;gap:9px;padding:11px;border:1px solid #3b414b;border-radius:10px;background:#0b0e12;cursor:grab;user-select:none}.layoutOrderItem:active{cursor:grabbing}.dragHandle{font-size:20px;color:#f0c44f}.layoutOrderNumber{display:grid;place-items:center;min-width:25px;height:25px;border-radius:7px;background:#302816;color:#ffd45e;font-size:11px;font-weight:800}.layoutOrderLabel{flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px;color:#f2f4f8}.dragHint{font-size:10px;color:#8f98a6}
         .livePreview{margin-top:10px;padding:14px;border-radius:16px;background-image:radial-gradient(circle at 50% 10%,rgba(255,194,55,.10),transparent 28%),radial-gradient(circle at 15% 70%,rgba(0,220,255,.07),transparent 30%)}.previewCard{width:min(100%,300px);margin:auto;padding:8px;border:1px solid #ffffff1a;border-radius:18px;background:linear-gradient(180deg,#141414,#070707);box-shadow:0 15px 30px #0008;box-sizing:border-box}.previewImageWrap{overflow:hidden;border:1px solid #ffffff18;border-radius:13px}.previewImageWrap+.previewImageWrap{margin-top:8px}.previewImageWrap img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}.previewButton{position:relative;display:flex;align-items:center;justify-content:center;box-sizing:border-box;width:100%;min-height:46px;margin-top:10px;padding:8px 42px;border-radius:11px;font-size:13px;font-weight:900;text-align:center}.previewButtonText{display:block;position:static!important;overflow-wrap:anywhere}.previewButton .previewButtonArrow{position:absolute;right:14px;font-size:23px}.previewCustomButton{display:flex;width:100%;margin-top:8px;min-width:0}.previewCustomButtonInner{display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;width:100%;min-width:0;font-weight:800;text-align:center;overflow-wrap:anywhere}.previewCustomIcon,.previewCustomArrow{flex:0 0 auto;line-height:1}.previewCustomText{flex:1 1 auto;min-width:0}.previewCustomArrow{font-size:23px}.previewHidden{text-align:center;color:#8e949e;font-size:12px;padding:12px}
         .saveArea{margin-top:20px;padding-top:17px;border-top:1px solid #2a2e35}.saveArea p{color:#9299a4;font-size:11px;line-height:1.5}.saveButton{width:100%;min-height:48px;border:0;border-radius:11px;background:linear-gradient(180deg,#ffdc76,#e9a800);color:#211700;font-size:13px;font-weight:900;cursor:pointer}.saveButton:disabled{opacity:.55;cursor:wait}.editorLoading{min-height:100svh;display:grid;place-items:center;background:#090b0e;color:#eee}
         @media(max-width:850px){.editorSections{grid-template-columns:1fr}.settingsPanel{grid-column:auto}.editorPanel{padding:18px}.editorHeaderActions{width:100%}.customButtonFields{grid-template-columns:repeat(2,minmax(0,1fr))}}
-        @media(max-width:520px){.imageItem{grid-template-columns:1fr}.imageItem>img{max-height:300px}.colorControl{flex-wrap:wrap}.colorControl code{min-width:80px}}
+        @media(max-width:520px){.customButtonFields{grid-template-columns:repeat(2,minmax(0,1fr))}.customButtonEditorTop{align-items:flex-start}.imageItem{grid-template-columns:1fr}.imageItem>img{max-height:300px}.colorControl{flex-wrap:wrap}.colorControl code{min-width:80px}}
       `}</style>
     </main>
   );

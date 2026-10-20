@@ -32,6 +32,11 @@ export type SiteConfig = {
   pixelIdB: string;
   mainButtonEventType: "none" | "standard" | "custom";
   mainButtonEventName: string;
+  mainButtonIcon: string;
+  mainButtonFontSize: number;
+  mainButtonFontFamily: "inherit" | "Arial" | "Tahoma" | "Noto Sans Thai" | "Georgia";
+  mainButtonBorderRadius: number;
+  mainButtonFullWidth: boolean;
   showImage: boolean;
   showButton: boolean;
   buttonPlacement: "above" | "below" | "overlay-top" | "overlay-bottom";
@@ -56,6 +61,11 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   pixelIdB: "",
   mainButtonEventType: "none",
   mainButtonEventName: "",
+  mainButtonIcon: "",
+  mainButtonFontSize: 17,
+  mainButtonFontFamily: "inherit",
+  mainButtonBorderRadius: 14,
+  mainButtonFullWidth: true,
   showImage: true,
   showButton: true,
   buttonPlacement: "below",
@@ -106,6 +116,11 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
   const pixelIdB = typeof value.pixelIdB === "string" && value.pixelIdB.trim().length <= 30 && /^[0-9]*$/.test(value.pixelIdB.trim()) ? value.pixelIdB.trim() : "";
   const mainButtonEventType = ["none", "standard", "custom"].includes(String(value.mainButtonEventType ?? "none")) ? String(value.mainButtonEventType ?? "none") as "none" | "standard" | "custom" : null;
   const mainButtonEventName = typeof value.mainButtonEventName === "string" && value.mainButtonEventName.length <= 80 ? value.mainButtonEventName.trim() : null;
+  const mainButtonIcon = typeof value.mainButtonIcon === "string" && value.mainButtonIcon.length <= 24 ? value.mainButtonIcon.trim() : "";
+  const mainButtonFontSize = Number.isFinite(value.mainButtonFontSize) && Number(value.mainButtonFontSize) >= 10 && Number(value.mainButtonFontSize) <= 32 ? Number(value.mainButtonFontSize) : 17;
+  const mainButtonFontFamily = ["inherit", "Arial", "Tahoma", "Noto Sans Thai", "Georgia"].includes(String(value.mainButtonFontFamily)) ? value.mainButtonFontFamily as SiteConfig["mainButtonFontFamily"] : "inherit";
+  const mainButtonBorderRadius = Number.isFinite(value.mainButtonBorderRadius) && Number(value.mainButtonBorderRadius) >= 0 && Number(value.mainButtonBorderRadius) <= 40 ? Number(value.mainButtonBorderRadius) : 14;
+  const mainButtonFullWidth = typeof value.mainButtonFullWidth === "boolean" ? value.mainButtonFullWidth : true;
   if (pixelId === null || mainButtonEventType === null || mainButtonEventName === null) return null;
   if (typeof value.showImage !== "boolean" || typeof value.showButton !== "boolean") return null;
 
@@ -191,6 +206,7 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
     buttonText: value.buttonText.trim(),
     pageHeadline, pageDescription,
     pixelId, pixelIdA, pixelIdB, mainButtonEventType, mainButtonEventName,
+    mainButtonIcon, mainButtonFontSize, mainButtonFontFamily, mainButtonBorderRadius, mainButtonFullWidth,
     showImage: firstImage?.enabled ?? value.showImage,
     showButton: value.showButton,
     buttonPlacement,
