@@ -355,6 +355,16 @@ export default function Home() {
           boxSizing: "border-box",
         }}
       >
+        {config.pageHeadline ? (
+          <h1 style={{ margin: "8px 14px 4px", color: "#fff", textAlign: "center", fontSize: 22, fontWeight: 800, lineHeight: 1.4, overflowWrap: "anywhere" }}>
+            {config.pageHeadline}
+          </h1>
+        ) : null}
+        {config.pageDescription ? (
+          <p style={{ margin: "0 16px 12px", color: "#e5e7eb", textAlign: "center", fontSize: 14, lineHeight: 1.7, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
+            {config.pageDescription}
+          </p>
+        ) : null}
         <div
           className="freeLayoutStack"
           style={{

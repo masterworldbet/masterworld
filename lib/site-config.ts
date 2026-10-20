@@ -25,6 +25,8 @@ export type SiteConfig = {
   imageAlt: string;
   registerUrl: string;
   buttonText: string;
+  pageHeadline: string;
+  pageDescription: string;
   pixelId: string;
   pixelIdA: string;
   pixelIdB: string;
@@ -47,6 +49,8 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   imageAlt: "Masterworld",
   registerUrl: "https://masterworldbet.com/sign-up?ref_agent=1feacd0466b9&ref_zean=9ED5866AF713",
   buttonText: "สมัครเลย",
+  pageHeadline: "",
+  pageDescription: "",
   pixelId: "",
   pixelIdA: "",
   pixelIdB: "",
@@ -95,6 +99,8 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
   if (!promoImageUrl || !registerUrl) return null;
   if (typeof value.buttonText !== "string" || value.buttonText.trim().length < 1 || value.buttonText.length > 80) return null;
   if (typeof value.imageAlt !== "string" || value.imageAlt.length > 160) return null;
+  const pageHeadline = typeof value.pageHeadline === "string" && value.pageHeadline.length <= 120 ? value.pageHeadline.trim() : "";
+  const pageDescription = typeof value.pageDescription === "string" && value.pageDescription.length <= 1000 ? value.pageDescription.trim() : "";
   const pixelId = typeof value.pixelId === "string" && value.pixelId.trim().length <= 100 && /^[0-9,\s]*$/.test(value.pixelId) ? value.pixelId.trim() : null;
   const pixelIdA = typeof value.pixelIdA === "string" && value.pixelIdA.trim().length <= 30 && /^[0-9]*$/.test(value.pixelIdA.trim()) ? value.pixelIdA.trim() : "";
   const pixelIdB = typeof value.pixelIdB === "string" && value.pixelIdB.trim().length <= 30 && /^[0-9]*$/.test(value.pixelIdB.trim()) ? value.pixelIdB.trim() : "";
@@ -183,6 +189,7 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
     imageAlt: firstImage?.alt ?? value.imageAlt,
     registerUrl,
     buttonText: value.buttonText.trim(),
+    pageHeadline, pageDescription,
     pixelId, pixelIdA, pixelIdB, mainButtonEventType, mainButtonEventName,
     showImage: firstImage?.enabled ?? value.showImage,
     showButton: value.showButton,

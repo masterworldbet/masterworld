@@ -10,6 +10,8 @@ const defaults: SiteConfig = {
   imageAlt: "Masterworld",
   registerUrl: "https://masterworldbet.com/sign-up?ref_agent=1feacd0466b9&ref_zean=9ED5866AF713",
   buttonText: "สมัครเลย",
+  pageHeadline: "",
+  pageDescription: "",
   pixelId: "",
   pixelIdA: "",
   pixelIdB: "",
@@ -291,6 +293,18 @@ export default function ContentEditor() {
         <section className="editorPanel">
           <div className="panelHeading">
             <span className="panelNumber">01</span>
+            <div><h2>ข้อความบนหน้าเว็บไซต์</h2><p>เพิ่มหัวข้อและรายละเอียดที่ต้องการให้แสดงบนหน้าเว็บจริง</p></div>
+          </div>
+          <label className="fieldLabel">หัวข้อหน้าเว็บ</label>
+          <input className="textField" value={config.pageHeadline ?? ""} maxLength={120} placeholder="เช่น ยินดีต้อนรับสู่เว็บไซต์ของเรา" onChange={(event) => update("pageHeadline", event.target.value)} />
+          <p className="fieldHint">ไม่เกิน 120 ตัวอักษร · เว้นว่างไว้หากไม่ต้องการแสดงหัวข้อ</p>
+          <label className="fieldLabel" style={{ marginTop: 14 }}>รายละเอียด / คำอธิบายเว็บไซต์</label>
+          <textarea className="textField" value={config.pageDescription ?? ""} maxLength={1000} rows={4} placeholder="กรอกรายละเอียดเว็บไซต์ ข่าวสาร หรือข้อความแนะนำที่ต้องการให้ผู้เข้าชมอ่าน" onChange={(event) => update("pageDescription", event.target.value)} style={{ minHeight: 100, resize: "vertical" }} />
+          <p className="fieldHint">ไม่เกิน 1,000 ตัวอักษร · ข้อความจะแสดงเหนือรูปภาพและปุ่มบนหน้าเว็บ</p>
+        </section>
+        <section className="editorPanel">
+          <div className="panelHeading">
+            <span className="panelNumber">01</span>
             <div><h2>จัดการรูปภาพ</h2><p>ส่วนนี้มีเฉพาะการอัปโหลดและจัดการรูปภาพ</p></div>
           </div>
 
@@ -506,21 +520,49 @@ export default function ContentEditor() {
           <div className="panelHeading compactHeading"><span className="panelNumber">07</span><div><h2>ตัวอย่างก่อนบันทึก</h2><p>ตัวอย่างจำลองคร่าว ๆ ไม่ใช่หน้าเว็บที่เผยแพร่แล้ว</p></div></div>
           <div className="livePreview" style={{ backgroundColor: config.pageBackgroundColor || "#050505" }}>
             <div className="previewCard" style={{ backgroundColor: config.cardBackgroundColor || "#141414" }}>
+              {config.pageHeadline ? <h3 style={{ margin: "4px 0 8px", textAlign: "center", color: "#fff", fontSize: 20, fontWeight: 800 }}>{config.pageHeadline}</h3> : null}
+              {config.pageDescription ? <p style={{ margin: "0 0 12px", whiteSpace: "pre-wrap", textAlign: "center", color: "#e5e7eb", fontSize: 14, lineHeight: 1.65 }}>{config.pageDescription}</p> : null}
               {(config.images ?? []).filter((image) => image.enabled).map((image) => (
                 <div className="previewImageWrap" key={image.id}><img src={image.url} alt={image.alt} /></div>
               ))}
               {!config.images.some((image) => image.enabled) ? <p className="previewHidden">ซ่อนรูปภาพอยู่</p> : null}
-              {config.showButton ? <div className="previewButton" style={{ backgroundColor: config.buttonBackgroundColor || "#f0a900", color: config.buttonTextColor || "#171000" }}>{config.buttonText}<span>›</span></div> : <p className="previewHidden">ซ่อนปุ่มอยู่</p>}
+              {config.showButton ? (
+                <div
+                  className="previewButton"
+                  style={{
+                    background: config.buttonBackgroundColor || "linear-gradient(180deg,#00f51b,#00d91b)",
+                    color: config.buttonTextColor || "#071507",
+                  }}
+                >
+                  <span className="previewButtonText">{config.buttonText}</span>
+                  <span className="previewButtonArrow" aria-hidden="true">›</span>
+                </div>
+              ) : <p className="previewHidden">ซ่อนปุ่มอยู่</p>}
               {config.customButtons.filter((button) => button.enabled).map((button) => (
-                <div className="previewCustomButton" key={button.id} style={{ justifyContent: button.align }}>
-                  <span style={{ backgroundColor: button.backgroundColor, color: button.textColor }}>{button.text}　›</span>
+                <div className="previewCustomButton" key={button.id}>
+                  <div
+                    className="previewCustomButtonInner"
+                    style={{
+                      background: button.backgroundColor,
+                      color: button.textColor,
+                      fontSize: button.fontSize ?? (button.size === "small" ? 13 : button.size === "large" ? 17 : 15),
+                      fontFamily: button.fontFamily && button.fontFamily !== "inherit" ? button.fontFamily : "inherit",
+                      borderRadius: button.borderRadius ?? 12,
+                      minHeight: button.size === "small" ? 36 : button.size === "medium" ? 46 : 56,
+                      padding: button.size === "small" ? "9px 14px" : button.size === "large" ? "14px 20px" : "11px 16px",
+                    }}
+                  >
+                    {button.icon ? <span className="previewCustomIcon" aria-hidden="true">{button.icon}</span> : null}
+                    <span className="previewCustomText">{button.text || "ตัวอย่างปุ่ม"}</span>
+                    <span className="previewCustomArrow" aria-hidden="true">›</span>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="saveArea">
-            <p>การเปลี่ยนแปลงจะมีผลเมื่อกดบันทึกเท่านั้น</p>
+            <p>ตัวอย่างด้านบนอัปเดตทันทีเมื่อแก้ไข การกดบันทึกจะนำค่าที่ตั้งไว้ไปใช้บนหน้าเว็บจริง</p>
             <button type="button" className="saveButton" onClick={save} disabled={saving || uploading}>
               {saving ? "กำลังบันทึก…" : "บันทึกการเปลี่ยนแปลง"}
             </button>
@@ -548,7 +590,7 @@ export default function ContentEditor() {
         .customButtonSample{display:flex;margin-top:12px;padding:10px;background:#08090b;border-radius:8px}.customButtonSample span{display:inline-block;border-radius:8px;font-weight:800}
         .colorRow{padding:12px 0;border-bottom:1px solid #272b32}.colorRow>label{display:block;margin-bottom:9px;color:#d9dce1;font-size:12px;font-weight:700}.colorControl{display:flex;align-items:center;gap:10px}.colorControl input{width:40px;height:36px;padding:2px;border:1px solid #3a3f48;border-radius:8px;background:#0a0c0f;cursor:pointer}.colorControl code{flex:1;color:#a9b0bb;font-size:11px}.colorControl button,.resetButton{border:1px solid #353a43;border-radius:8px;padding:8px 10px;background:#191d23;color:#c6cbd3;font-size:11px;cursor:pointer}.resetButton{margin-top:14px}
         .layoutOrderList{display:grid;gap:8px;margin-top:12px}.layoutOrderItem{display:flex;align-items:center;gap:9px;padding:11px;border:1px solid #3b414b;border-radius:10px;background:#0b0e12;cursor:grab;user-select:none}.layoutOrderItem:active{cursor:grabbing}.dragHandle{font-size:20px;color:#f0c44f}.layoutOrderNumber{display:grid;place-items:center;min-width:25px;height:25px;border-radius:7px;background:#302816;color:#ffd45e;font-size:11px;font-weight:800}.layoutOrderLabel{flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px;color:#f2f4f8}.dragHint{font-size:10px;color:#8f98a6}
-        .livePreview{margin-top:10px;padding:14px;border-radius:16px;background-image:radial-gradient(circle at 50% 10%,rgba(255,194,55,.10),transparent 28%),radial-gradient(circle at 15% 70%,rgba(0,220,255,.07),transparent 30%)}.previewCard{width:min(100%,300px);margin:auto;padding:8px;border:1px solid #ffffff1a;border-radius:18px;background:linear-gradient(180deg,#141414,#070707);box-shadow:0 15px 30px #0008}.previewImageWrap{overflow:hidden;border:1px solid #ffffff18;border-radius:13px}.previewImageWrap+.previewImageWrap{margin-top:8px}.previewImageWrap img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}.previewButton{position:relative;display:grid;place-items:center;min-height:46px;margin-top:10px;padding:8px 32px;border-radius:11px;font-size:13px;font-weight:900;text-align:center}.previewButton span{position:absolute;right:14px;font-size:23px}.previewCustomButton{display:flex;margin-top:8px}.previewCustomButton span{padding:10px 14px;border-radius:9px;font-size:12px;font-weight:800}.previewHidden{text-align:center;color:#8e949e;font-size:12px;padding:12px}
+        .livePreview{margin-top:10px;padding:14px;border-radius:16px;background-image:radial-gradient(circle at 50% 10%,rgba(255,194,55,.10),transparent 28%),radial-gradient(circle at 15% 70%,rgba(0,220,255,.07),transparent 30%)}.previewCard{width:min(100%,300px);margin:auto;padding:8px;border:1px solid #ffffff1a;border-radius:18px;background:linear-gradient(180deg,#141414,#070707);box-shadow:0 15px 30px #0008;box-sizing:border-box}.previewImageWrap{overflow:hidden;border:1px solid #ffffff18;border-radius:13px}.previewImageWrap+.previewImageWrap{margin-top:8px}.previewImageWrap img{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}.previewButton{position:relative;display:flex;align-items:center;justify-content:center;box-sizing:border-box;width:100%;min-height:46px;margin-top:10px;padding:8px 42px;border-radius:11px;font-size:13px;font-weight:900;text-align:center}.previewButtonText{display:block;position:static!important;overflow-wrap:anywhere}.previewButton .previewButtonArrow{position:absolute;right:14px;font-size:23px}.previewCustomButton{display:flex;width:100%;margin-top:8px;min-width:0}.previewCustomButtonInner{display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;width:100%;min-width:0;font-weight:800;text-align:center;overflow-wrap:anywhere}.previewCustomIcon,.previewCustomArrow{flex:0 0 auto;line-height:1}.previewCustomText{flex:1 1 auto;min-width:0}.previewCustomArrow{font-size:23px}.previewHidden{text-align:center;color:#8e949e;font-size:12px;padding:12px}
         .saveArea{margin-top:20px;padding-top:17px;border-top:1px solid #2a2e35}.saveArea p{color:#9299a4;font-size:11px;line-height:1.5}.saveButton{width:100%;min-height:48px;border:0;border-radius:11px;background:linear-gradient(180deg,#ffdc76,#e9a800);color:#211700;font-size:13px;font-weight:900;cursor:pointer}.saveButton:disabled{opacity:.55;cursor:wait}.editorLoading{min-height:100svh;display:grid;place-items:center;background:#090b0e;color:#eee}
         @media(max-width:850px){.editorSections{grid-template-columns:1fr}.settingsPanel{grid-column:auto}.editorPanel{padding:18px}.editorHeaderActions{width:100%}.customButtonFields{grid-template-columns:repeat(2,minmax(0,1fr))}}
         @media(max-width:520px){.imageItem{grid-template-columns:1fr}.imageItem>img{max-height:300px}.colorControl{flex-wrap:wrap}.colorControl code{min-width:80px}}
