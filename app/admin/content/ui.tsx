@@ -371,61 +371,43 @@ export default function ContentEditor() {
             <div><h2>จัดการปุ่มทั้งหมด</h2><p>ตั้งค่าปุ่มหลักและปุ่มเพิ่มเติมในพื้นที่เดียวกัน ใช้รูปแบบการปรับแต่งแบบเดียวกัน</p></div>
           </div>
 
-          <label className="toggleRow">
-            <span><strong>แสดงปุ่มหลัก</strong><small>เปิดหรือซ่อนปุ่มหลักบนหน้าเว็บ</small></span>
-            <input type="checkbox" checked={config.showButton} onChange={(event) => update("showButton", event.target.checked)} />
-          </label>
-
-          <label className="fieldLabel" htmlFor="button-text">ข้อความบนปุ่มหลัก</label>
-          <input id="button-text" className="textField" value={config.buttonText} maxLength={80} onChange={(event) => update("buttonText", event.target.value)} />
-
-          <label className="fieldLabel" htmlFor="register-url">ลิงก์ปลายทางของปุ่มหลัก (HTTPS)</label>
-          <input id="register-url" className="textField" type="url" value={config.registerUrl} onChange={(event) => update("registerUrl", event.target.value)} required />
-          <div className="customButtonFields customButtonFieldsWide mainButtonStyleFields">
-            <label>ไอคอน (Emoji)<input className="textField" value={config.mainButtonIcon ?? ""} maxLength={24} placeholder="เช่น ⭐ หรือ 💬" onChange={(event) => update("mainButtonIcon", event.target.value)} /></label>
-            <label>ขนาดตัวอักษร: {config.mainButtonFontSize ?? 17} px<input type="range" min="10" max="32" value={config.mainButtonFontSize ?? 17} onChange={(event) => update("mainButtonFontSize", Number(event.target.value))} /></label>
-            <label>ฟอนต์<select value={config.mainButtonFontFamily ?? "inherit"} onChange={(event) => update("mainButtonFontFamily", event.target.value as SiteConfig["mainButtonFontFamily"])}><option value="inherit">ฟอนต์เว็บไซต์</option><option value="Arial">Arial</option><option value="Tahoma">Tahoma</option><option value="Noto Sans Thai">Noto Sans Thai</option><option value="Georgia">Georgia</option></select></label>
-            <label>ความโค้งมุม: {config.mainButtonBorderRadius ?? 14} px<input type="range" min="0" max="40" value={config.mainButtonBorderRadius ?? 14} onChange={(event) => update("mainButtonBorderRadius", Number(event.target.value))} /></label>
-          </div>
-          <label className="toggleRow"><span><strong>ปุ่มหลักเต็มความกว้าง</strong><small>ให้ขยายเต็มพื้นที่เหมือนปุ่มอื่น</small></span><input type="checkbox" checked={config.mainButtonFullWidth ?? true} onChange={(event) => update("mainButtonFullWidth", event.target.checked)} /></label>
-
-          <label className="fieldLabel" htmlFor="button-placement">ตำแหน่งปุ่มหลักเทียบกับรูปภาพ</label>
-          <select id="button-placement" className="textField" value={config.buttonPlacement ?? "below"} onChange={(event) => update("buttonPlacement", event.target.value as SiteConfig["buttonPlacement"])}>
-            <option value="above">วางปุ่มเหนือรูปทั้งหมด</option>
-            <option value="below">วางปุ่มใต้รูปทั้งหมด</option>
-            <option value="overlay-top">ซ้อนบนรูปแรกด้านบน</option>
-            <option value="overlay-bottom">ซ้อนบนรูปแรกด้านล่าง</option>
-          </select>
-          <p className="fieldHint">ตำแหน่งแสดงผลจริงอาจขึ้นกับวิธีจัดเรียงในส่วน “ลำดับการแสดงผล” ด้านล่าง</p>
-
-          <label className="fieldLabel">Meta Pixel Event ของปุ่มหลัก</label>
-          <select className="textField" value={config.mainButtonEventType} onChange={(event) => update("mainButtonEventType", event.target.value as SiteConfig["mainButtonEventType"])}>
-            <option value="none">ไม่ส่ง Event</option>
-            <option value="standard">Standard Event</option>
-            <option value="custom">Custom Event</option>
-          </select>
-          {config.mainButtonEventType === "standard" ? (
-            <select className="textField" value={config.mainButtonEventName} onChange={(event) => update("mainButtonEventName", event.target.value)}>
-              {standardEvents.map((eventName) => <option key={eventName} value={eventName}>{eventName}</option>)}
-            </select>
-          ) : null}
-          {config.mainButtonEventType === "custom" ? (
-            <input className="textField" value={config.mainButtonEventName} maxLength={80} placeholder="เช่น MyButtonClick" onChange={(event) => update("mainButtonEventName", event.target.value.replace(/[^a-zA-Z0-9_]/g, ""))} />
-          ) : null}
-          <p className="fieldHint">เลือก Event ให้ตรงกับการกระทำที่เกิดขึ้นจริง การคลิกปุ่มไม่ควรนับเป็นการสมัครสำเร็จหากยังไม่ได้สมัคร</p>
-
-          <div className="sectionRule" />
-          <div className="panelHeading compactHeading">
-            <span className="panelNumber">02</span>
-            <div><h2>รายการปุ่ม</h2><p>เพิ่มปุ่ม จัดลำดับ ซ่อนหรือแสดง และเปิดรายละเอียดเฉพาะปุ่มที่ต้องการแก้ไข</p></div>
-          </div>
+          <p className="fieldHint">ปุ่มทุกปุ่มอยู่ในรายการเดียวกัน ปรับข้อความ ไอคอน ฟอนต์ สี ขนาด ลิงก์ และ Event ได้เหมือนกัน</p>
           <button type="button" className="addButton" onClick={addCustomButton}>＋ เพิ่มปุ่มใหม่</button>
-          {config.customButtons.length === 0 ? <p className="mutedNote">ยังไม่มีปุ่มเพิ่มเติม กด “เพิ่มปุ่มใหม่” เพื่อสร้างปุ่มแรก</p> : null}
+
+          <div className="customButtonEditor">
+            <div className="customButtonEditorTop">
+              <strong>ปุ่ม 1 · ปุ่มหลัก</strong>
+              <label className="toggleRow" style={{ margin: 0, padding: 0, border: 0 }}><span>{config.showButton ? "แสดง" : "ซ่อน"}</span><input type="checkbox" checked={config.showButton} onChange={(event) => update("showButton", event.target.checked)} /></label>
+            </div>
+            <details className="buttonSettingsDetails" open>
+              <summary>แก้ไขข้อความ ไอคอน สี ขนาด ฟอนต์ และลิงก์</summary>
+              <div className="buttonSettingsBody">
+                <label className="fieldLabel">ข้อความบนปุ่ม</label>
+                <input className="textField" value={config.buttonText} maxLength={80} onChange={(event) => update("buttonText", event.target.value)} />
+                <label className="fieldLabel">ลิงก์ปลายทาง (HTTPS)</label>
+                <input className="textField" type="url" value={config.registerUrl} onChange={(event) => update("registerUrl", event.target.value)} required />
+                <div className="customButtonFields customButtonFieldsWide">
+                  <label>ไอคอน (Emoji)<input className="textField" value={config.mainButtonIcon ?? ""} maxLength={24} placeholder="เช่น 💬 หรือ ⭐" onChange={(event) => update("mainButtonIcon", event.target.value)} /></label>
+                  <label>ขนาดตัวอักษร: {config.mainButtonFontSize ?? 17} px<input type="range" min="10" max="32" value={config.mainButtonFontSize ?? 17} onChange={(event) => update("mainButtonFontSize", Number(event.target.value))} /></label>
+                  <label>ฟอนต์<select value={config.mainButtonFontFamily ?? "inherit"} onChange={(event) => update("mainButtonFontFamily", event.target.value as SiteConfig["mainButtonFontFamily"])}><option value="inherit">ฟอนต์เว็บไซต์</option><option value="Arial">Arial</option><option value="Tahoma">Tahoma</option><option value="Noto Sans Thai">Noto Sans Thai</option><option value="Georgia">Georgia</option></select></label>
+                  <label>ความโค้งมุม: {config.mainButtonBorderRadius ?? 14} px<input type="range" min="0" max="40" value={config.mainButtonBorderRadius ?? 14} onChange={(event) => update("mainButtonBorderRadius", Number(event.target.value))} /></label>
+                </div>
+                <label className="toggleRow"><span><strong>เต็มความกว้าง</strong><small>ให้ปุ่มขยายเต็มพื้นที่</small></span><input type="checkbox" checked={config.mainButtonFullWidth ?? true} onChange={(event) => update("mainButtonFullWidth", event.target.checked)} /></label>
+                <label className="fieldLabel">ตำแหน่งปุ่มเทียบกับรูปภาพ</label>
+                <select className="textField" value={config.buttonPlacement ?? "below"} onChange={(event) => update("buttonPlacement", event.target.value as SiteConfig["buttonPlacement"])}><option value="above">วางเหนือรูปทั้งหมด</option><option value="below">วางใต้รูปทั้งหมด</option><option value="overlay-top">ซ้อนบนรูปแรกด้านบน</option><option value="overlay-bottom">ซ้อนบนรูปแรกด้านล่าง</option></select>
+                <label className="fieldLabel">Meta Pixel Event ของปุ่มนี้</label>
+                <select className="textField" value={config.mainButtonEventType} onChange={(event) => update("mainButtonEventType", event.target.value as SiteConfig["mainButtonEventType"])}><option value="none">ไม่ส่ง Event</option><option value="standard">Standard Event</option><option value="custom">Custom Event</option></select>
+                {config.mainButtonEventType === "standard" ? <select className="textField" value={config.mainButtonEventName} onChange={(event) => update("mainButtonEventName", event.target.value)}>{standardEvents.map((eventName) => <option key={eventName} value={eventName}>{eventName}</option>)}</select> : null}
+                {config.mainButtonEventType === "custom" ? <input className="textField" value={config.mainButtonEventName} maxLength={80} placeholder="เช่น MyButtonClick" onChange={(event) => update("mainButtonEventName", event.target.value.replace(/[^a-zA-Z0-9_]/g, ""))} /> : null}
+                <div className="customButtonSample"><span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: config.mainButtonFullWidth === false ? "auto" : "100%", background: config.buttonBackgroundColor || "#00e719", color: config.buttonTextColor || "#071507", fontSize: config.mainButtonFontSize ?? 17, fontFamily: config.mainButtonFontFamily && config.mainButtonFontFamily !== "inherit" ? config.mainButtonFontFamily : "inherit", borderRadius: config.mainButtonBorderRadius ?? 14, padding: "14px 20px", opacity: config.showButton ? 1 : 0.45 }}>{config.mainButtonIcon ? <span>{config.mainButtonIcon}</span> : null}{config.buttonText || "ตัวอย่างปุ่ม"} <span>›</span></span></div>
+              </div>
+            </details>
+          </div>
 
           {config.customButtons.map((button, index) => (
             <div className="customButtonEditor" key={button.id}>
               <div className="customButtonEditorTop">
-                <strong>ปุ่มเพิ่มเติม {index + 1}</strong>
+                <strong>ปุ่ม {index + 2}</strong>
                 <div className="smallActions">
                   <button type="button" onClick={() => moveCustomButton(index, -1)} disabled={index === 0} aria-label="เลื่อนปุ่มขึ้น">↑</button>
                   <button type="button" onClick={() => moveCustomButton(index, 1)} disabled={index === config.customButtons.length - 1} aria-label="เลื่อนปุ่มลง">↓</button>
@@ -436,46 +418,26 @@ export default function ContentEditor() {
               <details className="buttonSettingsDetails">
                 <summary>แก้ไขข้อความ ไอคอน สี ขนาด ฟอนต์ และลิงก์</summary>
                 <div className="buttonSettingsBody">
-              <label className="fieldLabel">ข้อความบนปุ่ม</label>
-              <input className="textField" value={button.text} maxLength={80} onChange={(event) => updateCustomButton(button.id, { text: event.target.value })} />
-              <div className="customButtonFields customButtonFieldsWide">
-                <label>ไอคอน (Emoji)<input className="textField" value={button.icon ?? ""} maxLength={24} placeholder="เช่น 💬 หรือ 🟢" onChange={(event) => updateCustomButton(button.id, { icon: event.target.value })} /></label>
-                <label>ขนาดตัวอักษร: {button.fontSize ?? (button.size === "small" ? 13 : button.size === "large" ? 17 : 15)} px<input type="range" min="10" max="32" value={button.fontSize ?? (button.size === "small" ? 13 : button.size === "large" ? 17 : 15)} onChange={(event) => updateCustomButton(button.id, { fontSize: Number(event.target.value) })} /></label>
-                <label>ฟอนต์<select value={button.fontFamily ?? "inherit"} onChange={(event) => updateCustomButton(button.id, { fontFamily: event.target.value as CustomButton["fontFamily"] })}><option value="inherit">ฟอนต์เว็บไซต์</option><option value="Arial">Arial</option><option value="Tahoma">Tahoma</option><option value="Noto Sans Thai">Noto Sans Thai</option><option value="Georgia">Georgia</option></select></label>
-                <label>ความโค้งมุม: {button.borderRadius ?? 12} px<input type="range" min="0" max="40" value={button.borderRadius ?? 12} onChange={(event) => updateCustomButton(button.id, { borderRadius: Number(event.target.value) })} /></label>
-              </div>
-              <label className="toggleRow"><span><strong>ปุ่มเต็มความกว้าง</strong><small>เปิดเพื่อให้ปุ่มขยายเต็มพื้นที่เหมือนตัวอย่าง</small></span><input type="checkbox" checked={button.fullWidth ?? button.size === "large"} onChange={(event) => updateCustomButton(button.id, { fullWidth: event.target.checked })} /></label>
-              <label className="fieldLabel">ลิงก์ปลายทาง (HTTPS)</label>
-              <input className="textField" type="url" value={button.url} onChange={(event) => updateCustomButton(button.id, { url: event.target.value })} />
-
-              <div className="customButtonFields">
-                <label>สีปุ่ม<input type="color" value={button.backgroundColor} onChange={(event) => updateCustomButton(button.id, { backgroundColor: event.target.value })} /></label>
-                <label>สีข้อความ<input type="color" value={button.textColor} onChange={(event) => updateCustomButton(button.id, { textColor: event.target.value })} /></label>
-                <label>ขนาด<select value={button.size} onChange={(event) => updateCustomButton(button.id, { size: event.target.value as CustomButton["size"] })}><option value="small">เล็ก</option><option value="medium">กลาง</option><option value="large">ใหญ่</option></select></label>
-                <label>ตำแหน่ง<select value={button.align} onChange={(event) => updateCustomButton(button.id, { align: event.target.value as CustomButton["align"] })}><option value="left">ซ้าย</option><option value="center">กลาง</option><option value="right">ขวา</option></select></label>
-              </div>
-
-              <label className="fieldLabel">Meta Pixel Event ของปุ่มนี้</label>
-              <select className="textField" value={button.eventType ?? "none"} onChange={(event) => updateCustomButton(button.id, { eventType: event.target.value as CustomButton["eventType"] })}>
-                <option value="none">ไม่ส่ง Event</option><option value="standard">Standard Event</option><option value="custom">Custom Event</option>
-              </select>
-              {button.eventType === "standard" ? (
-                <select className="textField" value={button.eventName || "Lead"} onChange={(event) => updateCustomButton(button.id, { eventName: event.target.value })}>
-                  {standardEvents.map((eventName) => <option key={eventName} value={eventName}>{eventName}</option>)}
-                </select>
-              ) : null}
-              {button.eventType === "custom" ? (
-                <input className="textField" value={button.eventName || ""} maxLength={80} placeholder="เช่น MyButtonClick" onChange={(event) => updateCustomButton(button.id, { eventName: event.target.value.replace(/[^a-zA-Z0-9_]/g, "") })} />
-              ) : null}
-              <div className="customButtonSample" style={{ justifyContent: button.fullWidth ?? button.size === "large" ? "stretch" : button.align }}>
-                <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, width: (button.fullWidth ?? button.size === "large") ? "100%" : "auto", background: button.backgroundColor, color: button.textColor, fontSize: button.fontSize ?? (button.size === "small" ? 13 : button.size === "large" ? 17 : 15), fontFamily: button.fontFamily === "inherit" ? "inherit" : button.fontFamily, borderRadius: button.borderRadius ?? 12, padding: button.size === "small" ? "9px 14px" : button.size === "large" ? "14px 20px" : "11px 16px", opacity: button.enabled ? 1 : 0.45 }}>
-                  {button.icon ? <span aria-hidden="true">{button.icon}</span> : null}{button.text || "ตัวอย่างปุ่ม"}
-                </span>
-              </div>
+                  <label className="fieldLabel">ข้อความบนปุ่ม</label>
+                  <input className="textField" value={button.text} maxLength={80} onChange={(event) => updateCustomButton(button.id, { text: event.target.value })} />
+                  <div className="customButtonFields customButtonFieldsWide">
+                    <label>ไอคอน (Emoji)<input className="textField" value={button.icon ?? ""} maxLength={24} placeholder="เช่น 💬 หรือ ⭐" onChange={(event) => updateCustomButton(button.id, { icon: event.target.value })} /></label>
+                    <label>ขนาดตัวอักษร: {button.fontSize ?? 15} px<input type="range" min="10" max="32" value={button.fontSize ?? 15} onChange={(event) => updateCustomButton(button.id, { fontSize: Number(event.target.value) })} /></label>
+                    <label>ฟอนต์<select value={button.fontFamily ?? "inherit"} onChange={(event) => updateCustomButton(button.id, { fontFamily: event.target.value as CustomButton["fontFamily"] })}><option value="inherit">ฟอนต์เว็บไซต์</option><option value="Arial">Arial</option><option value="Tahoma">Tahoma</option><option value="Noto Sans Thai">Noto Sans Thai</option><option value="Georgia">Georgia</option></select></label>
+                    <label>ความโค้งมุม: {button.borderRadius ?? 12} px<input type="range" min="0" max="40" value={button.borderRadius ?? 12} onChange={(event) => updateCustomButton(button.id, { borderRadius: Number(event.target.value) })} /></label>
+                  </div>
+                  <label className="toggleRow"><span><strong>เต็มความกว้าง</strong><small>ให้ปุ่มขยายเต็มพื้นที่</small></span><input type="checkbox" checked={button.fullWidth ?? true} onChange={(event) => updateCustomButton(button.id, { fullWidth: event.target.checked })} /></label>
+                  <label className="fieldLabel">ลิงก์ปลายทาง (HTTPS)</label><input className="textField" type="url" value={button.url} onChange={(event) => updateCustomButton(button.id, { url: event.target.value })} />
+                  <div className="customButtonFields"><label>สีปุ่ม<input type="color" value={button.backgroundColor} onChange={(event) => updateCustomButton(button.id, { backgroundColor: event.target.value })} /></label><label>สีข้อความ<input type="color" value={button.textColor} onChange={(event) => updateCustomButton(button.id, { textColor: event.target.value })} /></label><label>ขนาด<select value={button.size} onChange={(event) => updateCustomButton(button.id, { size: event.target.value as CustomButton["size"] })}><option value="small">เล็ก</option><option value="medium">กลาง</option><option value="large">ใหญ่</option></select></label><label>ตำแหน่ง<select value={button.align} onChange={(event) => updateCustomButton(button.id, { align: event.target.value as CustomButton["align"] })}><option value="left">ซ้าย</option><option value="center">กลาง</option><option value="right">ขวา</option></select></label></div>
+                  <label className="fieldLabel">Meta Pixel Event ของปุ่มนี้</label><select className="textField" value={button.eventType ?? "none"} onChange={(event) => updateCustomButton(button.id, { eventType: event.target.value as CustomButton["eventType"] })}><option value="none">ไม่ส่ง Event</option><option value="standard">Standard Event</option><option value="custom">Custom Event</option></select>
+                  {button.eventType === "standard" ? <select className="textField" value={button.eventName || "Lead"} onChange={(event) => updateCustomButton(button.id, { eventName: event.target.value })}>{standardEvents.map((eventName) => <option key={eventName} value={eventName}>{eventName}</option>)}</select> : null}
+                  {button.eventType === "custom" ? <input className="textField" value={button.eventName || ""} maxLength={80} placeholder="เช่น MyButtonClick" onChange={(event) => updateCustomButton(button.id, { eventName: event.target.value.replace(/[^a-zA-Z0-9_]/g, "") })} /> : null}
+                  <div className="customButtonSample"><span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, width: button.fullWidth ?? true ? "100%" : "auto", background: button.backgroundColor, color: button.textColor, fontSize: button.fontSize ?? 15, fontFamily: button.fontFamily && button.fontFamily !== "inherit" ? button.fontFamily : "inherit", borderRadius: button.borderRadius ?? 12, padding: "14px 20px", opacity: button.enabled ? 1 : 0.45 }}>{button.icon ? <span>{button.icon}</span> : null}{button.text || "ตัวอย่างปุ่ม"} <span>›</span></span></div>
                 </div>
               </details>
             </div>
           ))}
+
         </section>
 
         <section className="editorPanel settingsPanel">
