@@ -21,6 +21,7 @@ export type SiteImage = { id: string; url: string; alt: string; enabled: boolean
 export type SiteConfig = {
   customButtons: CustomButton[];
   customCss: string;
+  showOriginalActivity: boolean;
   images: SiteImage[];
   promoImageUrl: string;
   imageAlt: string;
@@ -51,6 +52,7 @@ export type SiteConfig = {
 export const DEFAULT_SITE_CONFIG: SiteConfig = {
   customButtons: [],
   customCss: "",
+  showOriginalActivity: false,
   images: [{ id: "legacy-main-image", url: "/promo-square.png", alt: "Masterworld", enabled: true }],
   promoImageUrl: "/promo-square.png",
   imageAlt: "Masterworld",
@@ -210,6 +212,7 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
   return {
     customButtons,
     customCss,
+    showOriginalActivity: value.showOriginalActivity === true,
     images,
     promoImageUrl: firstImage?.url ?? promoImageUrl,
     imageAlt: firstImage?.alt ?? value.imageAlt,

@@ -6,6 +6,7 @@ import type { CustomButton, SiteConfig, SiteImage } from "../../../lib/site-conf
 const defaults: SiteConfig = {
   customButtons: [],
   customCss: "",
+  showOriginalActivity: false,
   images: [{ id: "legacy-main-image", url: "/promo-square.png", alt: "Masterworld", enabled: true }],
   promoImageUrl: "/promo-square.png",
   imageAlt: "Masterworld",
@@ -564,6 +565,15 @@ export default function ContentEditor() {
             style={{ width: "100%", minHeight: 200, resize: "vertical", fontFamily: "monospace", fontSize: 13, lineHeight: 1.6 }} />
           <p className="fieldHint">รองรับ CSS เท่านั้น ไม่รองรับ JavaScript, @import หรือ url() · กดบันทึกเพื่อใช้บนหน้าเว็บจริง · ตัวอย่างด้านล่างจะแสดง Custom CSS ทันที (ยังไม่บันทึกลงหน้าเว็บจริง)</p>
           <button type="button" className="resetButton" onClick={() => update("customCss", "")}>ล้างโค้ด CSS</button>
+
+          <div className="sectionRule" />
+          <div className="panelHeading compactHeading"><span className="panelNumber">08</span><div><h2>ส่วนประกอบต้นฉบับ</h2><p>กิจกรรมล่าสุด รายการล่าสุด ตารางผู้โชคดี และข้อความเดิมทุกส่วน</p></div></div>
+          <label className="fieldLabel" style={{display:"flex",gap:12,alignItems:"center",marginBottom:12}}>
+            <input type="checkbox" checked={config.showOriginalActivity === true} onChange={(event) => update("showOriginalActivity", event.target.checked)} />
+            เปิดแสดงส่วนประกอบต้นฉบับบนหน้าเว็บจริง (หลังบันทึก)
+          </label>
+          <p className="fieldHint">พรีวิวด้านล่างเป็นส่วนประกอบต้นฉบับจริง ไม่รันโค้ดที่ผู้ใช้วาง และไม่เปลี่ยนระบบติดตาม</p>
+          <iframe title="ตัวอย่างส่วนประกอบต้นฉบับ" src="/admin/content/original-preview" sandbox="allow-scripts" style={{width:"100%",height:520,border:"1px solid #343b46",borderRadius:14,background:"#050505"}} />
 
           <div className="saveArea">
             <p>ตัวอย่างด้านบนอัปเดตทันทีเมื่อแก้ไข การกดบันทึกจะนำค่าที่ตั้งไว้ไปใช้บนหน้าเว็บจริง</p>

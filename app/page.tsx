@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
+import OriginalActivityComponent from "../components/OriginalActivityComponent";
 import { DEFAULT_SITE_CONFIG, type SiteConfig } from "../lib/site-config";
 
 declare global {
@@ -387,6 +388,7 @@ export default function Home() {
           }}
         >
           {layoutOrder.map((id) => renderLayoutItem(id))}
+          {config.showOriginalActivity ? <OriginalActivityComponent /> : null}
         </div>
       </section>
 
