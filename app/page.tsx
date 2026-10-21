@@ -390,6 +390,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Admin-managed CSS is applied only to the public landing page. */}
+      {config.customCss ? <style>{config.customCss}</style> : null}
+
       <style jsx>{`
         .linkPage {
           position: relative;

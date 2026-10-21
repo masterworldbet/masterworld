@@ -5,6 +5,7 @@ import type { CustomButton, SiteConfig, SiteImage } from "../../../lib/site-conf
 
 const defaults: SiteConfig = {
   customButtons: [],
+  customCss: "",
   images: [{ id: "legacy-main-image", url: "/promo-square.png", alt: "Masterworld", enabled: true }],
   promoImageUrl: "/promo-square.png",
   imageAlt: "Masterworld",
@@ -488,6 +489,17 @@ export default function ContentEditor() {
             </div>
           ))}
           <button type="button" className="resetButton" onClick={resetColors}>คืนค่าสีเดิมทั้งหมด</button>
+
+          <div className="sectionRule" />
+          <div className="panelHeading compactHeading"><span className="panelNumber">CSS</span><div><h2>โค้ดตกแต่งเว็บไซต์ (Custom CSS)</h2><p>เพิ่ม CSS สำหรับหน้าเว็บหลัก โดยไม่เปลี่ยนระบบอื่น</p></div></div>
+          <label className="fieldLabel" htmlFor="custom-css-editor">วางโค้ด CSS (ไม่ต้องใส่ &lt;style&gt;)</label>
+          <textarea id="custom-css-editor" className="textField" rows={10} maxLength={12000}
+            spellCheck={false} value={config.customCss ?? ""}
+            onChange={(event) => update("customCss", event.target.value)}
+            placeholder={".landingCard { border-radius: 20px; }\n.registerButton { box-shadow: 0 0 20px #f0a900; }"}
+            style={{ width: "100%", minHeight: 200, resize: "vertical", fontFamily: "monospace", fontSize: 13, lineHeight: 1.6 }} />
+          <p className="fieldHint">รองรับ CSS เท่านั้น ไม่รองรับ JavaScript, @import หรือ url() · กดบันทึกเพื่อใช้บนหน้าเว็บจริง · ตัวอย่างด้านล่างไม่แสดง Custom CSS</p>
+          <button type="button" className="resetButton" onClick={() => update("customCss", "")}>ล้างโค้ด CSS</button>
 
           <div className="sectionRule" />
           <div className="panelHeading compactHeading"><span className="panelNumber">06</span><div><h2>ลำดับการแสดงผล</h2><p>จัดลำดับรูปและปุ่มบนหน้าเว็บหลัก</p></div></div>

@@ -20,6 +20,7 @@ export type SiteImage = { id: string; url: string; alt: string; enabled: boolean
 
 export type SiteConfig = {
   customButtons: CustomButton[];
+  customCss: string;
   images: SiteImage[];
   promoImageUrl: string;
   imageAlt: string;
@@ -49,6 +50,7 @@ export type SiteConfig = {
 
 export const DEFAULT_SITE_CONFIG: SiteConfig = {
   customButtons: [],
+  customCss: "",
   images: [{ id: "legacy-main-image", url: "/promo-square.png", alt: "Masterworld", enabled: true }],
   promoImageUrl: "/promo-square.png",
   imageAlt: "Masterworld",
@@ -109,6 +111,10 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
   if (!promoImageUrl || !registerUrl) return null;
   if (typeof value.buttonText !== "string" || value.buttonText.trim().length < 1 || value.buttonText.length > 80) return null;
   if (typeof value.imageAlt !== "string" || value.imageAlt.length > 160) return null;
+  // CSS-only customization: no remote imports, external resource URLs or HTML injection.
+  const customCss = value.customCss === undefined ? "" : value.customCss;
+  if (typeof customCss !== "string" || customCss.length > 12000 ||
+      /@import\b|url\s*\(|expression\s*\(|<\s*\/?\s*style\b|<\s*\/?\s*script\b/i.test(customCss)) return null;
   const pageHeadline = typeof value.pageHeadline === "string" && value.pageHeadline.length <= 120 ? value.pageHeadline.trim() : "";
   const pageDescription = typeof value.pageDescription === "string" && value.pageDescription.length <= 1000 ? value.pageDescription.trim() : "";
   const pixelId = typeof value.pixelId === "string" && value.pixelId.trim().length <= 100 && /^[0-9,\s]*$/.test(value.pixelId) ? value.pixelId.trim() : null;
@@ -203,6 +209,7 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
 
   return {
     customButtons,
+    customCss,
     images,
     promoImageUrl: firstImage?.url ?? promoImageUrl,
     imageAlt: firstImage?.alt ?? value.imageAlt,
