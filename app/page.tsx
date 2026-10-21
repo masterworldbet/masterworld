@@ -32,18 +32,24 @@ function sendPixelEvent(
   }
 }
 
-function trackEvent(event: "page_view" | "register_click") {
+function trackEvent(event: "page_view" | "register_click", buttonName?: string) {
   if (typeof window === "undefined") return;
 
   const width = window.innerWidth;
   const device =
     width < 768 ? "mobile" : width < 1024 ? "tablet" : "desktop";
+  // Source attribution is explicit and transparent: use ?mw_source=a or ?mw_source=b
+  // on the same landing page for the two tracked ad links.
+  const requestedSource = new URLSearchParams(window.location.search).get("mw_source")?.toLowerCase();
+  const source = requestedSource === "a" || requestedSource === "b" ? requestedSource : "direct";
 
   const payload = JSON.stringify({
     event,
     path: window.location.pathname,
     referrer: document.referrer || null,
     device,
+    source,
+    buttonName: buttonName || null,
   });
 
   try {
@@ -104,17 +110,16 @@ export default function Home() {
         key="main-button"
         style={{
           display: "flex",
-          width: "calc(100% - 24px)",
+          width: "auto",
           margin: "12px",
           minWidth: 0,
-          boxSizing: "border-box",
         }}
       >
         <a
           className="registerButton"
           href={config.registerUrl}
           onClick={() => {
-            trackEvent("register_click");
+            trackEvent("register_click", config.buttonText);
             sendPixelEvent(
               config.mainButtonEventType,
               config.mainButtonEventName
@@ -178,11 +183,10 @@ export default function Home() {
         key={button.id}
         style={{
           display: "flex",
-          justifyContent: "stretch",
-          width: "calc(100% - 24px)",
+          justifyContent: button.align,
+          width: "auto",
           minWidth: 0,
           margin: "10px 12px 0",
-          boxSizing: "border-box",
         }}
       >
         <a
@@ -190,7 +194,7 @@ export default function Home() {
           href={button.url}
           onClick={() => {
             // Count custom-button clicks in the same Dashboard metric as the main button.
-            trackEvent("register_click");
+            trackEvent("register_click", button.text);
             // Keep the optional Meta Pixel event configured for this button.
             sendPixelEvent(button.eventType, button.eventName);
           }}
@@ -201,8 +205,7 @@ export default function Home() {
             alignItems: "center",
             justifyContent: "space-between",
             gap: 10,
-            width: "100%",
-            flex: "1 1 100%",
+            width: (button.fullWidth ?? button.size === "large") ? "100%" : "auto",
             maxWidth: "100%",
             minHeight:
               button.size === "small"
@@ -239,11 +242,11 @@ export default function Home() {
   ];
 
   const defaultLayoutItems = [
-    "headline",
-    "description",
     ...legacyImages.map((image) => `image:${image.id}`),
     "main-button",
-    ...(config.customButtons ?? []).map((button) => `button:${button.id}`),
+    ...(config.customButtons ?? []).map(
+      (button) => `button:${button.id}`
+    ),
   ];
 
   const validLayoutIds = new Set(defaultLayoutItems);
@@ -260,29 +263,14 @@ export default function Home() {
     (id) => typeof id === "string" && validLayoutIds.has(id)
   );
 
-  // Keep the default text-first layout for older saved configurations while
-  // allowing both text blocks to be moved anywhere through layoutOrder.
-  const missingTextItems = ["headline", "description"].filter(
-    (id) => !layoutOrder.includes(id)
-  );
-  layoutOrder.unshift(...missingTextItems);
+  // Recover missing items so configured buttons and images remain available.
   for (const id of defaultLayoutItems) {
-    if (!layoutOrder.includes(id)) layoutOrder.push(id);
+    if (!layoutOrder.includes(id)) {
+      layoutOrder.push(id);
+    }
   }
 
   const renderLayoutItem = (id: string) => {
-    if (id === "headline") return config.pageHeadline ? (
-      <h1 key="headline" style={{ margin: "8px 14px 4px", color: "#fff", textAlign: "center", fontSize: 22, fontWeight: 800, lineHeight: 1.4, overflowWrap: "anywhere" }}>
-        {config.pageHeadline}
-      </h1>
-    ) : null;
-
-    if (id === "description") return config.pageDescription ? (
-      <p key="description" style={{ margin: "0 16px 12px", color: "#e5e7eb", textAlign: "center", fontSize: 14, lineHeight: 1.7, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
-        {config.pageDescription}
-      </p>
-    ) : null;
-
     if (id === "main-button") return renderMainButton();
 
     if (id.startsWith("button:")) {
@@ -375,6 +363,16 @@ export default function Home() {
           boxSizing: "border-box",
         }}
       >
+        {config.pageHeadline ? (
+          <h1 style={{ margin: "8px 14px 4px", color: "#fff", textAlign: "center", fontSize: 22, fontWeight: 800, lineHeight: 1.4, overflowWrap: "anywhere" }}>
+            {config.pageHeadline}
+          </h1>
+        ) : null}
+        {config.pageDescription ? (
+          <p style={{ margin: "0 16px 12px", color: "#e5e7eb", textAlign: "center", fontSize: 14, lineHeight: 1.7, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
+            {config.pageDescription}
+          </p>
+        ) : null}
         <div
           className="freeLayoutStack"
           style={{
@@ -464,19 +462,7 @@ export default function Home() {
 
         .actionButtons,
         .customButtonRow {
-          display: flex;
-          width: calc(100% - 24px);
           min-width: 0;
-          box-sizing: border-box;
-          align-items: stretch;
-        }
-
-        .actionButtons > .registerButton,
-        .customButtonRow > .customButton {
-          width: 100% !important;
-          min-width: 0;
-          max-width: 100%;
-          flex: 1 1 100%;
           box-sizing: border-box;
         }
 
