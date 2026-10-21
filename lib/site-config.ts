@@ -47,6 +47,11 @@ export type SiteConfig = {
   cardBackgroundColor: string | null;
   buttonBackgroundColor: string | null;
   buttonTextColor: string | null;
+  headlineColor: string | null;
+  descriptionColor: string | null;
+  cardBorderColor: string | null;
+  cardRadius: number | null;
+  showBackgroundGlow: boolean | null;
 };
 
 export const DEFAULT_SITE_CONFIG: SiteConfig = {
@@ -79,6 +84,11 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
   cardBackgroundColor: null,
   buttonBackgroundColor: null,
   buttonTextColor: null,
+  headlineColor: null,
+  descriptionColor: null,
+  cardBorderColor: null,
+  cardRadius: null,
+  showBackgroundGlow: null,
 };
 
 const isHexColor = (value: unknown): value is string =>
@@ -145,7 +155,12 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
   const cardBackgroundColor = optionalColor("cardBackgroundColor");
   const buttonBackgroundColor = optionalColor("buttonBackgroundColor");
   const buttonTextColor = optionalColor("buttonTextColor");
-  if (pageBackgroundColor === undefined || cardBackgroundColor === undefined || buttonBackgroundColor === undefined || buttonTextColor === undefined) return null;
+  const headlineColor = optionalColor("headlineColor");
+  const descriptionColor = optionalColor("descriptionColor");
+  const cardBorderColor = optionalColor("cardBorderColor");
+  const cardRadius = value.cardRadius == null ? null : (typeof value.cardRadius === "number" && Number.isInteger(value.cardRadius) && value.cardRadius >= 0 && value.cardRadius <= 40 ? value.cardRadius : undefined);
+  const showBackgroundGlow = value.showBackgroundGlow == null ? null : (typeof value.showBackgroundGlow === "boolean" ? value.showBackgroundGlow : undefined);
+  if (pageBackgroundColor === undefined || cardBackgroundColor === undefined || buttonBackgroundColor === undefined || buttonTextColor === undefined || headlineColor === undefined || descriptionColor === undefined || cardBorderColor === undefined || cardRadius === undefined || showBackgroundGlow === undefined) return null;
 
   const rawButtons = value.customButtons === undefined ? [] : value.customButtons;
   if (!Array.isArray(rawButtons) || rawButtons.length > 20) return null;
@@ -229,6 +244,7 @@ export function sanitizeSiteConfig(input: unknown): SiteConfig | null {
     cardBackgroundColor,
     buttonBackgroundColor,
     buttonTextColor,
+    headlineColor, descriptionColor, cardBorderColor, cardRadius, showBackgroundGlow,
   };
 }
 

@@ -32,6 +32,11 @@ const defaults: SiteConfig = {
   cardBackgroundColor: null,
   buttonBackgroundColor: null,
   buttonTextColor: null,
+  headlineColor: null,
+  descriptionColor: null,
+  cardBorderColor: null,
+  cardRadius: null,
+  showBackgroundGlow: null,
 };
 
 const colorDefaults = {
@@ -39,6 +44,9 @@ const colorDefaults = {
   cardBackgroundColor: "#141414",
   buttonBackgroundColor: "#f0a900",
   buttonTextColor: "#171000",
+  headlineColor: "#ffffff",
+  descriptionColor: "#e5e7eb",
+  cardBorderColor: "#292d34",
 };
 type ColorKey = keyof typeof colorDefaults;
 
@@ -88,8 +96,8 @@ export default function ContentEditor() {
   const safeColor = (value: string | null | undefined, fallback: string) =>
     value && /^(#[0-9a-f]{3,8}|[a-z]+)$/i.test(value) ? value : fallback;
   const previewItems = normalizedLayoutOrder().map((id) => {
-    if (id === "headline") return config.pageHeadline ? `<h3 class="previewHeadline">${escapeHtml(config.pageHeadline)}</h3>` : "";
-    if (id === "description") return config.pageDescription ? `<p class="previewDescription">${escapeHtml(config.pageDescription)}</p>` : "";
+    if (id === "headline") return config.pageHeadline ? `<h3 class="previewHeadline" style="color:${safeColor(config.headlineColor, "#ffffff")}">${escapeHtml(config.pageHeadline)}</h3>` : "";
+    if (id === "description") return config.pageDescription ? `<p class="previewDescription" style="color:${safeColor(config.descriptionColor, "#e5e7eb")}">${escapeHtml(config.pageDescription)}</p>` : "";
     if (id.startsWith("image:")) {
       const item = (config.images ?? []).find((image) => `image:${image.id}` === id);
       return item?.enabled ? `<div class="previewImageWrap promoLink"><img class="promoImage" src="${escapeHtml(item.url)}" alt="${escapeHtml(item.alt)}"></div>` : "";
@@ -105,7 +113,7 @@ export default function ContentEditor() {
   const previewCss = (config.customCss ?? "").replace(/<\/style/gi, "<\\/style");
   const previewDocument = `<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
     *{box-sizing:border-box}body{margin:0;background:${safeColor(config.pageBackgroundColor, "#050505")};font-family:system-ui,sans-serif;color:white;padding:12px}
-    .landingCard{max-width:520px;margin:auto;padding:10px;border:1px solid #ffffff22;border-radius:20px;background:${safeColor(config.cardBackgroundColor, "#141414")}}
+    .landingCard{max-width:520px;margin:auto;padding:10px;border:1px solid #ffffff22;border-radius:20px;background:${safeColor(config.cardBackgroundColor, "#141414")};border-color:${safeColor(config.cardBorderColor, "#292d34")};border-radius:${config.cardRadius ?? 20}px}
     .previewLayoutStack{display:flex;flex-direction:column;gap:8px}.previewHeadline{text-align:center;font-size:22px;margin:8px}.previewDescription{text-align:center;white-space:pre-wrap;font-size:14px}
     .previewImageWrap{overflow:hidden;border-radius:12px}.previewImageWrap img{display:block;width:100%;height:auto}
     .previewMainButtonRow,.previewCustomButton{display:flex;margin:8px 4px}.previewButton,.previewCustomButtonInner{display:flex;align-items:center;justify-content:center;min-height:48px;padding:10px 18px;font-weight:800;text-align:center;width:100%}
@@ -314,8 +322,8 @@ export default function ContentEditor() {
       ...current,
       pageBackgroundColor: null,
       cardBackgroundColor: null,
-      buttonBackgroundColor: null,
-      buttonTextColor: null,
+      headlineColor: null, descriptionColor: null, cardBorderColor: null,
+      cardRadius: null, showBackgroundGlow: null,
     }));
     setMessage("คืนค่าสีเดิมแล้ว กดบันทึกเพื่อใช้กับหน้าเว็บ");
   }
@@ -341,8 +349,13 @@ export default function ContentEditor() {
       {error ? <div className="editorNotice editorError" role="alert">{error}</div> : null}
       {message ? <div className="editorNotice editorSuccess" role="status">{message}</div> : null}
 
+      <nav className="editorQuickNav" aria-label="ทางลัดการตั้งค่า">
+        <a href="#editor-text">ข้อความ</a><a href="#editor-images">รูปภาพ</a><a href="#editor-buttons">ปุ่ม</a>
+        <a href="#editor-general">Pixel</a><a href="#editor-theme">ธีมเว็บไซต์</a><a href="#editor-order">จัดลำดับ</a>
+        <a href="#editor-preview">พรีวิว</a><a href="#editor-css">Custom CSS</a><a href="#editor-original">ส่วนประกอบ</a>
+      </nav>
       <div className="editorSections">
-        <section className="editorPanel">
+        <section id="editor-text" className="editorPanel">
           <div className="panelHeading">
             <span className="panelNumber">01</span>
             <div><h2>ข้อความบนหน้าเว็บไซต์</h2><p>เพิ่มหัวข้อและรายละเอียดที่ต้องการให้แสดงบนหน้าเว็บจริง</p></div>
@@ -354,7 +367,7 @@ export default function ContentEditor() {
           <textarea className="textField" value={config.pageDescription ?? ""} maxLength={1000} rows={4} placeholder="กรอกรายละเอียดเว็บไซต์ ข่าวสาร หรือข้อความแนะนำที่ต้องการให้ผู้เข้าชมอ่าน" onChange={(event) => update("pageDescription", event.target.value)} style={{ minHeight: 100, resize: "vertical" }} />
           <p className="fieldHint">ไม่เกิน 1,000 ตัวอักษร · ข้อความจะแสดงเหนือรูปภาพและปุ่มบนหน้าเว็บ</p>
         </section>
-        <section className="editorPanel">
+        <section id="editor-images" className="editorPanel">
           <div className="panelHeading">
             <span className="panelNumber">01</span>
             <div><h2>จัดการรูปภาพ</h2><p>ส่วนนี้มีเฉพาะการอัปโหลดและจัดการรูปภาพ</p></div>
@@ -412,7 +425,7 @@ export default function ContentEditor() {
           ) : <p className="mutedNote">ยังไม่มีรูปภาพ กดอัปโหลดเพื่อเพิ่มรูปแรก</p>}
         </section>
 
-        <section className="editorPanel">
+        <section id="editor-buttons" className="editorPanel">
           <div className="panelHeading">
             <span className="panelNumber">02</span>
             <div><h2>จัดการปุ่มทั้งหมด</h2><p>ตั้งค่าปุ่มหลักและปุ่มเพิ่มเติมในพื้นที่เดียวกัน ใช้รูปแบบการปรับแต่งแบบเดียวกัน</p></div>
@@ -487,7 +500,7 @@ export default function ContentEditor() {
 
         </section>
 
-        <section className="editorPanel settingsPanel">
+        <section id="editor-general" className="editorPanel settingsPanel">
           <div className="panelHeading">
             <span className="panelNumber">04</span>
             <div><h2>การตั้งค่าทั่วไป</h2><p>Pixel สี ตัวอย่าง และลำดับแสดงผล</p></div>
@@ -503,12 +516,13 @@ export default function ContentEditor() {
           <p className="fieldHint">ค่า Pixel ID เดิมยังคงเก็บไว้เพื่อรองรับการตั้งค่าเก่าและตัวแปร NEXT_PUBLIC_META_PIXEL_ID</p>
 
           <div className="sectionRule" />
-          <div className="panelHeading compactHeading"><span className="panelNumber">05</span><div><h2>ปรับแต่งสี</h2><p>ไม่เปลี่ยนสีเดิมจนกว่าจะบันทึกค่าที่เลือก</p></div></div>
+          <div id="editor-theme" className="panelHeading compactHeading"><span className="panelNumber">05</span><div><h2>ตกแต่งธีมเว็บไซต์</h2><p>ปรับสีพื้นหลัง ข้อความ กรอบ และเอฟเฟกต์โดยรวม · ปุ่มแต่ละปุ่มปรับแยกได้ในส่วนจัดการปุ่ม</p></div></div>
           {([
             ["pageBackgroundColor", "สีพื้นหลังหน้าเว็บ"],
             ["cardBackgroundColor", "สีพื้นหลังกรอบหลัก"],
-            ["buttonBackgroundColor", "สีปุ่มหลัก"],
-            ["buttonTextColor", "สีข้อความบนปุ่ม"],
+            ["headlineColor", "สีหัวข้อหน้าเว็บ"],
+            ["descriptionColor", "สีข้อความรายละเอียด"],
+            ["cardBorderColor", "สีเส้นขอบกรอบหลัก"],
           ] as Array<[ColorKey, string]>).map(([key, label]) => (
             <div className="colorRow" key={key}>
               <label htmlFor={key}>{label}</label>
@@ -519,10 +533,15 @@ export default function ContentEditor() {
               </div>
             </div>
           ))}
-          <button type="button" className="resetButton" onClick={resetColors}>คืนค่าสีเดิมทั้งหมด</button>
+          <div className="themeExtras">
+            <div className="themeSetting"><label htmlFor="card-radius">ความโค้งของกรอบหลัก</label><div className="themeSlider"><input id="card-radius" type="range" min={0} max={40} step={1} value={config.cardRadius ?? 0} onChange={(event) => update("cardRadius", Number(event.target.value))} /><output>{config.cardRadius === null ? "ตามธีมเดิม" : `${config.cardRadius}px`}</output><button type="button" onClick={() => update("cardRadius", null)}>ค่าเดิม</button></div></div>
+            <label className="themeToggle"><span><strong>แสงตกแต่งพื้นหลัง</strong><small>ปิดเอฟเฟกต์แสง โดยไม่เปลี่ยนรูปหรือปุ่ม</small></span><input type="checkbox" checked={config.showBackgroundGlow !== false} onChange={(event) => update("showBackgroundGlow", event.target.checked)} /></label>
+          </div>
+          <p className="fieldHint">การเปลี่ยนธีมมีผลหลังบันทึกเท่านั้น · ไม่แก้สีปุ่มที่ตั้งแยกไว้ · คืนค่าเดิมได้ทุกช่อง</p>
+          <button type="button" className="resetButton" onClick={resetColors}>คืนค่าธีมเดิมทั้งหมด</button>
 
           <div className="sectionRule" />
-          <div className="panelHeading compactHeading"><span className="panelNumber">06</span><div><h2>ลำดับการแสดงผล</h2><p>จัดลำดับรูปและปุ่มบนหน้าเว็บหลัก</p></div></div>
+          <div id="editor-order" className="panelHeading compactHeading"><span className="panelNumber">06</span><div><h2>ลำดับการแสดงผล</h2><p>จัดลำดับรูปและปุ่มบนหน้าเว็บหลัก</p></div></div>
           <p className="fieldHint">ลากรายการเพื่อย้ายตำแหน่ง รายการนี้แสดงรวมกันเฉพาะเพื่อกำหนดลำดับหน้าเว็บ ส่วนการแก้ไขรูปและปุ่มอยู่ในคนละส่วนด้านบน</p>
           <div className="layoutOrderList">
             {normalizedLayoutOrder().map((id, index) => (
@@ -547,7 +566,7 @@ export default function ContentEditor() {
           </div>
 
           <div className="sectionRule" />
-          <div className="panelHeading compactHeading"><span className="panelNumber">07</span><div><h2>ตัวอย่างก่อนบันทึก</h2><p>ตัวอย่างจำลองคร่าว ๆ ไม่ใช่หน้าเว็บที่เผยแพร่แล้ว</p></div></div>
+          <div id="editor-preview" className="panelHeading compactHeading"><span className="panelNumber">07</span><div><h2>ตัวอย่างก่อนบันทึก</h2><p>ตัวอย่างจำลองคร่าว ๆ ไม่ใช่หน้าเว็บที่เผยแพร่แล้ว</p></div></div>
           <iframe
             title="ตัวอย่างเว็บไซต์พร้อม Custom CSS"
             sandbox="allow-same-origin"
@@ -556,7 +575,7 @@ export default function ContentEditor() {
           />
 
           <div className="sectionRule" />
-          <div className="panelHeading compactHeading"><span className="panelNumber">CSS</span><div><h2>โค้ดตกแต่งเว็บไซต์ (Custom CSS)</h2><p>เพิ่ม CSS สำหรับหน้าเว็บหลัก โดยไม่เปลี่ยนระบบอื่น</p></div></div>
+          <div id="editor-css" className="panelHeading compactHeading"><span className="panelNumber">CSS</span><div><h2>โค้ดตกแต่งเว็บไซต์ (Custom CSS)</h2><p>เพิ่ม CSS สำหรับหน้าเว็บหลัก โดยไม่เปลี่ยนระบบอื่น</p></div></div>
           <label className="fieldLabel" htmlFor="custom-css-editor">วางโค้ด CSS (ไม่ต้องใส่ &lt;style&gt;)</label>
           <textarea id="custom-css-editor" className="textField" rows={10} maxLength={12000}
             spellCheck={false} value={config.customCss ?? ""}
@@ -567,13 +586,13 @@ export default function ContentEditor() {
           <button type="button" className="resetButton" onClick={() => update("customCss", "")}>ล้างโค้ด CSS</button>
 
           <div className="sectionRule" />
-          <div className="panelHeading compactHeading"><span className="panelNumber">08</span><div><h2>ส่วนประกอบต้นฉบับ</h2><p>กิจกรรมล่าสุด รายการล่าสุด ตารางผู้โชคดี และข้อความเดิมทุกส่วน</p></div></div>
+          <div id="editor-original" className="panelHeading compactHeading"><span className="panelNumber">08</span><div><h2>ส่วนประกอบต้นฉบับ</h2><p>กิจกรรมล่าสุด รายการล่าสุด ตารางผู้โชคดี และข้อความเดิมทุกส่วน</p></div></div>
           <label className="fieldLabel" style={{display:"flex",gap:12,alignItems:"center",marginBottom:12}}>
             <input type="checkbox" checked={config.showOriginalActivity === true} onChange={(event) => update("showOriginalActivity", event.target.checked)} />
             เปิดแสดงส่วนประกอบต้นฉบับบนหน้าเว็บจริง (หลังบันทึก)
           </label>
           <p className="fieldHint">พรีวิวด้านล่างเป็นส่วนประกอบต้นฉบับจริง ไม่รันโค้ดที่ผู้ใช้วาง และไม่เปลี่ยนระบบติดตาม</p>
-          <iframe title="ตัวอย่างส่วนประกอบต้นฉบับ" src="/admin/content/original-preview" sandbox="allow-scripts" style={{width:"100%",height:520,border:"1px solid #343b46",borderRadius:14,background:"#050505"}} />
+          <iframe title="ตัวอย่างส่วนประกอบต้นฉบับ" src="/admin/content/original-preview" sandbox="allow-scripts allow-same-origin" style={{width:"100%",height:520,border:"1px solid #343b46",borderRadius:14,background:"#050505"}} />
 
           <div className="saveArea">
             <p>ตัวอย่างด้านบนอัปเดตทันทีเมื่อแก้ไข การกดบันทึกจะนำค่าที่ตั้งไว้ไปใช้บนหน้าเว็บจริง</p>
@@ -590,9 +609,13 @@ export default function ContentEditor() {
         .editorEyebrow{margin:0 0 7px;color:#e6b844;font-size:10px;letter-spacing:.2em;font-weight:900}.editorHeader h1{margin:0;font-size:clamp(24px,4vw,34px);letter-spacing:-.03em}.editorSub{margin:8px 0 0;color:#9da3ad;font-size:14px}
         .editorHeaderActions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.editorHeaderActions a,.logoutButton{border:1px solid #30343b;border-radius:10px;padding:10px 13px;background:#14171c;color:#e9ebef;font-size:12px;font-weight:700;text-decoration:none}.logoutButton{cursor:pointer}
         .editorNotice{max-width:1200px;margin:0 auto 18px;padding:13px 15px;border-radius:12px;font-size:13px}.editorError{background:#351b1d;border:1px solid #79373b;color:#ffb6b6}.editorSuccess{background:#102a20;border:1px solid #245b43;color:#a9f0ca}
+        .editorQuickNav{max-width:1200px;margin:0 auto 18px;display:flex;gap:8px;flex-wrap:wrap;padding:12px;border:1px solid #292d34;border-radius:14px;background:#111419}
+        .editorQuickNav a{padding:8px 11px;border-radius:9px;border:1px solid #303640;background:#191e25;color:#d8dee8;text-decoration:none;font-size:12px;font-weight:700}.editorQuickNav a:hover,.editorQuickNav a:focus-visible{border-color:#e9bb4b;color:#ffda75}
         .editorSections{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
         .editorPanel{padding:22px;border:1px solid #292d34;border-radius:18px;background:#111419;box-shadow:0 16px 45px #0002;min-width:0}
         .settingsPanel{grid-column:1/-1}
+        .editorPanel,.compactHeading{scroll-margin-top:20px}
+        .themeExtras{margin-top:15px;display:grid;gap:14px;padding:14px;border:1px solid #2d343d;border-radius:12px;background:#0b0e12}.themeSetting>label{font-size:12px;font-weight:700}.themeSlider{display:flex;align-items:center;gap:12px;margin-top:10px}.themeSlider input{flex:1;min-width:80px;accent-color:#f0c44f}.themeSlider output{min-width:75px;font-size:11px;color:#dce1e8}.themeSlider button{border:1px solid #353a43;border-radius:8px;background:#191d23;color:#dce1e8;padding:7px;font-size:11px;cursor:pointer}.themeToggle{display:flex;justify-content:space-between;align-items:center;gap:15px}.themeToggle strong,.themeToggle small{display:block}.themeToggle strong{font-size:12px}.themeToggle small{margin-top:4px;font-size:11px;color:#9ba3af}.themeToggle input{width:19px;height:19px;accent-color:#f0c44f}
         .panelHeading{display:flex;align-items:center;gap:12px;margin-bottom:22px}.compactHeading{margin-top:4px}.panelNumber{width:38px;height:38px;display:grid;place-items:center;flex:0 0 38px;border-radius:12px;background:#292316;color:#f0c85b;font-size:12px;font-weight:900}.panelHeading h2{font-size:17px;margin:0}.panelHeading p{font-size:12px;color:#969da8;margin:5px 0 0;line-height:1.5}
         .fieldLabel{display:block;margin:16px 0 7px;color:#d8dce2;font-size:12px;font-weight:700}.textField{width:100%;min-width:0;min-height:44px;border:1px solid #343943;border-radius:10px;padding:10px 12px;background:#090b0e;color:#f4f5f7;font-size:13px;outline:none}.textField:focus{border-color:#c9a33f}.fieldHint,.mutedNote{font-size:11px;color:#8b929e;line-height:1.6}
         .toggleRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #282c33}.toggleRow strong,.toggleRow small{display:block}.toggleRow strong{font-size:13px}.toggleRow small{margin-top:4px;color:#9299a4;font-size:11px}.toggleRow input{width:19px;height:19px;accent-color:#d9ad38;cursor:pointer;flex:0 0 auto}

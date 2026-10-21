@@ -274,13 +274,13 @@ export default function Home() {
 
   const renderLayoutItem = (id: string) => {
     if (id === "headline") return config.pageHeadline ? (
-      <h1 key="headline" style={{ margin: "8px 14px 4px", color: "#fff", textAlign: "center", fontSize: 22, fontWeight: 800, lineHeight: 1.4, overflowWrap: "anywhere" }}>
+      <h1 key="headline" style={{ margin: "8px 14px 4px", color: config.headlineColor || "#fff", textAlign: "center", fontSize: 22, fontWeight: 800, lineHeight: 1.4, overflowWrap: "anywhere" }}>
         {config.pageHeadline}
       </h1>
     ) : null;
 
     if (id === "description") return config.pageDescription ? (
-      <p key="description" style={{ margin: "0 16px 12px", color: "#e5e7eb", textAlign: "center", fontSize: 14, lineHeight: 1.7, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
+      <p key="description" style={{ margin: "0 16px 12px", color: config.descriptionColor || "#e5e7eb", textAlign: "center", fontSize: 14, lineHeight: 1.7, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
         {config.pageDescription}
       </p>
     ) : null;
@@ -357,10 +357,12 @@ export default function Home() {
       <div
         className="landingGlow landingGlowOne"
         aria-hidden="true"
+        style={config.showBackgroundGlow === false ? { display: "none" } : undefined}
       />
       <div
         className="landingGlow landingGlowTwo"
         aria-hidden="true"
+        style={config.showBackgroundGlow === false ? { display: "none" } : undefined}
       />
 
       <section
@@ -369,6 +371,8 @@ export default function Home() {
         style={{
           position: "relative",
           zIndex: 2,
+          ...(config.cardRadius !== null && config.cardRadius !== undefined ? { borderRadius: config.cardRadius } : {}),
+          ...(config.cardBorderColor ? { border: `1px solid ${config.cardBorderColor}` } : {}),
           width: "100%",
           maxWidth: 560,
           minWidth: 0,
