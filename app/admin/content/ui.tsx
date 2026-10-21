@@ -80,6 +80,36 @@ export default function ContentEditor() {
     };
   }, []);
 
+  // Isolate custom styles in an iframe so preview CSS cannot restyle the admin UI.
+  const escapeHtml = (value: unknown) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[char] ?? char));
+  const safeColor = (value: string | null | undefined, fallback: string) =>
+    value && /^(#[0-9a-f]{3,8}|[a-z]+)$/i.test(value) ? value : fallback;
+  const previewItems = normalizedLayoutOrder().map((id) => {
+    if (id === "headline") return config.pageHeadline ? `<h3 class="previewHeadline">${escapeHtml(config.pageHeadline)}</h3>` : "";
+    if (id === "description") return config.pageDescription ? `<p class="previewDescription">${escapeHtml(config.pageDescription)}</p>` : "";
+    if (id.startsWith("image:")) {
+      const item = (config.images ?? []).find((image) => `image:${image.id}` === id);
+      return item?.enabled ? `<div class="previewImageWrap promoLink"><img class="promoImage" src="${escapeHtml(item.url)}" alt="${escapeHtml(item.alt)}"></div>` : "";
+    }
+    if (id === "main-button" && config.showButton) return `<div class="previewMainButtonRow actionButtons"><div class="previewButton registerButton" style="background:${safeColor(config.buttonBackgroundColor, "#00d91b")};color:${safeColor(config.buttonTextColor, "#071507")};border-radius:${Number(config.mainButtonBorderRadius ?? 14)}px;font-size:${Number(config.mainButtonFontSize ?? 17)}px;width:${config.mainButtonFullWidth === false ? "auto" : "100%"}">${escapeHtml(config.mainButtonIcon)} ${escapeHtml(config.buttonText)}</div></div>`;
+    if (id.startsWith("button:")) {
+      const button = (config.customButtons ?? []).find((item) => `button:${item.id}` === id);
+      if (!button?.enabled) return "";
+      return `<div class="previewCustomButton actionButtons"><div class="previewCustomButtonInner" style="background:${safeColor(button.backgroundColor, "#f0a900")};color:${safeColor(button.textColor, "#171000")};border-radius:${Number(button.borderRadius ?? 12)}px;font-size:${Number(button.fontSize ?? 15)}px">${escapeHtml(button.icon)} ${escapeHtml(button.text)}</div></div>`;
+    }
+    return "";
+  }).join("");
+  const previewCss = (config.customCss ?? "").replace(/<\/style/gi, "<\\/style");
+  const previewDocument = `<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+    *{box-sizing:border-box}body{margin:0;background:${safeColor(config.pageBackgroundColor, "#050505")};font-family:system-ui,sans-serif;color:white;padding:12px}
+    .landingCard{max-width:520px;margin:auto;padding:10px;border:1px solid #ffffff22;border-radius:20px;background:${safeColor(config.cardBackgroundColor, "#141414")}}
+    .previewLayoutStack{display:flex;flex-direction:column;gap:8px}.previewHeadline{text-align:center;font-size:22px;margin:8px}.previewDescription{text-align:center;white-space:pre-wrap;font-size:14px}
+    .previewImageWrap{overflow:hidden;border-radius:12px}.previewImageWrap img{display:block;width:100%;height:auto}
+    .previewMainButtonRow,.previewCustomButton{display:flex;margin:8px 4px}.previewButton,.previewCustomButtonInner{display:flex;align-items:center;justify-content:center;min-height:48px;padding:10px 18px;font-weight:800;text-align:center;width:100%}
+    </style><style>${previewCss}</style></head><body><main class="linkPage"><section class="landingCard previewCard"><div class="previewLayoutStack">${previewItems}</div></section></main></body></html>`;
+
   function update<K extends keyof SiteConfig>(key: K, value: SiteConfig[K]) {
     setConfig((current) => ({ ...current, [key]: value }));
     setMessage("");
@@ -498,7 +528,7 @@ export default function ContentEditor() {
             onChange={(event) => update("customCss", event.target.value)}
             placeholder={".landingCard { border-radius: 20px; }\n.registerButton { box-shadow: 0 0 20px #f0a900; }"}
             style={{ width: "100%", minHeight: 200, resize: "vertical", fontFamily: "monospace", fontSize: 13, lineHeight: 1.6 }} />
-          <p className="fieldHint">รองรับ CSS เท่านั้น ไม่รองรับ JavaScript, @import หรือ url() · กดบันทึกเพื่อใช้บนหน้าเว็บจริง · ตัวอย่างด้านล่างไม่แสดง Custom CSS</p>
+          <p className="fieldHint">รองรับ CSS เท่านั้น ไม่รองรับ JavaScript, @import หรือ url() · กดบันทึกเพื่อใช้บนหน้าเว็บจริง · ตัวอย่างด้านล่างจะแสดง Custom CSS ทันที (ยังไม่บันทึกลงหน้าเว็บจริง)</p>
           <button type="button" className="resetButton" onClick={() => update("customCss", "")}>ล้างโค้ด CSS</button>
 
           <div className="sectionRule" />
@@ -528,57 +558,12 @@ export default function ContentEditor() {
 
           <div className="sectionRule" />
           <div className="panelHeading compactHeading"><span className="panelNumber">07</span><div><h2>ตัวอย่างก่อนบันทึก</h2><p>ตัวอย่างจำลองคร่าว ๆ ไม่ใช่หน้าเว็บที่เผยแพร่แล้ว</p></div></div>
-          <div className="livePreview" style={{ backgroundColor: config.pageBackgroundColor || "#050505" }}>
-            <div className="previewCard" style={{ backgroundColor: config.cardBackgroundColor || "#141414" }}>
-              <div className="previewLayoutStack">
-                {normalizedLayoutOrder().map((id) => {
-                  if (id === "headline") return config.pageHeadline ? <h3 key={id} className="previewHeadline">{config.pageHeadline}</h3> : null;
-                  if (id === "description") return config.pageDescription ? <p key={id} className="previewDescription">{config.pageDescription}</p> : null;
-                  if (id.startsWith("image:")) {
-                    const image = (config.images ?? []).find((item) => `image:${item.id}` === id);
-                    return image?.enabled ? <div className="previewImageWrap" key={id}><img src={image.url} alt={image.alt} /></div> : null;
-                  }
-                  if (id === "main-button") return config.showButton ? (
-                    <div className="previewMainButtonRow" key={id}>
-                      <div className="previewButton" style={{
-                        background: config.buttonBackgroundColor || "linear-gradient(180deg,#00f51b,#00d91b)",
-                        color: config.buttonTextColor || "#071507",
-                        borderRadius: config.mainButtonBorderRadius ?? 14,
-                        fontSize: config.mainButtonFontSize ?? 17,
-                        fontFamily: config.mainButtonFontFamily && config.mainButtonFontFamily !== "inherit" ? config.mainButtonFontFamily : "inherit",
-                        width: config.mainButtonFullWidth === false ? "auto" : "100%",
-                      }}>
-                        {config.mainButtonIcon ? <span aria-hidden="true" className="previewMainIcon">{config.mainButtonIcon}</span> : null}
-                        <span className="previewButtonText">{config.buttonText}</span>
-                        <span className="previewButtonArrow" aria-hidden="true">›</span>
-                      </div>
-                    </div>
-                  ) : null;
-                  if (id.startsWith("button:")) {
-                    const button = (config.customButtons ?? []).find((item) => `button:${item.id}` === id);
-                    if (!button?.enabled) return null;
-                    return <div className="previewCustomButton" key={id} style={{ justifyContent: button.align, width: "100%" }}>
-                      <div className="previewCustomButtonInner" style={{
-                        background: button.backgroundColor,
-                        color: button.textColor,
-                        fontSize: button.fontSize ?? (button.size === "small" ? 13 : button.size === "large" ? 17 : 15),
-                        fontFamily: button.fontFamily && button.fontFamily !== "inherit" ? button.fontFamily : "inherit",
-                        borderRadius: button.borderRadius ?? 12,
-                        minHeight: button.size === "small" ? 36 : button.size === "medium" ? 46 : 56,
-                        padding: button.size === "small" ? "9px 14px" : button.size === "large" ? "14px 20px" : "11px 16px",
-                        width: (button.fullWidth ?? button.size === "large") ? "100%" : "auto",
-                      }}>
-                        {button.icon ? <span className="previewCustomIcon" aria-hidden="true">{button.icon}</span> : null}
-                        <span className="previewCustomText">{button.text || "ตัวอย่างปุ่ม"}</span>
-                        <span className="previewCustomArrow" aria-hidden="true">›</span>
-                      </div>
-                    </div>;
-                  }
-                  return null;
-                })}
-              </div>
-            </div>
-          </div>
+          <iframe
+            title="ตัวอย่างเว็บไซต์พร้อม Custom CSS"
+            sandbox="allow-same-origin"
+            srcDoc={previewDocument}
+            style={{ width: "100%", height: 470, border: "1px solid #ffffff33", borderRadius: 16, background: "#050505" }}
+          />
 
           <div className="saveArea">
             <p>ตัวอย่างด้านบนอัปเดตทันทีเมื่อแก้ไข การกดบันทึกจะนำค่าที่ตั้งไว้ไปใช้บนหน้าเว็บจริง</p>
