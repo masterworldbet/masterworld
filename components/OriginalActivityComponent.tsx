@@ -1,6 +1,8 @@
 "use client";
 import { useEffect } from "react";
 
+const lineUrl = process.env.NEXT_PUBLIC_LINE_URL || "https://line.me/";
+
 const activities = [
   ["MW***77", "Mystery", "กำลังเล่น"],
   ["เจ๊หมวย***96", "Wild", "กำลังเล่น"],
