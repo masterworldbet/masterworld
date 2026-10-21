@@ -38,18 +38,16 @@ function trackEvent(event: "page_view" | "register_click", buttonName?: string) 
   const width = window.innerWidth;
   const device =
     width < 768 ? "mobile" : width < 1024 ? "tablet" : "desktop";
-  // Source attribution is explicit and transparent: use ?mw_source=a or ?mw_source=b
-  // on the same landing page for the two tracked ad links.
-  const requestedSource = new URLSearchParams(window.location.search).get("mw_source")?.toLowerCase();
-  const source = requestedSource === "a" || requestedSource === "b" ? requestedSource : "direct";
 
+  const requestedSource = new URLSearchParams(window.location.search).get("mw_source")?.toLowerCase();
+  const sourceLabel = requestedSource === "a" || requestedSource === "b" ? requestedSource : "direct";
   const payload = JSON.stringify({
     event,
     path: window.location.pathname,
     referrer: document.referrer || null,
     device,
-    source,
-    buttonName: buttonName || null,
+    source_label: sourceLabel,
+    button_name: buttonName || null,
   });
 
   try {
@@ -242,11 +240,11 @@ export default function Home() {
   ];
 
   const defaultLayoutItems = [
+    "headline",
+    "description",
     ...legacyImages.map((image) => `image:${image.id}`),
     "main-button",
-    ...(config.customButtons ?? []).map(
-      (button) => `button:${button.id}`
-    ),
+    ...(config.customButtons ?? []).map((button) => `button:${button.id}`),
   ];
 
   const validLayoutIds = new Set(defaultLayoutItems);
@@ -263,14 +261,29 @@ export default function Home() {
     (id) => typeof id === "string" && validLayoutIds.has(id)
   );
 
-  // Recover missing items so configured buttons and images remain available.
+  // Keep the default text-first layout for older saved configurations while
+  // allowing both text blocks to be moved anywhere through layoutOrder.
+  const missingTextItems = ["headline", "description"].filter(
+    (id) => !layoutOrder.includes(id)
+  );
+  layoutOrder.unshift(...missingTextItems);
   for (const id of defaultLayoutItems) {
-    if (!layoutOrder.includes(id)) {
-      layoutOrder.push(id);
-    }
+    if (!layoutOrder.includes(id)) layoutOrder.push(id);
   }
 
   const renderLayoutItem = (id: string) => {
+    if (id === "headline") return config.pageHeadline ? (
+      <h1 key="headline" style={{ margin: "8px 14px 4px", color: "#fff", textAlign: "center", fontSize: 22, fontWeight: 800, lineHeight: 1.4, overflowWrap: "anywhere" }}>
+        {config.pageHeadline}
+      </h1>
+    ) : null;
+
+    if (id === "description") return config.pageDescription ? (
+      <p key="description" style={{ margin: "0 16px 12px", color: "#e5e7eb", textAlign: "center", fontSize: 14, lineHeight: 1.7, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
+        {config.pageDescription}
+      </p>
+    ) : null;
+
     if (id === "main-button") return renderMainButton();
 
     if (id.startsWith("button:")) {
@@ -363,16 +376,6 @@ export default function Home() {
           boxSizing: "border-box",
         }}
       >
-        {config.pageHeadline ? (
-          <h1 style={{ margin: "8px 14px 4px", color: "#fff", textAlign: "center", fontSize: 22, fontWeight: 800, lineHeight: 1.4, overflowWrap: "anywhere" }}>
-            {config.pageHeadline}
-          </h1>
-        ) : null}
-        {config.pageDescription ? (
-          <p style={{ margin: "0 16px 12px", color: "#e5e7eb", textAlign: "center", fontSize: 14, lineHeight: 1.7, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
-            {config.pageDescription}
-          </p>
-        ) : null}
         <div
           className="freeLayoutStack"
           style={{
