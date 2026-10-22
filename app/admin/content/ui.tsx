@@ -50,6 +50,42 @@ const colorDefaults = {
 };
 type ColorKey = keyof typeof colorDefaults;
 
+type VisualTemplate = { id: string; name: string; savedAt: string; visual: Partial<SiteConfig> };
+const templateStorageKey = "masterworld-visual-templates-v1";
+const visualKeys = ["images", "promoImageUrl", "imageAlt", "showImage", "pageHeadline", "pageDescription", "layoutOrder", "pageBackgroundColor", "cardBackgroundColor", "buttonBackgroundColor", "buttonTextColor", "headlineColor", "descriptionColor", "cardBorderColor", "cardRadius", "showBackgroundGlow", "mainButtonFontSize", "mainButtonFontFamily", "mainButtonBorderRadius", "mainButtonFullWidth", "customCss"] as const;
+function snapshotVisual(config: SiteConfig): Partial<SiteConfig> {
+  const visual: Record<string, unknown> = {};
+  for (const key of visualKeys) visual[key] = structuredClone(config[key]);
+  // Button appearance is saved, but destinations, events and tracking are never restored from a template.
+  visual.customButtons = config.customButtons.map(({ id, backgroundColor, textColor, size, align, borderRadius, fontSize, fontFamily, fullWidth }) => ({ id, backgroundColor, textColor, size, align, borderRadius, fontSize, fontFamily, fullWidth }));
+  return visual as Partial<SiteConfig>;
+}
+function applyVisual(config: SiteConfig, visual: Partial<SiteConfig>): SiteConfig {
+  const next = { ...config };
+  for (const key of visualKeys) {
+    if (Object.prototype.hasOwnProperty.call(visual, key)) (next as unknown as Record<string, unknown>)[key] = structuredClone(visual[key]);
+  }
+  const buttonLooks = (visual.customButtons ?? []) as Array<Partial<CustomButton>>;
+  next.customButtons = config.customButtons.map(button => {
+    const look = buttonLooks.find(b => b.id === button.id);
+    if (!look) return button;
+    const merged = { ...button };
+    for (const key of ["backgroundColor", "textColor", "size", "align", "borderRadius", "fontSize", "fontFamily", "fullWidth"] as const) {
+      if (key in look) (merged as unknown as Record<string, unknown>)[key] = look[key];
+    }
+    return merged;
+  });
+  // Keep the current buttons and events, and discard layout references that no longer exist.
+  const valid = new Set(["headline", "description", "main-button", ...next.images.map(i => `image:${i.id}`), ...next.customButtons.map(b => `button:${b.id}`)]);
+  next.layoutOrder = (next.layoutOrder ?? []).filter(id => valid.has(id));
+  return next;
+}
+const visualPresets = [
+  { name: "Minimal", colors: ["#f5f5f4", "#ffffff", "#111827", "#475569", "#e5e7eb"], radius: 14, glow: false },
+  { name: "Modern", colors: ["#071629", "#112b45", "#ffffff", "#b8d6ee", "#2d5c7a"], radius: 20, glow: true },
+  { name: "Premium", colors: ["#080808", "#1b1812", "#f7d58a", "#e8d6af", "#7c622d"], radius: 24, glow: true },
+] as const;
+
 const standardEvents = [
   "Lead",
   "Contact",
@@ -64,6 +100,8 @@ const standardEvents = [
 
 export default function ContentEditor() {
   const [config, setConfig] = useState<SiteConfig>(defaults);
+  const [templates, setTemplates] = useState<VisualTemplate[]>([]);
+  const [templateName, setTemplateName] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -88,6 +126,45 @@ export default function ContentEditor() {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem(templateStorageKey) || "[]");
+      if (Array.isArray(stored)) setTemplates(stored);
+    } catch { /* Corrupt local data should not break the editor. */ }
+  }, []);
+
+  function storeTemplates(items: VisualTemplate[]) {
+    try {
+      localStorage.setItem(templateStorageKey, JSON.stringify(items));
+      setTemplates(items);
+      return true;
+    } catch {
+      setError("บันทึกเทมเพลตในเบราว์เซอร์ไม่ได้ กรุณาตรวจพื้นที่จัดเก็บ");
+      return false;
+    }
+  }
+  function saveTemplate() {
+    const name = templateName.trim() || `ธีม ${new Date().toLocaleString("th-TH")}`;
+    const item: VisualTemplate = { id: crypto.randomUUID(), name: name.slice(0, 70), savedAt: new Date().toISOString(), visual: snapshotVisual(config) };
+    if (storeTemplates([item, ...templates].slice(0, 30))) {
+      setTemplateName(""); setMessage(`บันทึกเทมเพลต “${item.name}” แล้ว (เก็บในเบราว์เซอร์นี้)`); setError("");
+    }
+  }
+  function loadTemplate(item: VisualTemplate) {
+    if (!window.confirm(`โหลดเทมเพลต “${item.name}” เข้าหน้าตกแต่ง? การแก้ไขที่ยังไม่ได้บันทึกจะถูกแทนที่`)) return;
+    setConfig(current => applyVisual(current, item.visual));
+    setMessage(`โหลด “${item.name}” แล้ว — ตรวจพรีวิวและกดบันทึกการเปลี่ยนแปลงเพื่อเผยแพร่`); setError("");
+  }
+  function choosePreset(index: number) {
+    const preset = visualPresets[index];
+    setConfig(current => ({ ...current,
+      pageBackgroundColor: preset.colors[0], cardBackgroundColor: preset.colors[1],
+      headlineColor: preset.colors[2], descriptionColor: preset.colors[3],
+      cardBorderColor: preset.colors[4], cardRadius: preset.radius, showBackgroundGlow: preset.glow,
+    }));
+    setMessage(`เลือกพรีเซ็ต ${preset.name} แล้ว — ปรับต่อได้และกดบันทึกเพื่อเผยแพร่`); setError("");
+  }
 
   // Isolate custom styles in an iframe so preview CSS cannot restyle the admin UI.
   const escapeHtml = (value: unknown) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
@@ -516,6 +593,19 @@ export default function ContentEditor() {
           <p className="fieldHint">ค่า Pixel ID เดิมยังคงเก็บไว้เพื่อรองรับการตั้งค่าเก่าและตัวแปร NEXT_PUBLIC_META_PIXEL_ID</p>
 
           <div className="sectionRule" />
+          <section style={{border:"1px solid #475569",borderRadius:16,padding:16,marginBottom:20}}>
+            <h2 style={{marginTop:0}}>คลังเทมเพลต · Mobile First</h2>
+            <p className="fieldHint">เปลี่ยนเฉพาะหน้าตา ไม่เปลี่ยนลิงก์ ปุ่ม Event, Pixel หรือข้อมูลสถิติ · การเลือกธีมยังไม่เผยแพร่จนกดบันทึก</p>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(135px,1fr))",gap:10,margin:"14px 0"}}>
+              {visualPresets.map((preset,index) => <button type="button" key={preset.name} onClick={() => choosePreset(index)} style={{padding:12,borderRadius:14,border:"1px solid #64748b",background:preset.colors[1],color:preset.colors[2],minHeight:86,cursor:"pointer",fontWeight:700}}>{preset.name}<span style={{display:"block",fontSize:11,marginTop:7}}>เลือกแล้วปรับต่อได้</span></button>)}
+            </div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:14}}>
+              <input aria-label="ชื่อเทมเพลต" placeholder="ตั้งชื่อเทมเพลต เช่น ธีมหลัก" value={templateName} onChange={e=>setTemplateName(e.target.value)} style={{flex:"1 1 180px",minWidth:0,padding:11,borderRadius:10}} maxLength={70}/>
+              <button type="button" onClick={saveTemplate} style={{padding:"10px 16px",borderRadius:10,cursor:"pointer"}}>＋ เซฟเทมเพลตปัจจุบัน</button>
+            </div>
+            {templates.length === 0 ? <p className="fieldHint">ยังไม่มีเทมเพลตที่บันทึกไว้</p> : <div style={{display:"grid",gap:8}}>{templates.map(item=><div key={item.id} style={{display:"flex",flexWrap:"wrap",alignItems:"center",gap:8,border:"1px solid #475569",borderRadius:10,padding:10}}><strong style={{flex:"1 1 130px"}}>{item.name}</strong><button type="button" onClick={()=>loadTemplate(item)}>เลือกใช้ / แก้ไข</button><button type="button" onClick={()=>{if(window.confirm(`ลบเทมเพลต “${item.name}”?`)) storeTemplates(templates.filter(t=>t.id!==item.id));}}>ลบ</button></div>)}</div>}
+            <p className="fieldHint">เทมเพลตส่วนตัวบันทึกในเบราว์เซอร์เครื่องนี้เท่านั้น ไม่ซิงก์ข้ามเครื่องหรือบัญชี และจะหายหากล้างข้อมูลเว็บไซต์</p>
+          </section>
           <div id="editor-theme" className="panelHeading compactHeading"><span className="panelNumber">05</span><div><h2>ตกแต่งธีมเว็บไซต์</h2><p>ปรับสีพื้นหลัง ข้อความ กรอบ และเอฟเฟกต์โดยรวม · ปุ่มแต่ละปุ่มปรับแยกได้ในส่วนจัดการปุ่ม</p></div></div>
           {([
             ["pageBackgroundColor", "สีพื้นหลังหน้าเว็บ"],
