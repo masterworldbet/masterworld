@@ -86,6 +86,43 @@ const visualPresets: Array<{ name: string; kind: LayoutPreset; description: stri
   { name: "Modern", kind: "modern", description: "พาดหัว · รูปแรก · ปุ่ม · รูปที่เหลือ", colors: ["#071629", "#112b45", "#ffffff", "#b8d6ee", "#2d5c7a"], radius: 20, glow: true },
   { name: "Premium", kind: "premium", description: "รูปแรกเป็น Hero · พาดหัว · ปุ่ม · แกลเลอรี", colors: ["#080808", "#1b1812", "#f7d58a", "#e8d6af", "#7c622d"], radius: 24, glow: true },
 ];
+// These styles affect presentation only. They are stored in the existing customCss field,
+// so no database schema, tracking, or event configuration needs changing.
+const presetCssStart = "/* MW_LAYOUT_PRESET_START */";
+const presetCssEnd = "/* MW_LAYOUT_PRESET_END */";
+function withoutPresetCss(css: string): string {
+  const start = css.indexOf(presetCssStart);
+  const end = css.indexOf(presetCssEnd);
+  if (start < 0 || end < start) return css;
+  return (css.slice(0, start) + css.slice(end + presetCssEnd.length)).trim();
+}
+function layoutPresetCss(kind: LayoutPreset): string {
+  const shared = `
+  .freeLayoutStack,.previewLayoutStack{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:start!important;gap:12px!important;padding:12px!important}
+  .freeLayoutStack>*,.previewLayoutStack>*{min-width:0;max-width:100%;grid-column:1/-1}
+  .freeLayoutStack .promoLink,.previewLayoutStack .previewImageWrap{overflow:hidden!important;border-radius:16px!important;line-height:0}
+  .freeLayoutStack .promoImage,.previewLayoutStack .promoImage{display:block;width:100%;height:auto!important;object-fit:contain!important}
+  .freeLayoutStack .actionButtons,.previewLayoutStack .actionButtons{min-width:0;width:100%;margin:0!important}
+  @media(max-width:380px){.freeLayoutStack,.previewLayoutStack{gap:8px!important;padding:9px!important}}
+  `;
+  const layout = kind === "minimal" ? `
+  .freeLayoutStack,.previewLayoutStack{grid-template-columns:minmax(0,1fr)!important;gap:12px!important;padding:18px!important}
+  .freeLayoutStack .promoLink,.previewLayoutStack .previewImageWrap{border-radius:18px!important}
+  .freeLayoutStack .actionButtons,.previewLayoutStack .actionButtons{margin-top:6px!important}
+  ` : kind === "modern" ? `
+  .freeLayoutStack .promoLink,.previewLayoutStack .previewImageWrap{grid-column:span 1;border:1px solid #ffffff38!important;box-shadow:0 8px 24px #0006}
+  .freeLayoutStack .promoLink:first-of-type,.previewLayoutStack .previewImageWrap:first-of-type{grid-column:1/-1}
+  .freeLayoutStack .actionButtons,.previewLayoutStack .actionButtons{padding:2px 0}
+  .freeLayoutStack h1,.previewLayoutStack h3{font-size:clamp(22px,6vw,30px)!important;text-align:left!important;letter-spacing:.01em}
+  ` : `
+  .freeLayoutStack,.previewLayoutStack{gap:10px!important;padding:10px!important}
+  .freeLayoutStack .promoLink,.previewLayoutStack .previewImageWrap{grid-column:span 1;box-shadow:0 6px 20px #0008;border:1px solid #d8ad5470!important}
+  .freeLayoutStack .promoLink:first-child,.previewLayoutStack .previewImageWrap:first-child{grid-column:1/-1;border-radius:22px!important;box-shadow:0 12px 35px #0009}
+  .freeLayoutStack h1,.previewLayoutStack h3{font-size:clamp(22px,6vw,30px)!important;letter-spacing:.035em!important}
+  .freeLayoutStack .actionButtons,.previewLayoutStack .actionButtons{padding:3px;border:1px solid #b58d484d!important;border-radius:18px}
+  `;
+  return `${presetCssStart}\n${shared}\n${layout}\n${presetCssEnd}`;
+}
 function presetLayout(config: SiteConfig, kind: LayoutPreset): string[] {
   const imgs = (config.images ?? []).map(image => `image:${image.id}`);
   const buttons = (config.customButtons ?? []).map(button => `button:${button.id}`);
@@ -173,6 +210,7 @@ export default function ContentEditor() {
       headlineColor: preset.colors[2], descriptionColor: preset.colors[3],
       cardBorderColor: preset.colors[4], cardRadius: preset.radius, showBackgroundGlow: preset.glow,
       layoutOrder: presetLayout(current, preset.kind),
+      customCss: [withoutPresetCss(current.customCss ?? ""), layoutPresetCss(preset.kind)].filter(Boolean).join("\n\n"),
     }));
     setMessage(`ใช้เลย์เอาต์ ${preset.name} แล้ว — รูปภาพเดิมยังอยู่ครบและสามารถลากสลับตำแหน่งได้ ตรวจพรีวิวก่อนกดเผยแพร่`); setError("");
   }
@@ -205,7 +243,7 @@ export default function ContentEditor() {
     .previewLayoutStack{display:flex;flex-direction:column;gap:8px}.previewHeadline{text-align:center;font-size:22px;margin:8px}.previewDescription{text-align:center;white-space:pre-wrap;font-size:14px}
     .previewImageWrap{overflow:hidden;border-radius:12px}.previewImageWrap img{display:block;width:100%;height:auto}
     .previewMainButtonRow,.previewCustomButton{display:flex;margin:8px 4px}.previewButton,.previewCustomButtonInner{display:flex;align-items:center;justify-content:center;min-height:48px;padding:10px 18px;font-weight:800;text-align:center;width:100%}
-    </style><style>${previewCss}</style></head><body><main class="linkPage"><section class="landingCard previewCard"><div class="previewLayoutStack">${previewItems}</div></section></main></body></html>`;
+    </style><style>${previewCss}</style></head><body><main class="linkPage"><section class="landingCard previewCard"><div class="previewLayoutStack freeLayoutStack">${previewItems}</div></section></main></body></html>`;
 
   function update<K extends keyof SiteConfig>(key: K, value: SiteConfig[K]) {
     setConfig((current) => ({ ...current, [key]: value }));
