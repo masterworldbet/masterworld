@@ -3,8 +3,8 @@ import MetaPixelSettings from "../components/MetaPixelSettings";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MASTER WORLD CLASS | เกมออนไลน์",
-  description: "หน้าแนะนำเกมออนไลน์ของ MASTER WORLD CLASS",
+  title: "MasterW — เสื้อผ้าแฟชั่น",
+  description: "เลือกชมเสื้อผ้าแฟชั่นสำหรับทุกวัน พร้อมรายละเอียดสินค้าและช่องทางติดต่อร้าน",
   robots: { index: true, follow: true },
 };
 
