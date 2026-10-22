@@ -65,6 +65,7 @@ function trackEvent(event: "page_view" | "register_click", buttonName?: string) 
 
 export default function Home() {
   const [config, setConfig] = useState<SiteConfig>(DEFAULT_SITE_CONFIG);
+  const [configLoaded, setConfigLoaded] = useState(false);
 
   useEffect(() => {
     trackEvent("page_view");
@@ -78,12 +79,27 @@ export default function Home() {
           setConfig({ ...DEFAULT_SITE_CONFIG, ...data.config });
         }
       })
-      .catch(() => undefined);
+      .catch(() => undefined)
+      .finally(() => {
+        if (active) setConfigLoaded(true);
+      });
 
     return () => {
       active = false;
     };
   }, []);
+
+  // Avoid flashing the built-in default image/button before the saved theme loads.
+  // Keep analytics tracking and Pixel behavior unchanged.
+  if (!configLoaded) {
+    return (
+      <main
+        aria-label="กำลังโหลดหน้าเว็บไซต์"
+        aria-busy="true"
+        style={{ minHeight: "100svh", background: "#050505" }}
+      />
+    );
+  }
 
   const customStyles = {
     ...(config.pageBackgroundColor
