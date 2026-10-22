@@ -80,11 +80,21 @@ function applyVisual(config: SiteConfig, visual: Partial<SiteConfig>): SiteConfi
   next.layoutOrder = (next.layoutOrder ?? []).filter(id => valid.has(id));
   return next;
 }
-const visualPresets = [
-  { name: "Minimal", colors: ["#f5f5f4", "#ffffff", "#111827", "#475569", "#e5e7eb"], radius: 14, glow: false },
-  { name: "Modern", colors: ["#071629", "#112b45", "#ffffff", "#b8d6ee", "#2d5c7a"], radius: 20, glow: true },
-  { name: "Premium", colors: ["#080808", "#1b1812", "#f7d58a", "#e8d6af", "#7c622d"], radius: 24, glow: true },
-] as const;
+type LayoutPreset = "minimal" | "modern" | "premium";
+const visualPresets: Array<{ name: string; kind: LayoutPreset; description: string; colors: [string,string,string,string,string]; radius: number; glow: boolean }> = [
+  { name: "Minimal", kind: "minimal", description: "รูปทั้งหมดด้านบน · ข้อความ · ปุ่มด้านล่าง", colors: ["#f5f5f4", "#ffffff", "#111827", "#475569", "#e5e7eb"], radius: 14, glow: false },
+  { name: "Modern", kind: "modern", description: "พาดหัว · รูปแรก · ปุ่ม · รูปที่เหลือ", colors: ["#071629", "#112b45", "#ffffff", "#b8d6ee", "#2d5c7a"], radius: 20, glow: true },
+  { name: "Premium", kind: "premium", description: "รูปแรกเป็น Hero · พาดหัว · ปุ่ม · แกลเลอรี", colors: ["#080808", "#1b1812", "#f7d58a", "#e8d6af", "#7c622d"], radius: 24, glow: true },
+];
+function presetLayout(config: SiteConfig, kind: LayoutPreset): string[] {
+  const imgs = (config.images ?? []).map(image => `image:${image.id}`);
+  const buttons = (config.customButtons ?? []).map(button => `button:${button.id}`);
+  const first = imgs.slice(0,1);
+  const rest = imgs.slice(1);
+  if (kind === "minimal") return [...imgs, "headline", "description", "main-button", ...buttons];
+  if (kind === "modern") return ["headline", ...first, "main-button", "description", ...buttons, ...rest];
+  return [...first, "headline", "description", "main-button", ...rest, ...buttons];
+}
 
 const standardEvents = [
   "Lead",
@@ -162,8 +172,9 @@ export default function ContentEditor() {
       pageBackgroundColor: preset.colors[0], cardBackgroundColor: preset.colors[1],
       headlineColor: preset.colors[2], descriptionColor: preset.colors[3],
       cardBorderColor: preset.colors[4], cardRadius: preset.radius, showBackgroundGlow: preset.glow,
+      layoutOrder: presetLayout(current, preset.kind),
     }));
-    setMessage(`เลือกพรีเซ็ต ${preset.name} แล้ว — ปรับต่อได้และกดบันทึกเพื่อเผยแพร่`); setError("");
+    setMessage(`ใช้เลย์เอาต์ ${preset.name} แล้ว — รูปภาพเดิมยังอยู่ครบและสามารถลากสลับตำแหน่งได้ ตรวจพรีวิวก่อนกดเผยแพร่`); setError("");
   }
 
   // Isolate custom styles in an iframe so preview CSS cannot restyle the admin UI.
@@ -597,7 +608,7 @@ export default function ContentEditor() {
             <h2 style={{marginTop:0}}>คลังเทมเพลต · Mobile First</h2>
             <p className="fieldHint">เปลี่ยนเฉพาะหน้าตา ไม่เปลี่ยนลิงก์ ปุ่ม Event, Pixel หรือข้อมูลสถิติ · การเลือกธีมยังไม่เผยแพร่จนกดบันทึก</p>
             <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(135px,1fr))",gap:10,margin:"14px 0"}}>
-              {visualPresets.map((preset,index) => <button type="button" key={preset.name} onClick={() => choosePreset(index)} style={{padding:12,borderRadius:14,border:"1px solid #64748b",background:preset.colors[1],color:preset.colors[2],minHeight:86,cursor:"pointer",fontWeight:700}}>{preset.name}<span style={{display:"block",fontSize:11,marginTop:7}}>เลือกแล้วปรับต่อได้</span></button>)}
+              {visualPresets.map((preset,index) => <button type="button" key={preset.name} onClick={() => choosePreset(index)} style={{padding:12,borderRadius:14,border:"1px solid #64748b",background:preset.colors[1],color:preset.colors[2],minHeight:86,cursor:"pointer",fontWeight:700}}>{preset.name}<span style={{display:"block",fontSize:11,marginTop:7,fontWeight:400,lineHeight:1.5}}>{preset.description}</span></button>)}
             </div>
             <div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:14}}>
               <input aria-label="ชื่อเทมเพลต" placeholder="ตั้งชื่อเทมเพลต เช่น ธีมหลัก" value={templateName} onChange={e=>setTemplateName(e.target.value)} style={{flex:"1 1 180px",minWidth:0,padding:11,borderRadius:10}} maxLength={70}/>
